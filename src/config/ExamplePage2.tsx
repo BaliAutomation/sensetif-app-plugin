@@ -2,10 +2,10 @@
 import React, { PureComponent } from 'react';
 
 // Types
-import { PluginConfigPageProps, AppPluginMeta } from '@grafana/data';
-import { ExampleAppSettings } from 'types';
+import { AppPluginMeta, PluginConfigPageProps } from '@grafana/data';
+import { SensetifAppSettings } from 'types';
 
-interface Props extends PluginConfigPageProps<AppPluginMeta<ExampleAppSettings>> {}
+interface Props extends PluginConfigPageProps<AppPluginMeta<SensetifAppSettings>> {}
 
 export class ExamplePage2 extends PureComponent<Props> {
   constructor(props: Props) {

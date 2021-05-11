@@ -1,18 +1,19 @@
 import { AppRootProps } from '@grafana/data';
 import React, { FC } from 'react';
 
-export const A: FC<AppRootProps> = ({ query, path, meta }) => {
+export const Billing: FC<AppRootProps> = ({ query, path, meta }) => {
+  let p = `${path}____`;
   return (
     <div>
       <ul>
         <li>
-          <a href={path + '?x=1'}>Change query to 1</a>
+          <a href={p + '?x=1'}>Change query to 1</a>
         </li>
         <li>
-          <a href={path + '?x=AAA'}>Change query to AAA</a>
+          <a href={p + '?x=AAA'}>Change query to AAA</a>
         </li>
         <li>
-          <a href={path + '?x=1&y=2&y=3'}>Put multiple properties into the query</a>
+          <a href={p + '?x=1&y=2&y=3'}>Put multiple properties into the query</a>
         </li>
       </ul>
       <br />

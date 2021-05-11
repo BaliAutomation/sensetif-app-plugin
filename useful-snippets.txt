@@ -1,0 +1,17 @@
+
+Table
+  let tableDataFrame: MutableDataFrame = new MutableDataFrame({ fields: [] });
+  function createField(name: string) {
+    return {
+      name: name,
+      values: new ArrayVector(),
+      display: getDisplayProcessor(),
+      config: {},
+    };
+  }
+  tableDataFrame.addField(createField('Name'));
+  tableDataFrame.addField(createField('Nr Of Subsystems'));
+  tableDataFrame.addField(createField('Description'));
+  tableDataFrame.appendRow(['Kalle', 14, `This is it!`]);
+  tableDataFrame.appendRow(['Olle', 3, `Another bites the dust...`]);
+  return <Table data={tableDataFrame} width={600} height={700} />;

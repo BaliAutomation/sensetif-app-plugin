@@ -1,66 +1,70 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "app",
-  "name": "Simple App",
-  "id": "myorgid-simple-app",
-
+  "name": "Configuration",
+  "id": "sensetif-app",
   "info": {
-    "description": "Grafana App Plugin Template",
+    "description": "Sensetif - IoT sensor data capture, storage and visualization.",
     "author": {
-      "name": "Your Name"
+      "name": "Niclas Hedhman <niclas@hedhman.org>"
     },
-    "keywords": ["panel", "template"],
+    "keywords": [
+      "panel",
+      "template",
+      "sensetif"
+    ],
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"
     },
     "links": [
-      { "name": "Website", "url": "https://github.com/grafana/grafana-starter-app" },
-      { "name": "License", "url": "https://github.com/grafana/grafana-starter-app/blob/master/LICENSE" }
+      {
+        "name": "Website",
+        "url": "https://sensetif.com"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/BaliAutomation/sensetif-app-plugin/blob/master/LICENSE"
+      }
     ],
     "screenshots": [],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
-
   "includes": [
     {
       "type": "page",
-      "name": "Root Page (react)",
-      "path": "/a/myorgid-simple-app",
+      "name": "Projects Manager",
+      "path": "/a/sensetif-app?tab=projects",
       "role": "Viewer",
       "addToNav": true,
       "defaultNav": true
     },
     {
       "type": "page",
-      "name": "Root Page (Tab B)",
-      "path": "/a/myorgid-simple-app/?tab=b",
+      "name": "Subsystems Manager",
+      "path": "/a/sensetif-app?tab=subsystem",
       "role": "Viewer",
-      "addToNav": true
+      "addToNav": false
     },
     {
       "type": "page",
-      "name": "React Config",
-      "path": "/plugins/myorgid-simple-app/?page=page2",
+      "name": "Datapoints Manager",
+      "path": "/a/sensetif-app?tab=datapoints",
+      "role": "Viewer",
+      "addToNav": false
+    },
+    {
+      "type": "page",
+      "name": "Billing Manager",
+      "path": "/a/sensetif-app?tab=billing",
       "role": "Admin",
       "addToNav": true
-    },
-    {
-      "type": "dashboard",
-      "name": "Streaming Example",
-      "path": "dashboards/streaming.json"
-    },
-    {
-      "type": "dashboard",
-      "name": "Lots of Stats",
-      "path": "dashboards/stats.json"
     }
   ],
-
   "dependencies": {
-    "grafanaDependency": ">=7.0.0",
-    "grafanaVersion": "7.0.0",
+    "grafanaDependency": ">=7.5.0",
+    "grafanaVersion": "7.5.0",
     "plugins": []
   }
 }

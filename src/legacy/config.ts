@@ -1,7 +1,7 @@
 import { PluginMeta } from '@grafana/data';
 
-export class ExampleConfigCtrl {
-  static template = '<h2>hello</h2>';
+export class SensetifConfigCtrl {
+  static template = '<h2>Sensetif - IoT Sensor Data Capture, Storage & Visualization</h2>';
 
   appEditCtrl: any;
   appModel?: PluginMeta;
@@ -21,7 +21,7 @@ export class ExampleConfigCtrl {
       appModel.jsonData = {};
     }
 
-    console.log('ExampleConfigCtrl', this);
+    console.log('SensetifConfigCtrl', this);
   }
 
   postUpdate() {
