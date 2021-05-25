@@ -3,6 +3,7 @@
   "type": "app",
   "name": "Configuration",
   "id": "sensetif-app",
+  "autoEnabled": true,
   "info": {
     "description": "Sensetif - IoT sensor data capture, storage and visualization.",
     "author": {

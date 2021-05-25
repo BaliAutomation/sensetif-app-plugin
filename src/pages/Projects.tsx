@@ -42,12 +42,10 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
     logInfo('Trying to fetch Projects.');
     getBackendSrv()
       .get(`/api/plugins/bali-automation-sensetif-datasource-plugin/resources/projects`)
-      .then(
-        (res: Response): Promise<ProjectSettings[]> => {
-          logInfo('Trying to convert json.');
-          return res.json();
-        }
-      )
+      .then((res: Response): Promise<ProjectSettings[]> => {
+        logInfo('Trying to convert json.');
+        return res.json();
+      })
       .then((projs: ProjectSettings[]) => {
         logInfo('Trying to set projects to state variable.');
         setProjects(projs);

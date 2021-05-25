@@ -1,11 +1,5 @@
-import { ComponentClass } from 'react';
-import { AppPlugin, AppRootProps } from '@grafana/data';
-import { SensetifRootPage } from './SensetifRootPage';
+import { AppPlugin } from '@grafana/data';
 import { SensetifAppSettings } from './types';
-import { SensetifConfigCtrl } from 'legacy/config';
+import { SensetifRootPage } from './SensetifRootPage';
 
-export { SensetifConfigCtrl as ConfigCtrl };
-
-export const plugin = new AppPlugin<SensetifAppSettings>().setRootPage(
-  (SensetifRootPage as unknown) as ComponentClass<AppRootProps>
-);
+export const plugin = new AppPlugin<SensetifAppSettings>().setRootPage(SensetifRootPage);

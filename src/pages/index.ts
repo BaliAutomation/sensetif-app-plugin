@@ -11,29 +11,30 @@ export type PageDefinition = {
   text: string;
 };
 
-export const pages: PageDefinition[] = [
-  {
-    component: Projects,
-    icon: 'fa fa-project-diagram',
-    id: 'projects',
-    text: ' Projects',
-  },
-  {
-    component: Subsystems,
-    icon: 'fa fa-project-diagram',
-    id: 'subsystems',
-    text: ' Subsystems',
-  },
-  {
-    component: Datapoints,
-    icon: 'fa fa-project-diagram',
-    id: 'datapoints',
-    text: ' Datapoints',
-  },
-  {
-    component: Billing,
-    icon: 'fa fa-file-invoice-dollar',
-    id: 'billing',
-    text: ' Billing',
-  },
-];
+export const ProjectsPage: PageDefinition = {
+  component: Projects,
+  icon: 'fa fa-project-diagram',
+  id: 'projects',
+  text: ' Projects',
+};
+
+export const SubsystemsPage: PageDefinition = {
+  component: Subsystems,
+  icon: 'fa fa-project-diagram',
+  id: 'subsystems',
+  text: ' Subsystems',
+};
+
+export const DatapointsPage: PageDefinition = {
+  component: Datapoints,
+  icon: 'fa fa-project-diagram',
+  id: 'subsystems',
+  text: ' Datapoints',
+};
+
+export const BillingsPage: PageDefinition = {
+  component: Billing,
+  icon: 'fa fa-file-invoice-dollar',
+  id: 'billing',
+  text: ' Billing',
+};
