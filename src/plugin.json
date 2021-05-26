@@ -15,8 +15,8 @@
       "sensetif"
     ],
     "logos": {
-      "small": "img/logo.svg",
-      "large": "img/logo.svg"
+      "small": "img/panels-icon.svg",
+      "large": "img/panels-icon.svg"
     },
     "links": [
       {
@@ -32,6 +32,7 @@
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
+ 
   "includes": [
     {
       "type": "page",

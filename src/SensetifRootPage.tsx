@@ -23,7 +23,7 @@ export class SensetifRootPage extends PureComponent<Props, State> {
   }
 
   getPage = (query: KeyValue<any>): React.ReactNode => {
-    switch (query['page']) {
+    switch (query['tab']) {
       case ProjectsPage.id: {
         return <ProjectsPage.component {...this.props} />;
       }
