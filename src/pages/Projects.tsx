@@ -3,8 +3,9 @@ import { AppRootProps } from '@grafana/data';
 import { ProjectsList } from '../components/ProjectsList';
 import { ProjectSettings } from '../types';
 import { getBackendSrv, getLocationSrv, logInfo } from '@grafana/runtime';
-import { InfoBox, Button, LoadingPlaceholder, ConfirmModal } from '@grafana/ui';
+import { InfoBox, Button, LoadingPlaceholder } from '@grafana/ui';
 import { AddProjectPage } from 'pages';
+import { DeleteCardModal } from 'components/CardActions';
 
 export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
   console.log(query);
@@ -41,32 +42,6 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
     return loadProjects();
   };
 
-  if (isLoading) {
-    return <LoadingPlaceholder text="Loading..." />;
-  }
-
-  const DeleteProjectModal = () => {
-    return (
-      <ConfirmModal
-        isOpen={!!projectToBeDeleted}
-        icon={'trash-alt'}
-        confirmText={'Delete'}
-        title={'Delete Project'}
-        body={
-          <div>
-            Are you sure you want to delete this project? <br />
-            <small>{"This affect project's subsystems and all realted data."}</small>
-          </div>
-        }
-        onDismiss={() => setProjectToBeDeleted(undefined)}
-        onConfirm={async () => {
-          await deleteProject(projectToBeDeleted!);
-          setProjectToBeDeleted(undefined);
-        }}
-      />
-    );
-  };
-
   const goToAddNewProject = () => {
     getLocationSrv().update({
       query: {
@@ -75,15 +50,17 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
     });
   };
 
+  if (isLoading) {
+    return <LoadingPlaceholder text="Loading..." />;
+  }
+
   return (
     <>
       <div className="page-action-bar">
         <div className="page-action-bar__spacer" />
-        <a href={`/a/sensetif-app/?tab=${AddProjectPage.id}`}>
-          <Button icon="plus" variant="secondary" onClick={() => goToAddNewProject()}>
-            Add Project
-          </Button>
-        </a>
+        <Button icon="plus" variant="secondary" onClick={() => goToAddNewProject()}>
+          Add Project
+        </Button>
       </div>
       {projects.length === 0 ? (
         <InfoBox title="Please add projects." url={'https://sensetif.com/docs/projects-info.html'}>
@@ -95,7 +72,21 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
       ) : (
         <>
           <ProjectsList projects={projects} onDelete={(name) => setProjectToBeDeleted(name)} />
-          <DeleteProjectModal />
+          <DeleteCardModal
+            isOpen={!!projectToBeDeleted}
+            title={'Delete Project'}
+            body={
+              <div>
+                Are you sure you want to delete this project? <br />
+                <small>{"This affect project's subsystems and all realted data."}</small>
+              </div>
+            }
+            onDismiss={() => setProjectToBeDeleted(undefined)}
+            onConfirm={async () => {
+              await deleteProject(projectToBeDeleted!);
+              setProjectToBeDeleted(undefined);
+            }}
+          />
         </>
       )}
     </>

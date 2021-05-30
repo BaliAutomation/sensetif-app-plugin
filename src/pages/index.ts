@@ -1,10 +1,11 @@
 import { AppRootProps } from '@grafana/data';
 import { Projects } from './Projects';
 import { Subsystems } from './Subsystems';
-import { Datapoints } from './Datapoints';
 import { Billing } from './Billing';
 import { EditProject } from './EditProject';
 import { AddProject } from './AddProject';
+import { AddSubsystem } from './AddSubsystem';
+import { Datapoints } from './Datapoints';
 
 export type PageDefinition = {
   component: React.FC<AppRootProps>;
@@ -41,6 +42,13 @@ export const SubsystemsPage: PageDefinition = {
   text: ' Subsystems',
 };
 
+export const AddSubsystemPage: PageDefinition = {
+  component: AddSubsystem,
+  icon: 'fa fa-project-diagram',
+  id: 'new_subsystems',
+  text: ' Add Subsystem',
+};
+
 export const DatapointsPage: PageDefinition = {
   component: Datapoints,
   icon: 'fa fa-project-diagram',
@@ -61,5 +69,7 @@ pages[AddProjectPage.id] = AddProjectPage;
 pages[EditProjectPage.id] = EditProjectPage;
 
 pages[SubsystemsPage.id] = SubsystemsPage;
+pages[AddSubsystemPage.id] = AddSubsystemPage;
+
 pages[DatapointsPage.id] = DatapointsPage;
 pages[BillingsPage.id] = BillingsPage;

@@ -35,7 +35,7 @@
     {
       "path": "/resources/*",
       "url": "http://mock-json:8000/resources/",
-      "method": "GET"
+      "method": "*"
     }
   ],
   "includes": [

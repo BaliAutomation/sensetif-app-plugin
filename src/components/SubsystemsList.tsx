@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
-import { Card, Container, HorizontalGroup, IconButton, VerticalGroup } from '@grafana/ui';
+import { Container, HorizontalGroup, VerticalGroup } from '@grafana/ui';
 import { SubsystemSettings } from '../types';
+import { CardActions } from './CardActions';
 
 interface Props {
   subsystems: SubsystemSettings[];
@@ -33,25 +34,7 @@ export const SubsystemsList: FC<Props> = ({ subsystems }) => {
                           <div className="card-item-type">{datapoints}</div>
                         </div>
                       )}
-                      <Card.SecondaryActions>
-                        <IconButton
-                          key="edit"
-                          name="edit"
-                          tooltip="Edit this project"
-                          onClick={() => {
-                            console.log('edit subsystem...');
-                          }}
-                        />
-                        <IconButton
-                          key="delete"
-                          name="trash-alt"
-                          tooltip="Delete this project"
-                          onClick={(e) => {
-                            console.log('');
-                            // onDelete(project.name);
-                          }}
-                        />
-                      </Card.SecondaryActions>
+                      <CardActions onEdit={() => {}} onDelete={() => {}} />
                     </div>
                   </HorizontalGroup>
                 </div>

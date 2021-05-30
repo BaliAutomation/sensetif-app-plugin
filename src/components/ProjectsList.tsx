@@ -1,8 +1,9 @@
 import React, { FC } from 'react';
-import { Card, Container, HorizontalGroup, IconButton, VerticalGroup } from '@grafana/ui';
+import { Container, HorizontalGroup, VerticalGroup } from '@grafana/ui';
 import { ProjectSettings } from '../types';
 import { EditProjectPage, SubsystemsPage } from 'pages';
 import { getLocationSrv } from '@grafana/runtime';
+import { CardActions } from './CardActions';
 
 interface Props {
   projects: ProjectSettings[];
@@ -56,26 +57,10 @@ export const ProjectsList: FC<Props> = ({ projects, onDelete }) => {
                           <div className="card-item-type">{subsystems}</div>
                         </div>
                       )}
-                      <Card.SecondaryActions>
-                        <IconButton
-                          key="edit"
-                          name="edit"
-                          tooltip="Edit this project"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            goToEditProject(project.name);
-                          }}
-                        />
-                        <IconButton
-                          key="delete"
-                          name="trash-alt"
-                          tooltip="Delete this project"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(project.name);
-                          }}
-                        />
-                      </Card.SecondaryActions>
+                      <CardActions
+                        onEdit={() => goToEditProject(project.name)}
+                        onDelete={() => onDelete(project.name)}
+                      />
                     </div>
                   </HorizontalGroup>
                 </div>
