@@ -14,7 +14,7 @@ export interface ProjectSettings {
 export interface SubsystemSettings {
   name: string;
   locallocation: string;
-  datapoints: DatapointSettings;
+  datapoints: DatapointSettings[];
 }
 
 export interface DatapointSettings {

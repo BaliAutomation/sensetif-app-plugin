@@ -3,7 +3,6 @@
   "type": "app",
   "name": "Configuration",
   "id": "sensetif-app",
-  "autoEnabled": true,
   "info": {
     "description": "Sensetif - IoT sensor data capture, storage and visualization.",
     "author": {
@@ -32,7 +31,13 @@
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
- 
+  "routes": [
+    {
+      "path": "/resources/*",
+      "url": "http://mock-json:8000/resources/",
+      "method": "GET"
+    }
+  ],
   "includes": [
     {
       "type": "page",
@@ -41,20 +46,6 @@
       "role": "Viewer",
       "addToNav": true,
       "defaultNav": true
-    },
-    {
-      "type": "page",
-      "name": "Subsystems Manager",
-      "path": "/a/sensetif-app?tab=subsystem",
-      "role": "Viewer",
-      "addToNav": false
-    },
-    {
-      "type": "page",
-      "name": "Datapoints Manager",
-      "path": "/a/sensetif-app?tab=datapoints",
-      "role": "Viewer",
-      "addToNav": false
     },
     {
       "type": "page",

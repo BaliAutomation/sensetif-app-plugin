@@ -1,51 +1,38 @@
-import React, { PureComponent } from 'react';
-import { AppRootProps, KeyValue } from '@grafana/data';
-
-import { Spinner } from '@grafana/ui';
-import { BillingsPage, DatapointsPage, ProjectsPage, SubsystemsPage } from 'pages';
+import { AppRootProps } from '@grafana/data';
+// import { Spinner } from '@grafana/ui';
+import { pages } from 'pages';
+import React, { PureComponent, useEffect, useMemo } from 'react';
 import { SensetifAppSettings } from 'types';
+import { useNavModel } from 'utils/hooks';
 
-interface Props extends AppRootProps<SensetifAppSettings> {}
 interface State {
-  page?: React.ReactNode;
+  component: React.FC<AppRootProps>;
 }
 
-export class SensetifRootPage extends PureComponent<Props, State> {
-  constructor(props: Props) {
+export class SensetifRootPage extends PureComponent<AppRootProps, State> {
+  constructor(props: AppRootProps) {
     super(props);
-    this.state = {};
+    this.state = {
+      component: React.memo(function SensetifRootPage(props: AppRootProps<SensetifAppSettings>) {
+        const { path, onNavChanged, query, meta } = props;
+        // Required to support grafana instances that use a custom `root_url`.
+        const pathWithoutLeadingSlash = path.replace(/^\//, '');
+        // Update the navigation when the tab or path changes
+        const tab: string = query['tab'];
+        const navModel = useNavModel(
+          useMemo(() => ({ tab, path: pathWithoutLeadingSlash, meta }), [meta, pathWithoutLeadingSlash, tab])
+        );
+        useEffect(() => {
+          onNavChanged(navModel);
+        }, [navModel, onNavChanged]);
+
+        const Page = pages[tab].component;
+        return <Page {...props} path={pathWithoutLeadingSlash} />;
+      }),
+    };
   }
-
-  async componentDidMount() {
-    this.setState({
-      page: this.getPage(this.props.query),
-    });
-  }
-
-  getPage = (query: KeyValue<any>): React.ReactNode => {
-    switch (query['tab']) {
-      case ProjectsPage.id: {
-        return <ProjectsPage.component {...this.props} />;
-      }
-
-      case SubsystemsPage.id: {
-        return <SubsystemsPage.component {...this.props} />;
-      }
-
-      case DatapointsPage.id: {
-        return <DatapointsPage.component {...this.props} />;
-      }
-
-      case BillingsPage.id: {
-        return <BillingsPage.component {...this.props} />;
-      }
-
-      default:
-        return <ProjectsPage.component {...this.props} />;
-    }
-  };
 
   render() {
-    return this.state.page || <Spinner />;
+    return <this.state.component {...this.props} />;
   }
 }
