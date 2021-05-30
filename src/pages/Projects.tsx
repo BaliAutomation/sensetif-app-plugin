@@ -4,7 +4,7 @@ import { ProjectsList } from '../components/ProjectsList';
 import { ProjectSettings } from '../types';
 import { getBackendSrv, getLocationSrv, logInfo } from '@grafana/runtime';
 import { InfoBox, Button, LoadingPlaceholder } from '@grafana/ui';
-import { AddProjectPage } from 'pages';
+import { AddProjectPage, EditProjectPage, SubsystemsPage } from 'pages';
 import { DeleteCardModal } from 'components/CardActions';
 
 export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
@@ -50,6 +50,24 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
     });
   };
 
+  const goToSubsystems = (projectName: string) => {
+    getLocationSrv().update({
+      query: {
+        tab: SubsystemsPage.id,
+        project: projectName,
+      },
+    });
+  };
+
+  const goToEditProject = (projectName: string) => {
+    getLocationSrv().update({
+      query: {
+        tab: EditProjectPage.id,
+        project: projectName,
+      },
+    });
+  };
+
   if (isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
   }
@@ -71,7 +89,13 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
         </InfoBox>
       ) : (
         <>
-          <ProjectsList projects={projects} onDelete={(name) => setProjectToBeDeleted(name)} />
+          <ProjectsList
+            projects={projects}
+            onClick={(project) => goToSubsystems(project.name)}
+            onEdit={(project) => goToEditProject(project.name)}
+            onDelete={(project) => setProjectToBeDeleted(project.name)}
+          />
+
           <DeleteCardModal
             isOpen={!!projectToBeDeleted}
             title={'Delete Project'}

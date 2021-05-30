@@ -86,7 +86,7 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
         </InfoBox>
       ) : (
         <>
-          <SubsystemsList subsystems={subsystems} />
+          <SubsystemsList subsystems={subsystems} onClick={() => {}} onEdit={() => {}} onDelete={() => {}} />
           <DeleteCardModal
             isOpen={!!subsystemToBeDeleted}
             title={'Delete Subsystem'}
