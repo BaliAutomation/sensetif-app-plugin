@@ -1,6 +1,8 @@
 import React, { FC } from 'react';
 import { ProjectSettings } from '../types';
-import { Button, Field, FieldSet, Form, Input } from '@grafana/ui';
+import { TimeZonePicker, Button, Field, FieldSet, Form, Input, InputControl, Select } from '@grafana/ui';
+import { getNames as getCountryNames } from 'country-list';
+import { SelectableValue } from '@grafana/data';
 
 interface Props {
   editable?: boolean;
@@ -19,7 +21,7 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
         geolocation: project?.geolocation,
       }}
     >
-      {({ register, errors }) => {
+      {({ register, errors, control }) => {
         return (
           <>
             <FieldSet label="Project details">
@@ -30,10 +32,11 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
                   name="name"
                   ref={register({
                     required: 'Project name is required',
-                    //   validate: async (name) => await validateName(name),
+                    pattern: { value: /[a-z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and characters: _, * ' },
                   })}
                 />
               </Field>
+
               <Field label="Title" invalid={!!errors.title} error={errors.title && errors.title.message}>
                 <Input
                   disabled={!editable}
@@ -44,6 +47,20 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
                   })}
                 />
               </Field>
+
+              <Field label="Country" invalid={!!errors.country} error={errors.country && errors.country.message}>
+                <InputControl
+                  as={Select}
+                  rules={{
+                    required: 'Country selection is required',
+                  }}
+                  options={getCountryNames().map((c) => ({ label: c, value: c }))}
+                  onChange={(elements: SelectableValue[]) => elements[0].value}
+                  control={control}
+                  name="country"
+                />
+              </Field>
+
               <Field label="City" invalid={!!errors.city} error={errors.city && errors.city.message}>
                 <Input
                   disabled={!editable}
@@ -54,6 +71,18 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
                   })}
                 />
               </Field>
+
+              <Field label="Time zone" invalid={!!errors.timezone} error={errors.timezone && errors.timezone.message}>
+                <InputControl
+                  as={TimeZonePicker}
+                  rules={{
+                    required: 'Timezone selection is required',
+                  }}
+                  control={control}
+                  name="timezone"
+                />
+              </Field>
+
               <Field
                 label="Geolocation"
                 invalid={!!errors.geolocation}

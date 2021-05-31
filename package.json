@@ -20,5 +20,9 @@
   },
   "engines": {
     "node": ">=14"
+  },
+  "dependencies": {
+    "@types/country-list": "^2.1.0",
+    "country-list": "^2.2.0"
   }
 }

@@ -84,7 +84,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   ]}
                   control={control}
                   defaultValue={OriginDocumentFormat.json}
-                  name="radio"
+                  name="format"
                 />
               </Field>
               <Button type="submit">{editable ? 'Update' : 'Save'}</Button>
