@@ -17,7 +17,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
         format: datapoint?.format,
         url: datapoint?.url,
         unit: datapoint?.unit,
-        jsonxpath: datapoint?.jsonxpath,
+        valueExpression: datapoint?.valueExpression,
       }}
     >
       {({ register, errors, control }) => {
@@ -48,8 +48,8 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
 
               <Field
                 label="JSON XPath"
-                invalid={!!errors.jsonxpath}
-                error={errors.jsonxpath && errors.jsonxpath.message}
+                invalid={!!errors.valueExpression}
+                error={errors.valueExpression && errors.valueExpression.message}
               >
                 <Input
                   disabled={!editable}
