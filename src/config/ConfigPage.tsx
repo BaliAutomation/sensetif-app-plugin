@@ -27,7 +27,7 @@ export class ConfigPageBody extends PureComponent<PluginConfigPageProps<PluginMe
         Enable
       </Button>
     ) : (
-      <InfoBox title={this.props.plugin.meta.name}>Plguin already enabled</InfoBox>
+      <InfoBox title={this.props.plugin.meta.name}>Plugin already enabled</InfoBox>
     );
   }
 }

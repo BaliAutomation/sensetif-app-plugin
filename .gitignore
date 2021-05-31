@@ -26,3 +26,5 @@ work/
 ci/
 e2e-results/
 
+/.idea/
+junk.*
