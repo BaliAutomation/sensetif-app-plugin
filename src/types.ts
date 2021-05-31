@@ -33,8 +33,10 @@ export interface DatapointSettings {
     format: OriginDocumentFormat;
     valueExpression: string;          // if format==xml, then xpath. if format==json, then jsonpath. If there is library available for validation, do that. If not, put in a function and we figure that out later.
     unit: string;                     // Allow all characters
+
+    // Ideally only show k and m for ScalingFunctions that uses them, and show the formula with the scaling function
     scaling: ScalingFunction
-    k: number;                        // Ideally
+    k: number;
     m: number;
 
     timestampType: TimestampType;
