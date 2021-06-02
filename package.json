@@ -15,8 +15,8 @@
   "devDependencies": {
     "@grafana/data": "7.5.7",
     "@grafana/runtime": "7.5.7",
-    "@grafana/ui": "7.5.7",
-    "@grafana/toolkit": "7.5.7"
+    "@grafana/toolkit": "7.5.7",
+    "@grafana/ui": "7.5.7"
   },
   "engines": {
     "node": ">=14"
