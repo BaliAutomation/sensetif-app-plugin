@@ -1,27 +1,17 @@
 import React, { FC } from 'react';
-import { getBackendSrv, getLocationSrv } from '@grafana/runtime';
-import { SubsystemForm } from 'forms/SubsystemForm';
-import { ProjectsPage } from 'pages';
-import { SubsystemSettings } from 'types';
 import { AppRootProps } from '@grafana/data';
+import { SubsystemForm } from 'forms/SubsystemForm';
+import { goToProjects } from 'utils/navigation';
+import { addSubsystem } from 'utils/api';
 
 export const AddSubsystem: FC<AppRootProps> = ({ query }) => {
-  const addSubsystem = (subsystem: SubsystemSettings) =>
-    getBackendSrv().post(`/api/plugin-proxy/sensetif-app/resources/projects/${query['project']}/subsystems`, subsystem);
-
-  const goToProjects = () => {
-    getLocationSrv().update({
-      query: {
-        tab: ProjectsPage.id,
-      },
-    });
-  };
+  const projectName = query['project'];
 
   return (
     <>
       <SubsystemForm
         onSubmit={(subsystem) => {
-          addSubsystem(subsystem).then(() => goToProjects());
+          addSubsystem(projectName, subsystem).then(() => goToProjects());
         }}
       />
     </>

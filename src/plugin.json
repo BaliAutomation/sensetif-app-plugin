@@ -3,6 +3,7 @@
   "type": "app",
   "name": "Configuration",
   "id": "sensetif-app",
+  "autoEnabled": true,
   "info": {
     "description": "Sensetif - IoT sensor data capture, storage and visualization.",
     "author": {
@@ -31,13 +32,6 @@
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
-  "routes": [
-    {
-      "path": "/resources/*",
-      "url": "http://mock-json:8000/resources/",
-      "method": "*"
-    }
-  ],
   "includes": [
     {
       "type": "page",

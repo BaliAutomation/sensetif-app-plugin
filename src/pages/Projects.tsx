@@ -1,11 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
+import { logInfo } from '@grafana/runtime';
+import { InfoBox, Button, LoadingPlaceholder } from '@grafana/ui';
+
 import { ProjectsList } from '../components/ProjectsList';
 import { ProjectSettings } from '../types';
-import { getBackendSrv, getLocationSrv, logInfo } from '@grafana/runtime';
-import { InfoBox, Button, LoadingPlaceholder } from '@grafana/ui';
-import { AddProjectPage, EditProjectPage, SubsystemsPage } from 'pages';
 import { DeleteCardModal } from 'components/CardActions';
+import { goToAddProject, goToEditProject, goToSubsystems } from 'utils/navigation';
+import { getProjects } from 'utils/api';
 
 export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
   console.log(query);
@@ -23,49 +25,19 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
 
   const loadProjects = () => {
     setIsLoading(true);
-    return (
-      getBackendSrv()
-        // .get(`/api/plugins/bali-automation-sensetif-datasource-plugin/resources/projects`)
-        .get('/api/plugin-proxy/sensetif-app/resources/projects')
-        .then((res: ProjectSettings[]) => {
-          logInfo('Trying to convert json.');
-          setProjects(res);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        })
-    );
+    return getProjects()
+      .then((projects) => {
+        logInfo('Trying to convert json.');
+        setProjects(projects);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const deleteProject = (name: string): Promise<void> => {
     console.log(`removing project: ${name}`);
     return loadProjects();
-  };
-
-  const goToAddNewProject = () => {
-    getLocationSrv().update({
-      query: {
-        tab: AddProjectPage.id,
-      },
-    });
-  };
-
-  const goToSubsystems = (projectName: string) => {
-    getLocationSrv().update({
-      query: {
-        tab: SubsystemsPage.id,
-        project: projectName,
-      },
-    });
-  };
-
-  const goToEditProject = (projectName: string) => {
-    getLocationSrv().update({
-      query: {
-        tab: EditProjectPage.id,
-        project: projectName,
-      },
-    });
   };
 
   if (isLoading) {
@@ -76,7 +48,7 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
     <>
       <div className="page-action-bar">
         <div className="page-action-bar__spacer" />
-        <Button icon="plus" variant="secondary" onClick={() => goToAddNewProject()}>
+        <Button icon="plus" variant="secondary" onClick={() => goToAddProject()}>
           Add Project
         </Button>
       </div>

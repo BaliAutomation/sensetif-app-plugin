@@ -1,11 +1,11 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
-import { getBackendSrv, getLocationSrv } from '@grafana/runtime';
 import { ProjectSettings, SubsystemSettings } from 'types';
 import { SubsystemsList } from '../components/SubsystemsList';
 import { Button, InfoBox, Legend, LoadingPlaceholder } from '@grafana/ui';
 import { DeleteCardModal } from 'components/CardActions';
-import { AddSubsystemPage } from 'pages';
+import { goToAddSubsystem } from 'utils/navigation';
+import { deleteSubsystem, getProject, getSubsystems } from 'utils/api';
 
 export const Subsystems: FC<AppRootProps> = ({ query }) => {
   const projectName: string = query['project'];
@@ -30,32 +30,17 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
   }, [projectName]);
 
   const loadProject = (name: string) =>
-    getBackendSrv()
-      .get(`/api/plugin-proxy/sensetif-app/resources/projects/${name}`)
-      .then((res: ProjectSettings) => {
-        setProject(res);
-      });
-
-  const loadSubsystems = (name: string) =>
-    getBackendSrv()
-      .get(`/api/plugin-proxy/sensetif-app/resources/projects/${name}/subsystems`)
-      .then((res: SubsystemSettings[]) => {
-        setSubsystems(res);
-      });
-
-  const deleteSubsystem = (name: string): Promise<void> => {
-    console.log(`removing subsystem: ${name}`);
-    return loadSubsystems(projectName);
-  };
-
-  const goToAddNewSubsystem = () => {
-    getLocationSrv().update({
-      query: {
-        tab: AddSubsystemPage.id,
-        project: projectName,
-      },
+    getProject(name).then((res: ProjectSettings) => {
+      setProject(res);
     });
-  };
+
+  const loadSubsystems = (projectName: string) =>
+    getSubsystems(projectName).then((res: SubsystemSettings[]) => {
+      setSubsystems(res);
+    });
+
+  const removeSubsystem = (name: string): Promise<void> =>
+    deleteSubsystem(name).then(() => loadSubsystems(projectName));
 
   if (isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
@@ -76,7 +61,7 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
         <Legend>
           <div>Project: {project!.name}</div>
         </Legend>
-        <Button icon="plus" variant="secondary" onClick={() => goToAddNewSubsystem()}>
+        <Button icon="plus" variant="secondary" onClick={() => goToAddSubsystem(projectName)}>
           Add Subsystem
         </Button>
       </div>
@@ -98,7 +83,7 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
             }
             onDismiss={() => setSubsystemToBeDeleted(undefined)}
             onConfirm={async () => {
-              await deleteSubsystem(subsystemToBeDeleted!);
+              await removeSubsystem(subsystemToBeDeleted!);
               setSubsystemToBeDeleted(undefined);
             }}
           />
