@@ -1,11 +1,10 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { ProjectSettings, SubsystemSettings } from 'types';
-import { SubsystemsList } from '../components/SubsystemsList';
-import { Button, InfoBox, Legend, LoadingPlaceholder } from '@grafana/ui';
-import { DeleteCardModal } from 'components/CardActions';
+import { Button, InfoBox, Legend } from '@grafana/ui';
 import { goToAddSubsystem } from 'utils/navigation';
 import { deleteSubsystem, getProject, getSubsystems } from 'utils/api';
+import { CardsList } from 'components/CardsList';
 
 export const Subsystems: FC<AppRootProps> = ({ query }) => {
   const projectName: string = query['project'];
@@ -14,8 +13,6 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
   const [subsystems, setSubsystems] = useState<SubsystemSettings[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [fetchErr, setFetchErr] = useState(undefined);
-
-  const [subsystemToBeDeleted, setSubsystemToBeDeleted] = useState<string>();
 
   useEffect(() => {
     setIsLoading(true);
@@ -42,10 +39,6 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
   const removeSubsystem = (name: string): Promise<void> =>
     deleteSubsystem(name).then(() => loadSubsystems(projectName));
 
-  if (isLoading) {
-    return <LoadingPlaceholder text="Loading..." />;
-  }
-
   if (fetchErr) {
     return (
       <InfoBox title={'Fetch error'} severity={'error'}>
@@ -58,9 +51,11 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
     <>
       <div className="page-action-bar">
         <div className="page-action-bar__spacer" />
-        <Legend>
-          <div>Project: {project!.name}</div>
-        </Legend>
+        {isLoading ? null : (
+          <Legend>
+            <div>Project: {project!.name}</div>
+          </Legend>
+        )}
         <Button icon="plus" variant="secondary" onClick={() => goToAddSubsystem(projectName)}>
           Add Subsystem
         </Button>
@@ -71,21 +66,16 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
         </InfoBox>
       ) : (
         <>
-          <SubsystemsList subsystems={subsystems} onClick={() => {}} onEdit={() => {}} onDelete={() => {}} />
-          <DeleteCardModal
-            isOpen={!!subsystemToBeDeleted}
-            title={'Delete Subsystem'}
-            body={
-              <div>
-                Are you sure you want to delete this subsystem? <br />
-                <small>{"This affect also all subsystems' datapoints."}</small>
-              </div>
-            }
-            onDismiss={() => setSubsystemToBeDeleted(undefined)}
-            onConfirm={async () => {
-              await removeSubsystem(subsystemToBeDeleted!);
-              setSubsystemToBeDeleted(undefined);
-            }}
+          <CardsList<SubsystemSettings>
+            isLoading={isLoading}
+            elements={subsystems}
+            onClick={() => {}}
+            onEdit={() => {}}
+            onDelete={(subsystem) => removeSubsystem(subsystem.name)}
+            getTitle={(subsystem) => subsystem.title}
+
+            // getSubtitle
+            // getRightSideText
           />
         </>
       )}

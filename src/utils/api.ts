@@ -1,5 +1,5 @@
 import { getBackendSrv } from '@grafana/runtime';
-import { ProjectSettings, SubsystemSettings } from 'types';
+import { DatapointSettings, ProjectSettings, SubsystemSettings } from 'types';
 import { API_ROOT_PAGE } from './consts';
 
 export const addProject = (project: ProjectSettings) =>
@@ -7,6 +7,7 @@ export const addProject = (project: ProjectSettings) =>
 export const getProject = (name: string): Promise<ProjectSettings> =>
   getBackendSrv().get(`${API_ROOT_PAGE}/resources/projects/${name}`);
 export const getProjects = (): Promise<ProjectSettings[]> => getBackendSrv().get(`${API_ROOT_PAGE}/resources/projects`);
+export const deleteProject = (name: string) => getBackendSrv().delete(`${API_ROOT_PAGE}/resources/projects/${name}`);
 
 // subsystems
 export const getSubsystems = (projectName: string): Promise<SubsystemSettings[]> =>
@@ -20,3 +21,5 @@ export const deleteSubsystem = (name: string): Promise<void> => {
   // return loadSubsystems(projectName);
   return Promise.resolve();
 };
+
+export const getDatapoints = (): Promise<DatapointSettings[]> => Promise.resolve([]);

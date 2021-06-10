@@ -1,5 +1,5 @@
 import { getLocationSrv } from '@grafana/runtime';
-import { AddProjectPage, AddSubsystemPage, EditProjectPage, ProjectsPage, SubsystemsPage } from 'pages';
+import { AddProjectPage, AddSubsystemPage, DatapointsPage, EditProjectPage, ProjectsPage, SubsystemsPage } from 'pages';
 
 export const goToProjects = () => {
   getLocationSrv().update({
@@ -40,6 +40,26 @@ export const goToAddSubsystem = (projectName: string) => {
     query: {
       tab: AddSubsystemPage.id,
       project: projectName,
+    },
+  });
+};
+
+export const goToDatapoints = (projectName: string, subsystemName: string) => {
+  getLocationSrv().update({
+    query: {
+      tab: DatapointsPage.id,
+      project: projectName,
+      subsystem: subsystemName,
+    },
+  });
+};
+
+export const goToAddDatapoint = (projectName: string, subsystemName: string) => {
+  getLocationSrv().update({
+    query: {
+      // tab: AddData.id,
+      project: projectName,
+      subsystem: subsystemName,
     },
   });
 };
