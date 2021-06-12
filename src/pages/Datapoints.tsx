@@ -18,12 +18,12 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
   useEffect(() => {
     setIsLoading(true);
     logInfo('Trying to fetch datapoints.');
-    loadProjects();
-  }, []);
+    Promise.all([loadDatapoints(projectName, subsystemName)]);
+  }, [projectName, subsystemName]);
 
-  const loadProjects = () => {
+  const loadDatapoints = (projectName: string, subsystemName: string) => {
     setIsLoading(true);
-    return getDatapoints()
+    getDatapoints(projectName, subsystemName)
       .then((datapoints) => {
         logInfo('Trying to convert json.');
         setDatapoints(datapoints);
@@ -35,7 +35,8 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
 
   const deleteDatapoint = (name: string): Promise<void> => {
     console.log(`removing datapoint: ${name}`);
-    return loadProjects();
+    // return loadProjects();
+    return Promise.resolve();
   };
 
   return (

@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { ProjectSettings, SubsystemSettings } from 'types';
 import { Button, InfoBox, Legend } from '@grafana/ui';
-import { goToAddSubsystem } from 'utils/navigation';
+import { goToAddSubsystem, goToDatapoints } from 'utils/navigation';
 import { deleteSubsystem, getProject, getSubsystems } from 'utils/api';
 import { CardsList } from 'components/CardsList';
 
@@ -69,7 +69,9 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
           <CardsList<SubsystemSettings>
             isLoading={isLoading}
             elements={subsystems}
-            onClick={() => {}}
+            onClick={(subsystem) => {
+              goToDatapoints(projectName, subsystem.name);
+            }}
             onEdit={() => {}}
             onDelete={(subsystem) => removeSubsystem(subsystem.name)}
             getTitle={(subsystem) => subsystem.title}

@@ -6,6 +6,7 @@ import { EditProject } from './EditProject';
 import { AddProject } from './AddProject';
 import { AddSubsystem } from './AddSubsystem';
 import { Datapoints } from './Datapoints';
+import { AddDatapoint } from './AddDatapoint';
 
 export type PageDefinition = {
   component: React.FC<AppRootProps>;
@@ -56,6 +57,13 @@ export const DatapointsPage: PageDefinition = {
   text: ' Datapoints',
 };
 
+export const AddDatapointPage: PageDefinition = {
+  component: AddDatapoint,
+  icon: 'fa fa-project-diagram',
+  id: 'new_datapoints',
+  text: ' Add Datapoint',
+};
+
 export const BillingsPage: PageDefinition = {
   component: Billing,
   icon: 'fa fa-file-invoice-dollar',
@@ -72,4 +80,6 @@ pages[SubsystemsPage.id] = SubsystemsPage;
 pages[AddSubsystemPage.id] = AddSubsystemPage;
 
 pages[DatapointsPage.id] = DatapointsPage;
+pages[AddDatapointPage.id] = AddDatapointPage;
+
 pages[BillingsPage.id] = BillingsPage;

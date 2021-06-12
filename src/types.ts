@@ -27,7 +27,9 @@ export interface DatapointSettings {
 
   // Authentication is going to need a lot in the future, but for now user/pass is fine
   authenticationType: AuthenticationType;
-  credentials: Object; // if Authentication == userpass, then this is "{ user: "username", password: "pass" }"
+  username?: string;
+  password?: string;
+  authKey?: string;
 
   format: OriginDocumentFormat;
   valueExpression: string; // if format==xml, then xpath. if format==json, then jsonpath. If there is library available for validation, do that. If not, put in a function and we figure that out later.

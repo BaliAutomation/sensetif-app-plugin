@@ -22,4 +22,9 @@ export const deleteSubsystem = (name: string): Promise<void> => {
   return Promise.resolve();
 };
 
-export const getDatapoints = (): Promise<DatapointSettings[]> => Promise.resolve([]);
+// datapoints
+export const getDatapoints = (projectName: string, subsystemName: string): Promise<DatapointSettings[]> =>
+  getBackendSrv().get(`${API_ROOT_PAGE}/resources/projects/${projectName}/subsystems/${subsystemName}/datapoints`);
+
+export const addDatapoint = (projectName: string, subsystemName: string, datapoint: DatapointSettings) =>
+  getBackendSrv().post(`${API_ROOT_PAGE}/resources/projects/${projectName}/subsystems/${subsystemName}`, datapoint);

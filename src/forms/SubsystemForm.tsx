@@ -28,9 +28,22 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
                   name="name"
                   ref={register({
                     required: 'Subsystem name is required',
+                    pattern: { value: /[a-z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and characters: _, * ' },
                   })}
                 />
               </Field>
+
+              <Field label="Title" invalid={!!errors.title} error={errors.title && errors.title.message}>
+                <Input
+                  disabled={!editable}
+                  placeholder="Subsystem title"
+                  name="title"
+                  ref={register({
+                    required: 'Subsystem title is required',
+                  })}
+                />
+              </Field>
+
               <Field
                 label="Local Location"
                 invalid={!!errors.locallocation}
