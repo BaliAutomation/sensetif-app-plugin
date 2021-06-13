@@ -297,8 +297,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                 />
               </Field>
               <Field
-                // TODO: Change label between "JSON Path Expression" and "XPath Expression" depending on whether it is a JSON or XML document format
-                label="Expression"
+                label={format === OriginDocumentFormat.json ? 'JSON Path Expression' : 'XPath Expression'}
                 invalid={!!errors.timestampExpression}
                 error={errors.timestampExpression && errors.timestampExpression.message}
               >
