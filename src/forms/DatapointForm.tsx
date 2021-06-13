@@ -98,7 +98,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
             </FieldSet>
 
             {/* auth */}
-            <FieldSet label="Auhorization">
+            <FieldSet label="Authorization">
               <Field
                 label="Authentication type"
                 invalid={!!errors.authenticationType}
@@ -146,7 +146,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       placeholder="Password"
                       name="password"
                       ref={register({
-                        required: 'Password name is required',
+                        required: 'Password is required',
                       })}
                     />
                   </Field>
@@ -163,14 +163,14 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     placeholder="Key"
                     name="authKey"
                     ref={register({
-                      required: 'Key is required',
+                      required: 'Authorization Key is required',
                     })}
                   />
                 </Field>
               )}
             </FieldSet>
 
-            <FieldSet label="Field format">
+            <FieldSet label="Document Format">
               <Field label="Format" invalid={!!errors.format} error={errors.format && errors.format.message}>
                 <InputControl
                   as={RadioButtonGroup}
@@ -201,7 +201,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                 />
               </Field>
 
-              <Field label="Point Unit" invalid={!!errors.unit} error={errors.unit && errors.unit.message}>
+              <Field label="Unit" invalid={!!errors.unit} error={errors.unit && errors.unit.message}>
                 <Input
                   disabled={!editable}
                   placeholder="unit"
@@ -222,17 +222,17 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       required: 'Function selection is required',
                     }}
                     options={[
-                      { label: 'lin', value: ScalingFunction.lin },
-                      { label: 'log', value: ScalingFunction.log },
-                      { label: 'exp', value: ScalingFunction.exp },
-                      { label: 'rad', value: ScalingFunction.rad },
-                      { label: 'deg', value: ScalingFunction.deg },
-                      { label: 'fToC', value: ScalingFunction.fToC },
-                      { label: 'cToF', value: ScalingFunction.cToF },
-                      { label: 'kToC', value: ScalingFunction.kToC },
-                      { label: 'cToK', value: ScalingFunction.cToK },
-                      { label: 'fToK', value: ScalingFunction.fToK },
-                      { label: 'kTof', value: ScalingFunction.kTof },
+                      { label: 'Linear', value: ScalingFunction.lin },
+                      { label: 'Logarithmic', value: ScalingFunction.log },
+                      { label: 'Exponential', value: ScalingFunction.exp },
+                      { label: 'Degrees->Radians', value: ScalingFunction.rad },
+                      { label: 'Radians->Degrees', value: ScalingFunction.deg },
+                      { label: 'Fahrenheit->Celsius', value: ScalingFunction.fToC },
+                      { label: 'Celsius->Fahrenheit', value: ScalingFunction.cToF },
+                      { label: 'Kelvin->Celsius', value: ScalingFunction.kToC },
+                      { label: 'Celsius->Kelvin', value: ScalingFunction.cToK },
+                      { label: 'Kelvin->Fahrenheit', value: ScalingFunction.kTof },
+                      { label: 'Fahrenheit->Kelvin', value: ScalingFunction.fToK },
                     ]}
                     control={control}
                     defaultValue={OriginDocumentFormat.json}
@@ -257,21 +257,22 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                 <InputControl
                   as={Select}
                   rules={{
-                    required: 'TTL selection is required',
+                    required: 'Timestamp Type selection is required',
                   }}
                   options={[
-                    { label: 'epoch millis', value: TimestampType.epochMillis },
-                    { label: 'epoch seconds', value: TimestampType.epochSeconds },
-                    { label: 'iso8601 zoned', value: TimestampType.iso8601_zoned },
-                    { label: 'iso8601 offset', value: TimestampType.iso8601_offset },
+                    { label: 'Milliseconds', value: TimestampType.epochMillis },
+                    { label: 'Seconds', value: TimestampType.epochSeconds },
+                    { label: 'ISO8601 with Timezone', value: TimestampType.iso8601_zoned },
+                    { label: 'ISO8601 with Offset', value: TimestampType.iso8601_offset },
                   ]}
                   control={control}
                   defaultValue={TimestampType.epochMillis}
-                  name="timeToLive"
+                  name="timestampType"
                 />
               </Field>
               <Field
-                label="Timestamp expression"
+                // TODO: Change label between "JSON Path Expression" and "XPath Expression" depending on whether it is a JSON or XML document format
+                label="Expression"
                 invalid={!!errors.timestampExpression}
                 error={errors.timestampExpression && errors.timestampExpression.message}
               >
@@ -280,15 +281,15 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
                   name="timestampExpression"
                   ref={register({
-                    required: 'expression is required',
+                    required: 'Timestamp Expression is required',
                   })}
                 />
               </Field>
-              <Field label="Time To Live" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
+              <Field label="Storage Period" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
                 <InputControl
                   as={Select}
                   rules={{
-                    required: 'TTL selection is required',
+                    required: 'Storage Period selection is required',
                   }}
                   options={[
                     { label: '3 months', value: TimeToLive.a },
