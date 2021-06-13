@@ -5,12 +5,11 @@ import { getNames as getCountryNames } from 'country-list';
 import { SelectableValue } from '@grafana/data';
 
 interface Props {
-  editable?: boolean;
   project?: ProjectSettings;
   onSubmit: (data: ProjectSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
 }
 
-export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
+export const ProjectForm: FC<Props> = ({ project, onSubmit }) => {
   return (
     <Form<ProjectSettings>
       onSubmit={onSubmit}
@@ -25,13 +24,17 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
         return (
           <>
             <FieldSet label="Project details">
-              <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
+              <Field
+                label="Name"
+                invalid={!!errors.name}
+                error={errors.name && errors.name.message}
+                disabled={!!project}
+              >
                 <Input
                   {...register('name', {
                     required: 'Project name is required',
                     pattern: { value: /[a-z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and characters: _, * ' },
                   })}
-                  disabled={!editable}
                   placeholder="Project name"
                   css=""
                 />
@@ -42,7 +45,6 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
                   {...register('title', {
                     required: 'Project title is required',
                   })}
-                  disabled={!editable}
                   placeholder="Project title"
                   css=""
                 />
@@ -70,7 +72,6 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
                   {...register('city', {
                     required: 'City is required',
                   })}
-                  disabled={!editable}
                   placeholder="City"
                   css=""
                 />
@@ -96,12 +97,11 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
                   {...register('geolocation', {
                     required: 'Geolocation is required',
                   })}
-                  disabled={!editable}
                   placeholder="latitude,longitude"
                   css=""
                 />
               </Field>
-              <Button type="submit">{editable ? 'Update' : 'Save'}</Button>
+              <Button type="submit">{!!project ? 'Update' : 'Save'}</Button>
             </FieldSet>
           </>
         );

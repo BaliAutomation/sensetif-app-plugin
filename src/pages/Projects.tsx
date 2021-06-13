@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
-import { InfoBox, Button } from '@grafana/ui';
+import { Button, Alert, Icon } from '@grafana/ui';
 import { ProjectSettings } from '../types';
 import { goToAddProject, goToEditProject, goToSubsystems } from 'utils/navigation';
 import { getProjects } from 'utils/api';
@@ -43,29 +43,31 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
         </Button>
       </div>
 
-      {projects.length === 0 ? (
-        <InfoBox title="Please add projects." url={'https://sensetif.com/docs/projects-info.html'}>
-          <p>
-            A project contains N subsystems, and a subsystem typically represents one device or a collection of devices
-            that perform a function together.
-          </p>
-        </InfoBox>
-      ) : (
-        <>
-          <CardsList<ProjectSettings>
-            isLoading={isLoading}
-            elements={projects}
-            onClick={(project) => goToSubsystems(project.name)}
-            onEdit={(project) => goToEditProject(project.name)}
-            onDelete={(project) => deleteProject(project.name)}
-            getSubtitle={(project) => (project.city ? project.city : 'Not specified')}
-            getTitle={(project) => project.title}
-            getRightSideText={(project) =>
-              project.subsystems?.length ? `${project.subsystems?.length}` : 'No subsystems'
-            }
-          />
-        </>
+      {!isLoading && projects.length === 0 && (
+        <Alert severity={'info'} title="Please add projects.">
+          <div>
+            <p style={{ marginBottom: '16px' }}>
+              A project contains N subsystems, and a subsystem typically represents one device or a collection of
+              devices that perform a function together.
+            </p>
+          </div>
+          <a href="https://sensetif.com/docs/projects-info.html" className="external-link">
+            <Icon name="book" />
+            Read more
+          </a>
+        </Alert>
       )}
+
+      <CardsList<ProjectSettings>
+        isLoading={isLoading}
+        elements={projects}
+        onClick={(project) => goToSubsystems(project.name)}
+        onEdit={(project) => goToEditProject(project.name)}
+        onDelete={(project) => deleteProject(project.name)}
+        getSubtitle={(project) => (project.city ? project.city : 'Not specified')}
+        getTitle={(project) => project.title}
+        getRightSideText={(project) => (project.subsystems?.length ? `${project.subsystems?.length}` : 'No subsystems')}
+      />
     </>
   );
 };

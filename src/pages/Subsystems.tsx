@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { ProjectSettings, SubsystemSettings } from 'types';
-import { Button, InfoBox, Legend } from '@grafana/ui';
+import { Alert, Button, Icon, Legend } from '@grafana/ui';
 import { goToAddSubsystem, goToDatapoints } from 'utils/navigation';
 import { deleteSubsystem, getProject, getSubsystems } from 'utils/api';
 import { CardsList } from 'components/CardsList';
@@ -41,9 +41,9 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
 
   if (fetchErr) {
     return (
-      <InfoBox title={'Fetch error'} severity={'error'}>
+      <Alert title={'Fetch error'} severity={'error'}>
         {JSON.stringify(fetchErr, null, 2)}
-      </InfoBox>
+      </Alert>
     );
   }
 
@@ -60,27 +60,33 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
           Add Subsystem
         </Button>
       </div>
-      {subsystems.length === 0 ? (
-        <InfoBox title="Please add subsystems." url={'https://sensetif.com/docs/projects-info.html'}>
-          <p>Subsystem typically represents one device or a collection of devices that perform a function together.</p>
-        </InfoBox>
-      ) : (
-        <>
-          <CardsList<SubsystemSettings>
-            isLoading={isLoading}
-            elements={subsystems}
-            onClick={(subsystem) => {
-              goToDatapoints(projectName, subsystem.name);
-            }}
-            onEdit={() => {}}
-            onDelete={(subsystem) => removeSubsystem(subsystem.name)}
-            getTitle={(subsystem) => subsystem.title}
 
-            // getSubtitle
-            // getRightSideText
-          />
-        </>
+      {!isLoading && subsystems.length === 0 && (
+        <Alert severity="info" title="Please add subsystems.">
+          <div>
+            <p style={{ marginBottom: '16px' }}>
+              Subsystem typically represents one device or a collection of devices that perform a function together.
+            </p>
+          </div>
+          <a href="https://sensetif.com/docs/projects-info.html" className="external-link">
+            <Icon name="book" />
+            Read more
+          </a>
+        </Alert>
       )}
+      <CardsList<SubsystemSettings>
+        isLoading={isLoading}
+        elements={subsystems}
+        onClick={(subsystem) => {
+          goToDatapoints(projectName, subsystem.name);
+        }}
+        onEdit={() => {}}
+        onDelete={(subsystem) => removeSubsystem(subsystem.name)}
+        getTitle={(subsystem) => subsystem.title}
+
+        // getSubtitle
+        // getRightSideText
+      />
     </>
   );
 };

@@ -1,10 +1,10 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
-import { getBackendSrv, getLocationSrv } from '@grafana/runtime';
 import { ProjectForm } from 'forms/ProjectForm';
 import { ProjectSettings } from 'types';
-import { InfoBox, LoadingPlaceholder } from '@grafana/ui';
-import { ProjectsPage } from 'pages';
+import { Alert, LoadingPlaceholder } from '@grafana/ui';
+import { getProject, addProject } from 'utils/api';
+import { goToProjects } from 'utils/navigation';
 
 export const EditProject: FC<AppRootProps> = ({ query }) => {
   const name: string = query['project'];
@@ -20,11 +20,8 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
   const loadProject = (name: string) => {
     setIsLoading(true);
     setFetchErr(undefined);
-    return getBackendSrv()
-      .get(`/api/plugin-proxy/sensetif-app/resources/projects/${name}`)
-      .then((res: ProjectSettings) => {
-        setProject(res);
-      })
+    return getProject(name)
+      .then((project) => setProject(project))
       .catch((err) => {
         console.log('err:');
         console.log(err);
@@ -36,13 +33,9 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
   };
 
   const updateProject = (project: ProjectSettings) => {
-    console.log('update');
-    console.log(project);
-    getLocationSrv().update({
-      query: {
-        tab: ProjectsPage.id,
-      },
-    });
+    addProject(project)
+      .then(() => goToProjects())
+      .catch((err) => console.log(err));
   };
 
   if (isLoading) {
@@ -51,15 +44,15 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
 
   if (fetchErr) {
     return (
-      <InfoBox title={'Fetch error'} severity={'error'}>
+      <Alert title={'Fetch error'} severity={'error'}>
         {JSON.stringify(fetchErr, null, 2)}
-      </InfoBox>
+      </Alert>
     );
   }
 
   return (
     <>
-      <ProjectForm editable project={project} onSubmit={(data) => updateProject(data)} />
+      <ProjectForm project={project} onSubmit={(data) => updateProject(data)} />
     </>
   );
 };
