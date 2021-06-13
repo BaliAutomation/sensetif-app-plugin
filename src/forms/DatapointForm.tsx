@@ -172,9 +172,8 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   <Input
                     css=""
                     {...register('authKey', {
-                      required: 'Authorization Key is required'
+                      required: 'Authorization Key is required',
                     })}
-                    
                     disabled={!editable}
                     placeholder="Key"
                   />
