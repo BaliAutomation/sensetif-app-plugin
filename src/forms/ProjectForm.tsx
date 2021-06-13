@@ -27,35 +27,39 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
             <FieldSet label="Project details">
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
-                  disabled={!editable}
-                  placeholder="Project name"
-                  name="name"
-                  ref={register({
+                  {...register('name', {
                     required: 'Project name is required',
                     pattern: { value: /[a-z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and characters: _, * ' },
                   })}
+                  disabled={!editable}
+                  placeholder="Project name"
+                  css=""
                 />
               </Field>
 
               <Field label="Title" invalid={!!errors.title} error={errors.title && errors.title.message}>
                 <Input
-                  disabled={!editable}
-                  placeholder="Project title"
-                  name="title"
-                  ref={register({
+                  {...register('title', {
                     required: 'Project title is required',
                   })}
+                  disabled={!editable}
+                  placeholder="Project title"
+                  css=""
                 />
               </Field>
 
               <Field label="Country" invalid={!!errors.country} error={errors.country && errors.country.message}>
                 <InputControl
-                  as={Select}
+                  render={({ field: { onChange, ref, ...field } }) => (
+                    <Select
+                      {...field}
+                      onChange={(value) => onChange(value.value)}
+                      options={getCountryNames().map((c) => ({ label: c, value: c } as SelectableValue))}
+                    />
+                  )}
                   rules={{
                     required: 'Country selection is required',
                   }}
-                  options={getCountryNames().map((c) => ({ label: c, value: c }))}
-                  onChange={(elements: SelectableValue[]) => elements[0].value}
                   control={control}
                   name="country"
                 />
@@ -63,23 +67,23 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
 
               <Field label="City" invalid={!!errors.city} error={errors.city && errors.city.message}>
                 <Input
-                  disabled={!editable}
-                  placeholder="City"
-                  name="city"
-                  ref={register({
+                  {...register('city', {
                     required: 'City is required',
                   })}
+                  disabled={!editable}
+                  placeholder="City"
+                  css=""
                 />
               </Field>
 
               <Field label="Time zone" invalid={!!errors.timezone} error={errors.timezone && errors.timezone.message}>
                 <InputControl
-                  as={TimeZonePicker}
-                  rules={{
+                  {...register('timezone', {
                     required: 'Timezone selection is required',
-                  }}
-                  control={control}
+                  })}
+                  render={({ field }) => <TimeZonePicker {...field} />}
                   name="timezone"
+                  control={control}
                 />
               </Field>
 
@@ -89,12 +93,12 @@ export const ProjectForm: FC<Props> = ({ editable, project, onSubmit }) => {
                 error={errors.geolocation && errors.geolocation.message}
               >
                 <Input
-                  disabled={!editable}
-                  placeholder="latitude,longitude"
-                  name="geolocation"
-                  ref={register({
+                  {...register('geolocation', {
                     required: 'Geolocation is required',
                   })}
+                  disabled={!editable}
+                  placeholder="latitude,longitude"
+                  css=""
                 />
               </Field>
               <Button type="submit">{editable ? 'Update' : 'Save'}</Button>

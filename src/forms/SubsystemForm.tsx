@@ -23,24 +23,24 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
             <FieldSet label="Subsystem details">
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
-                  disabled={!editable}
-                  placeholder="Subsystem name"
-                  name="name"
-                  ref={register({
+                  {...register('name', {
                     required: 'Subsystem name is required',
                     pattern: { value: /[a-z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and characters: _, * ' },
                   })}
+                  css=""
+                  disabled={!editable}
+                  placeholder="Subsystem name"
                 />
               </Field>
 
               <Field label="Title" invalid={!!errors.title} error={errors.title && errors.title.message}>
                 <Input
-                  disabled={!editable}
-                  placeholder="Subsystem title"
-                  name="title"
-                  ref={register({
+                  {...register('title', {
                     required: 'Subsystem title is required',
                   })}
+                  css=""
+                  disabled={!editable}
+                  placeholder="Subsystem title"
                 />
               </Field>
 
@@ -50,12 +50,12 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
                 error={errors.locallocation && errors.locallocation.message}
               >
                 <Input
-                  disabled={!editable}
-                  placeholder="Local location"
-                  name="location"
-                  ref={register({
+                  {...register('locallocation', {
                     required: 'Location is required',
                   })}
+                  disabled={!editable}
+                  placeholder="Local location"
+                  css=""
                 />
               </Field>
               <Button type="submit">{editable ? 'Update' : 'Save'}</Button>
