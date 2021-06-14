@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
-import { InfoBox, Button } from '@grafana/ui';
+import { Button, Alert, Icon } from '@grafana/ui';
 
 import { DatapointSettings } from '../types';
 import { getDatapoints } from 'utils/api';
@@ -47,25 +47,30 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
           Add Datapoint
         </Button>
       </div>
-      {datapoints.length === 0 ? (
-        <InfoBox title="Please add datapoints." url={'https://sensetif.com/docs/projects-info.html'}>
-          <p>
-            A project contains N subsystems, and a subsystem typically represents one device or a collection of devices
-            that perform a function together.
-          </p>
-        </InfoBox>
-      ) : (
-        <>
-          <CardsList<DatapointSettings>
-            isLoading={isLoading}
-            elements={datapoints}
-            onClick={(point) => {}}
-            onEdit={(point) => {}}
-            onDelete={(point) => deleteDatapoint(point.name)}
-            getTitle={(point) => point.name}
-          />
-        </>
+
+      {!isLoading && datapoints.length === 0 && (
+        <Alert severity="info" title="Please add datapoints.">
+          <div>
+            <p>
+              A project contains N subsystems, and a subsystem typically represents one device or a collection of
+              devices that perform a function together.
+            </p>
+          </div>
+          <a href="https://sensetif.com/docs/projects-info.html" className="external-link">
+            <Icon name="book" />
+            Read more
+          </a>
+        </Alert>
       )}
+
+      <CardsList<DatapointSettings>
+        isLoading={isLoading}
+        elements={datapoints}
+        onClick={(point) => {}}
+        onEdit={(point) => {}}
+        onDelete={(point) => deleteDatapoint(point.name)}
+        getTitle={(point) => point.name}
+      />
     </>
   );
 };

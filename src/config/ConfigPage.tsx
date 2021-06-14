@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { PluginConfigPageProps, PluginMeta } from '@grafana/data';
-import { Button, InfoBox } from '@grafana/ui';
+import { Alert, Button } from '@grafana/ui';
 import { getBackendSrv } from '@grafana/runtime';
 
 export class ConfigPageBody extends PureComponent<PluginConfigPageProps<PluginMeta>> {
@@ -27,7 +27,9 @@ export class ConfigPageBody extends PureComponent<PluginConfigPageProps<PluginMe
         Enable
       </Button>
     ) : (
-      <InfoBox title={this.props.plugin.meta.name}>Plugin already enabled</InfoBox>
+      <Alert severity="info" title={this.props.plugin.meta.name}>
+        Plugin already enabled
+      </Alert>
     );
   }
 }

@@ -260,10 +260,26 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   />
                 </Field>
                 <Field label="k">
-                  <Input {...register('k')} disabled={!editable} type="number" css="" />
+                  <Input
+                    {...register('k', {
+                      required: 'This field is required',
+                      valueAsNumber: true,
+                    })}
+                    disabled={!editable}
+                    type="number"
+                    css=""
+                  />
                 </Field>
                 <Field label="m">
-                  <Input {...register('m')} disabled={!editable} type="number" css="" />
+                  <Input
+                    {...register('m', {
+                      required: 'This field is required',
+                      valueAsNumber: true,
+                    })}
+                    disabled={!editable}
+                    type="number"
+                    css=""
+                  />
                 </Field>
               </HorizontalGroup>
             </FieldSet>
