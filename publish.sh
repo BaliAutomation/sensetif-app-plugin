@@ -20,7 +20,8 @@ echo $VERSION
 
 rm -rf dist 2>/dev/null
 yarn build || exit 1
-mv dist sensetif-app
+mkdir sensetif-app
+cp -r dist/* sensetif-app/
 tar cf sensetif-app_$VERSION.tar.gz sensetif-app
 scp sensetif-app_$VERSION.tar.gz root@repo.sensetif.com:/var/www/repository/grafana-plugins/sensetif-app/
 rm -rf sensetif-app sensetif-app_$VERSION.tar.gz
