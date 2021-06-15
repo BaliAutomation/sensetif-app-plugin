@@ -2,8 +2,8 @@ import { getBackendSrv } from '@grafana/runtime';
 import { DatapointSettings, ProjectSettings, SubsystemSettings } from 'types';
 import { API_ROOT_PAGE } from './consts';
 
-export const addProject = (project: ProjectSettings) =>
-  getBackendSrv().put(`${API_ROOT_PAGE}/resources/projects`, project);
+export const upsertProject = (project: ProjectSettings) =>
+  getBackendSrv().put(`${API_ROOT_PAGE}/resources/projects/${project.name}`, project);
 export const getProject = (name: string): Promise<ProjectSettings> =>
   getBackendSrv().get(`${API_ROOT_PAGE}/resources/projects/${name}`);
 export const getProjects = (): Promise<ProjectSettings[]> => getBackendSrv().get(`${API_ROOT_PAGE}/resources/projects`);
