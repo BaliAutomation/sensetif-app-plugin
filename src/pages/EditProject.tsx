@@ -3,7 +3,7 @@ import { AppRootProps } from '@grafana/data';
 import { ProjectForm } from 'forms/ProjectForm';
 import { ProjectSettings } from 'types';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
-import { getProject, addProject } from 'utils/api';
+import { getProject, updateProject } from 'utils/api';
 import { goToProjects } from 'utils/navigation';
 
 export const EditProject: FC<AppRootProps> = ({ query }) => {
@@ -33,7 +33,7 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
   };
 
   const updateProject = (project: ProjectSettings) => {
-    addProject(project)
+    updateProject(project)
       .then(() => goToProjects())
       .catch((err) => console.log(err));
   };
