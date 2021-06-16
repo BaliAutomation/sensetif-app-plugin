@@ -28,4 +28,4 @@ export const getDatapoints = (projectName: string, subsystemName: string): Promi
   getBackendSrv().get(`${API_ROOT_PAGE}/resources/projects/${projectName}/subsystems/${subsystemName}/datapoints`);
 
 export const addDatapoint = (projectName: string, subsystemName: string, datapoint: DatapointSettings) =>
-  getBackendSrv().put(`${API_ROOT_PAGE}/resources/projects/${projectName}/subsystems/${subsystemName}`, datapoint);
+  getBackendSrv().put(`${API_ROOT_PAGE}/resources/projects/${projectName}/subsystems/${subsystemName}/datapoints`, datapoint);
