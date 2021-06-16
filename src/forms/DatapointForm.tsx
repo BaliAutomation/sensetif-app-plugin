@@ -51,11 +51,11 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {
-                    required: 'Project name is required',
+                    required: 'Datapoint name is required',
                     pattern: { value: /[a-z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and characters: _, * ' },
                   })}
                   disabled={!editable}
-                  placeholder="Project name"
+                  placeholder="Datapoint name"
                   css=""
                 />
               </Field>

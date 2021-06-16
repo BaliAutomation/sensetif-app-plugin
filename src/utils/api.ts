@@ -13,8 +13,9 @@ export const deleteProject = (name: string) => getBackendSrv().delete(`${API_ROO
 export const getSubsystems = (projectName: string): Promise<SubsystemSettings[]> =>
   getBackendSrv().get(`${API_ROOT_PAGE}/resources/projects/${projectName}/subsystems`);
 
-export const addSubsystem = (projectName: string, subsystem: SubsystemSettings) =>
-  getBackendSrv().put(`${API_ROOT_PAGE}/resources/projects/${projectName}/subsystems`, subsystem);
+export const addSubsystem = (projectName: string, subsystem: SubsystemSettings) => {
+  return getBackendSrv().put(`${API_ROOT_PAGE}/resources/projects/${projectName}/subsystems`, subsystem);
+};
 
 export const deleteSubsystem = (name: string): Promise<void> => {
   // toDo
