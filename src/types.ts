@@ -115,6 +115,7 @@ export enum OriginDocumentFormat {
 }
 
 export enum AuthenticationType {
+  none,
   userpass,
   authorizationKey,
 }

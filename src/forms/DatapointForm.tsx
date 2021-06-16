@@ -116,6 +116,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     <RadioButtonGroup
                       {...field}
                       options={[
+                        { label: 'None', value: AuthenticationType.none },
                         { label: 'User & Password', value: AuthenticationType.userpass },
                         { label: 'Authorization key', value: AuthenticationType.authorizationKey },
                       ]}
