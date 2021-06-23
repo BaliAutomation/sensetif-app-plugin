@@ -42,8 +42,8 @@ export const getSubsystems = (projectName: string): Promise<SubsystemSettings[]>
 
 export const upsertSubsystem = (projectName: string, subsystem: SubsystemSettings) => {
   subsystem.project = projectName;
-  exec({action: 'update', resource: 'subsystem', payload: subsystem, params: {}});
-}
+  exec({ action: 'update', resource: 'subsystem', payload: subsystem, params: {} });
+};
 
 export const deleteSubsystem = (projectName: string, subsystemName: string): Promise<void> =>
   exec({
@@ -79,7 +79,7 @@ export const upsertDatapoint = (projectName: string, subsystemName: string, data
     payload: datapoint,
     params: {},
   });
-}
+};
 
 export const deleteDatapoint = (projectName: string, subsystemName: string, datapointName: string): Promise<void> =>
   exec({
@@ -88,18 +88,23 @@ export const deleteDatapoint = (projectName: string, subsystemName: string, data
     params: {
       project: projectName,
       subsystem: subsystemName,
-      datapoint: datapointName
+      datapoint: datapointName,
     },
   });
 
-export const renameDatapoint = (projectName: string, subsystemName: string, oldName: string, newName: string): Promise<void> =>
-    exec({
-        action: 'rename',
-        resource: 'datapoint',
-        params: {
-            project: projectName,
-            subsystem: subsystemName,
-            oldName: oldName,
-            newName: newName,
-        },
-    });
+export const renameDatapoint = (
+  projectName: string,
+  subsystemName: string,
+  oldName: string,
+  newName: string
+): Promise<void> =>
+  exec({
+    action: 'rename',
+    resource: 'datapoint',
+    params: {
+      project: projectName,
+      subsystem: subsystemName,
+      oldName: oldName,
+      newName: newName,
+    },
+  });
