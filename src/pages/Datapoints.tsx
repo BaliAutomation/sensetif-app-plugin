@@ -4,7 +4,7 @@ import { logInfo } from '@grafana/runtime';
 import { Button, Alert, Icon } from '@grafana/ui';
 
 import { DatapointSettings } from '../types';
-import { getDatapoints } from 'utils/api';
+import { deleteDatapoint, getDatapoints } from 'utils/api';
 import { goToAddDatapoint } from 'utils/navigation';
 import { CardsList } from 'components/CardsList';
 
@@ -33,11 +33,8 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
       });
   };
 
-  const deleteDatapoint = (name: string): Promise<void> => {
-    console.log(`removing datapoint: ${name}`);
-    // return loadProjects();
-    return Promise.resolve();
-  };
+  const removeDatapoint = (name: string): Promise<void> =>
+    deleteDatapoint(projectName, subsystemName, name).then(() => loadDatapoints(projectName, subsystemName));
 
   return (
     <>
@@ -68,7 +65,7 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
         elements={datapoints}
         onClick={(point) => {}}
         onEdit={(point) => {}}
-        onDelete={(point) => deleteDatapoint(point.name)}
+        onDelete={(point) => removeDatapoint(point.name)}
         getTitle={(point) => point.name}
       />
     </>

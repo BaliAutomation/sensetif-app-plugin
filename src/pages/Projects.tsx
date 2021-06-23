@@ -4,7 +4,7 @@ import { logInfo } from '@grafana/runtime';
 import { Button, Alert, Icon } from '@grafana/ui';
 import { ProjectSettings } from '../types';
 import { goToAddProject, goToEditProject, goToSubsystems } from 'utils/navigation';
-import { getProjects } from 'utils/api';
+import { deleteProject, getProjects } from 'utils/api';
 import { CardsList } from 'components/CardsList';
 
 export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
@@ -29,10 +29,7 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
       });
   };
 
-  const deleteProject = (name: string): Promise<void> => {
-    console.log(`removing project: ${name}`);
-    return loadProjects();
-  };
+  const removeProject = (name: string): Promise<void> => deleteProject(name).then(() => loadProjects());
 
   return (
     <>
@@ -63,7 +60,7 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
         elements={projects}
         onClick={(project) => goToSubsystems(project.name)}
         onEdit={(project) => goToEditProject(project.name)}
-        onDelete={(project) => deleteProject(project.name)}
+        onDelete={(project) => removeProject(project.name)}
         getSubtitle={(project) => (project.city ? project.city : 'Not specified')}
         getTitle={(project) => project.title}
         getRightSideText={(project) => (project.subsystems?.length ? `${project.subsystems?.length}` : 'No subsystems')}

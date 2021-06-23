@@ -37,7 +37,7 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
     });
 
   const removeSubsystem = (name: string): Promise<void> =>
-    deleteSubsystem(name).then(() => loadSubsystems(projectName));
+    deleteSubsystem(projectName, name).then(() => loadSubsystems(projectName));
 
   if (fetchErr) {
     return (
