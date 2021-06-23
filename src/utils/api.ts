@@ -33,6 +33,9 @@ export const getProjects = (): Promise<ProjectSettings[]> => exec({ action: 'lis
 export const deleteProject = (projectName: string) =>
   exec({ action: 'delete', resource: 'project', params: { project: projectName } });
 
+export const renameProject = (oldName: string, newName: string) =>
+  exec({ action: 'rename', resource: 'project', params: { oldName: oldName, newName: newName } });
+
 // subsystems
 export const getSubsystems = (projectName: string): Promise<SubsystemSettings[]> =>
   exec({ action: 'list', resource: 'subsystem', params: { project: projectName } });
@@ -49,6 +52,17 @@ export const deleteSubsystem = (projectName: string, subsystemName: string): Pro
     params: {
       project: projectName,
       subsystem: subsystemName,
+    },
+  });
+
+export const renameSubsystem = (projectName: string, oldName: string, newName: string): Promise<void> =>
+  exec({
+    action: 'rename',
+    resource: 'subsystem',
+    params: {
+      project: projectName,
+      oldName: oldName,
+      newName: newName,
     },
   });
 
@@ -77,3 +91,15 @@ export const deleteDatapoint = (projectName: string, subsystemName: string, data
       datapoint: datapointName
     },
   });
+
+export const renameDatapoint = (projectName: string, subsystemName: string, oldName: string, newName: string): Promise<void> =>
+    exec({
+        action: 'rename',
+        resource: 'datapoint',
+        params: {
+            project: projectName,
+            subsystem: subsystemName,
+            oldName: oldName,
+            newName: newName,
+        },
+    });
