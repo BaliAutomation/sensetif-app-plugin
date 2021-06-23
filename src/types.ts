@@ -14,6 +14,7 @@ export interface ProjectSettings {
 }
 
 export interface SubsystemSettings {
+  project: string;
   name: string; // validate regexp:[a-z][A-Za-z0-9_]*
   title: string; // allow all characters
   locallocation: string; // allow all characters
@@ -21,6 +22,8 @@ export interface SubsystemSettings {
 }
 
 export interface DatapointSettings {
+  project: string;
+  subsystem: string;
   name: string; // validate regexp:[a-z][A-Za-z0-9_.]*
   interval: PollInterval;
   url: string; // validate URL, incl anchor and query arguments, but disallow user:pwd@

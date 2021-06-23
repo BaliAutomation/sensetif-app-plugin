@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { AppRootProps } from '@grafana/data';
-import { addDatapoint } from 'utils/api';
+import { upsertDatapoint } from 'utils/api';
 import { DatapointForm } from 'forms/DatapointForm';
 
 export const AddDatapoint: FC<AppRootProps> = ({ query }) => {
@@ -11,8 +11,7 @@ export const AddDatapoint: FC<AppRootProps> = ({ query }) => {
     <>
       <DatapointForm
         onSubmit={(datapoint) => {
-          console.log(datapoint);
-          addDatapoint(projectName, subsystemName, datapoint);
+          upsertDatapoint(projectName, subsystemName, datapoint);
         }}
       />
     </>

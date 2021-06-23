@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { SubsystemForm } from 'forms/SubsystemForm';
-import { goToProjects } from 'utils/navigation';
-import { addSubsystem } from 'utils/api';
+import { goToSubsystems } from 'utils/navigation';
+import { upsertSubsystem } from 'utils/api';
 
 export const AddSubsystem: FC<AppRootProps> = ({ query }) => {
   const projectName = query['project'];
@@ -11,7 +11,7 @@ export const AddSubsystem: FC<AppRootProps> = ({ query }) => {
     <>
       <SubsystemForm
         onSubmit={(subsystem) => {
-          addSubsystem(projectName, subsystem).then(() => goToProjects());
+          upsertSubsystem(projectName, subsystem).then(() => goToSubsystems(projectName));
         }}
       />
     </>

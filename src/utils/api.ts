@@ -30,30 +30,50 @@ export const getProject = (name: string): Promise<ProjectSettings> =>
 
 export const getProjects = (): Promise<ProjectSettings[]> => exec({ action: 'list', resource: 'project' });
 
-export const deleteProject = (name: string) =>
-  exec({ action: 'delete', resource: 'project', params: { project: name } });
+export const deleteProject = (projectName: string) =>
+  exec({ action: 'delete', resource: 'project', params: { project: projectName } });
 
 // subsystems
 export const getSubsystems = (projectName: string): Promise<SubsystemSettings[]> =>
   exec({ action: 'list', resource: 'subsystem', params: { project: projectName } });
 
-export const addSubsystem = (projectName: string, subsystem: SubsystemSettings) =>
-  exec({ action: 'update', resource: 'subsystem', payload: subsystem, params: { project: projectName } });
+export const upsertSubsystem = (projectName: string, subsystem: SubsystemSettings) => {
+  subsystem.project = projectName;
+  exec({action: 'update', resource: 'subsystem', payload: subsystem, params: {}});
+}
 
-export const deleteSubsystem = (name: string): Promise<void> =>
-  exec({ action: 'delete', resource: 'subsystem', params: { subsystem: name } });
+export const deleteSubsystem = (projectName: string, subsystemName: string): Promise<void> =>
+  exec({
+    action: 'delete',
+    resource: 'subsystem',
+    params: {
+      project: projectName,
+      subsystem: subsystemName,
+    },
+  });
 
 // datapoints
 export const getDatapoints = (projectName: string, subsystemName: string): Promise<DatapointSettings[]> =>
   exec({ action: 'list', resource: 'datapoint', params: { project: projectName, subsystem: subsystemName } });
 
-export const addDatapoint = (projectName: string, subsystemName: string, datapoint: DatapointSettings) =>
+export const upsertDatapoint = (projectName: string, subsystemName: string, datapoint: DatapointSettings) => {
+  datapoint.project = projectName;
+  datapoint.subsystem = subsystemName;
   exec({
     action: 'update',
     resource: 'datapoint',
     payload: datapoint,
-    params: { project: projectName, subsystem: subsystemName },
+    params: {},
   });
+}
 
-export const deleteDatapoint = (name: string): Promise<void> =>
-  exec({ action: 'delete', resource: 'datapoint', params: { datapoint: name } });
+export const deleteDatapoint = (projectName: string, subsystemName: string, datapointName: string): Promise<void> =>
+  exec({
+    action: 'delete',
+    resource: 'datapoint',
+    params: {
+      project: projectName,
+      subsystem: subsystemName,
+      datapoint: datapointName
+    },
+  });
