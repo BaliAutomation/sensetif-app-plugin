@@ -27,8 +27,9 @@ interface Props {
 }
 
 export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
-  const defaultAuthenticationType = AuthenticationType.userpass;
+  const defaultAuthenticationType = AuthenticationType.none;
   const defaultFormat = OriginDocumentFormat.json;
+  const defaultScaling = ScalingFunction.lin;
 
   return (
     <Form<DatapointSettings>
@@ -44,6 +45,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
       {({ register, errors, control, watch }) => {
         const authType = watch('authenticationType', defaultAuthenticationType);
         const format = watch('format', defaultFormat);
+        const scaling = watch('scaling', defaultScaling);
 
         return (
           <>
@@ -52,7 +54,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                 <Input
                   {...register('name', {
                     required: 'Datapoint name is required',
-                    pattern: { value: /[a-z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and characters: _, * ' },
+                    pattern: { value: /[a-zA-Z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and "_". Must start with a letter.' },
                   })}
                   disabled={!editable}
                   placeholder="Datapoint name"
@@ -228,8 +230,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                 />
               </Field>
             </FieldSet>
-
-            <FieldSet label="Scalling">
+            <FieldSet label="Scaling">
               <HorizontalGroup>
                 <Field label="Function" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
                   <InputControl
@@ -260,10 +261,10 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     name="scaling"
                   />
                 </Field>
-                <Field label="k">
+                {(scaling === ScalingFunction.lin || scaling === ScalingFunction.log || scaling === ScalingFunction.exp ) && (
+                  <Field label="k">
                   <Input
                     {...register('k', {
-                      required: 'This field is required',
                       valueAsNumber: true,
                     })}
                     disabled={!editable}
@@ -271,10 +272,11 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     css=""
                   />
                 </Field>
-                <Field label="m">
+                )}
+                {(scaling === ScalingFunction.lin || scaling === ScalingFunction.log || scaling === ScalingFunction.exp ) && (
+                  <Field label="m">
                   <Input
                     {...register('m', {
-                      required: 'This field is required',
                       valueAsNumber: true,
                     })}
                     disabled={!editable}
@@ -282,6 +284,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     css=""
                   />
                 </Field>
+                )}
               </HorizontalGroup>
             </FieldSet>
 

@@ -115,6 +115,7 @@ export enum PollInterval {
 export enum OriginDocumentFormat {
   json,
   xml,
+//  ttn,    // The Things Network
 }
 
 export enum AuthenticationType {
