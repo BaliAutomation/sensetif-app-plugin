@@ -54,7 +54,10 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                 <Input
                   {...register('name', {
                     required: 'Datapoint name is required',
-                    pattern: { value: /[a-zA-Z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and "_". Must start with a letter.' },
+                    pattern: {
+                      value: /[a-zA-Z][A-Za-z0-9_]*/,
+                      message: 'Allowed letters, numbers and "_". Must start with a letter.',
+                    },
                   })}
                   disabled={!editable}
                   placeholder="Datapoint name"
@@ -261,29 +264,33 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     name="scaling"
                   />
                 </Field>
-                {(scaling === ScalingFunction.lin || scaling === ScalingFunction.log || scaling === ScalingFunction.exp ) && (
+                {(scaling === ScalingFunction.lin ||
+                  scaling === ScalingFunction.log ||
+                  scaling === ScalingFunction.exp) && (
                   <Field label="k">
-                  <Input
-                    {...register('k', {
-                      valueAsNumber: true,
-                    })}
-                    disabled={!editable}
-                    type="number"
-                    css=""
-                  />
-                </Field>
+                    <Input
+                      {...register('k', {
+                        valueAsNumber: true,
+                      })}
+                      disabled={!editable}
+                      type="number"
+                      css=""
+                    />
+                  </Field>
                 )}
-                {(scaling === ScalingFunction.lin || scaling === ScalingFunction.log || scaling === ScalingFunction.exp ) && (
+                {(scaling === ScalingFunction.lin ||
+                  scaling === ScalingFunction.log ||
+                  scaling === ScalingFunction.exp) && (
                   <Field label="m">
-                  <Input
-                    {...register('m', {
-                      valueAsNumber: true,
-                    })}
-                    disabled={!editable}
-                    type="number"
-                    css=""
-                  />
-                </Field>
+                    <Input
+                      {...register('m', {
+                        valueAsNumber: true,
+                      })}
+                      disabled={!editable}
+                      type="number"
+                      css=""
+                    />
+                  </Field>
                 )}
               </HorizontalGroup>
             </FieldSet>

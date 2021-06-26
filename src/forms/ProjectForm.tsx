@@ -33,7 +33,10 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit }) => {
                 <Input
                   {...register('name', {
                     required: 'Project name is required',
-                    pattern: { value: /[a-zA-Z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and "_". Must start with a letter.' },
+                    pattern: {
+                      value: /[a-zA-Z][A-Za-z0-9_]*/,
+                      message: 'Allowed letters, numbers and "_". Must start with a letter.',
+                    },
                   })}
                   placeholder="Project name"
                   css=""

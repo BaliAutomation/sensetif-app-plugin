@@ -25,7 +25,10 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
                 <Input
                   {...register('name', {
                     required: 'Subsystem name is required',
-                    pattern: { value: /[a-zA-Z][A-Za-z0-9_]*/, message: 'Allowed letters, numbers and "_". Must start with a letter.' },
+                    pattern: {
+                      value: /[a-zA-Z][A-Za-z0-9_]*/,
+                      message: 'Allowed letters, numbers and "_". Must start with a letter.',
+                    },
                   })}
                   css=""
                   disabled={!editable}
