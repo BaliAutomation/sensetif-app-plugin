@@ -30,9 +30,7 @@ export interface DatapointSettings {
 
   // Authentication is going to need a lot in the future, but for now user/pass is fine
   authenticationType: AuthenticationType;
-  username?: string;
-  password?: string;
-  authKey?: string;
+  auth?: {}; // If authenticationType===basic, then auth contains "u" and "p" for user and password.
 
   format: OriginDocumentFormat;
   valueExpression: string; // if format==xml, then xpath. if format==json, then jsonpath. If there is library available for validation, do that. If not, put in a function and we figure that out later.
@@ -120,7 +118,7 @@ export enum OriginDocumentFormat {
 
 export enum AuthenticationType {
   none,
-  userpass,
+  basic,
   authorizationKey,
 }
 
