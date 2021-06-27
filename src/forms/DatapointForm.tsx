@@ -138,28 +138,20 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
 
               {authType === AuthenticationType.basic && (
                 <>
-                  <Field
-                    label="Username"
-                    invalid={!!errors.username}
-                    error={errors.username && errors.username.message}
-                  >
+                  <Field label="Username" invalid={!!errors.auth?.u} error={errors.auth?.u && errors.auth.u.message}>
                     <Input
                       css=""
-                      {...register('username', {
+                      {...register('auth.u', {
                         required: 'Username is required',
                       })}
                       disabled={!editable}
                       placeholder="Username"
                     />
                   </Field>
-                  <Field
-                    label="Password"
-                    invalid={!!errors.password}
-                    error={errors.password && errors.password.message}
-                  >
+                  <Field label="Password" invalid={!!errors.auth?.p} error={errors.auth?.p && errors.auth.p.message}>
                     <Input
                       css=""
-                      {...register('password', {
+                      {...register('auth.p', {
                         required: 'Password is required',
                       })}
                       type="password"
@@ -169,7 +161,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   </Field>
                 </>
               )}
-              {authType === AuthenticationType.authorizationKey && (
+              {/* {authType === AuthenticationType.authorizationKey && (
                 <Field
                   label="Authorization key"
                   invalid={!!errors.authKey}
@@ -184,7 +176,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     placeholder="Key"
                   />
                 </Field>
-              )}
+              )} */}
             </FieldSet>
 
             <FieldSet label="Document Format">
