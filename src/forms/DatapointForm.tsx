@@ -122,7 +122,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       {...field}
                       options={[
                         { label: 'None', value: AuthenticationType.none },
-                        { label: 'User & Password', value: AuthenticationType.userpass },
+                        { label: 'User & Password', value: AuthenticationType.basic },
                         { label: 'Authorization key', value: AuthenticationType.authorizationKey },
                       ]}
                     />
@@ -136,7 +136,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                 />
               </Field>
 
-              {authType === AuthenticationType.userpass && (
+              {authType === AuthenticationType.basic && (
                 <>
                   <Field
                     label="Username"
