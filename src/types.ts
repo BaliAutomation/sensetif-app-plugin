@@ -125,3 +125,11 @@ export enum AuthenticationType {
 }
 
 export interface GlobalSettings {}
+
+// DTO
+export type UserPassDatapointDTO = DatapointSettings & {
+  auth: {
+    u: string;
+    p: string;
+  };
+};

@@ -1,5 +1,5 @@
 import { getBackendSrv } from '@grafana/runtime';
-import { DatapointSettings, ProjectSettings, SubsystemSettings } from 'types';
+import { AuthenticationType, DatapointSettings, ProjectSettings, SubsystemSettings, UserPassDatapointDTO } from 'types';
 import { API_EXEC_PATH } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 1000;
@@ -95,13 +95,34 @@ export const getDatapoints = (projectName: string, subsystemName: string): Promi
   exec({ action: 'list', resource: 'datapoint', params: { project: projectName, subsystem: subsystemName } });
 
 export const upsertDatapoint = (projectName: string, subsystemName: string, datapoint: DatapointSettings) => {
-  datapoint.project = projectName;
-  datapoint.subsystem = subsystemName;
+  const getPayload = (): DatapointSettings | UserPassDatapointDTO => {
+    let payload: DatapointSettings = { ...datapoint, project: projectName, subsystem: subsystemName };
+
+    if (datapoint.authenticationType === AuthenticationType.userpass) {
+      let userPassPayload: UserPassDatapointDTO = {
+        ...payload,
+        auth: {
+          u: payload.username!,
+          p: payload.password!,
+        },
+      };
+
+      return userPassPayload;
+    }
+
+    return payload;
+  };
+
+  const payload = getPayload();
+
+  delete payload.username;
+  delete payload.password;
+
   return exec(
     {
       action: 'update',
       resource: 'datapoint',
-      payload: datapoint,
+      payload: payload,
       params: {},
     },
     WAIT_AFTER_EXEC_MS
