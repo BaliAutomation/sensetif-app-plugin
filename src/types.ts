@@ -65,6 +65,7 @@ export enum TimestampType {
   epochSeconds,
   iso8601_zoned,
   iso8601_offset,
+  polltime,
 }
 
 export enum ScalingFunction {

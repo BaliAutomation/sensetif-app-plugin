@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, {FC} from 'react';
 import {
   AuthenticationType,
   DatapointSettings,
@@ -30,6 +30,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
   const defaultAuthenticationType = AuthenticationType.none;
   const defaultFormat = OriginDocumentFormat.json;
   const defaultScaling = ScalingFunction.lin;
+  const defaultTimestampType:TimestampType = TimestampType.polltime;
 
   return (
     <Form<DatapointSettings>
@@ -46,6 +47,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
         const authType = watch('authenticationType', defaultAuthenticationType);
         const format = watch('format', defaultFormat);
         const scaling = watch('scaling', defaultScaling);
+        const timestampType = watch('timestampType', defaultTimestampType);
 
         return (
           <>
@@ -299,6 +301,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       {...field}
                       onChange={(value) => onChange(value.value)}
                       options={[
+                        { label: 'Poll Time', value: TimestampType.polltime },
                         { label: 'Milliseconds', value: TimestampType.epochMillis },
                         { label: 'Seconds', value: TimestampType.epochSeconds },
                         { label: 'ISO8601 with Timezone', value: TimestampType.iso8601_zoned },
@@ -314,20 +317,20 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   name="timestampType"
                 />
               </Field>
-              <Field
-                label={format === OriginDocumentFormat.json ? 'JSON Path Expression' : 'XPath Expression'}
-                invalid={!!errors.timestampExpression}
-                error={errors.timestampExpression && errors.timestampExpression.message}
-              >
-                <Input
-                  {...register('timestampExpression', {
-                    required: 'Timestamp Expression is required',
-                  })}
-                  disabled={!editable}
-                  placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
-                  css=""
-                />
-              </Field>
+              {( timestampType !== TimestampType.polltime && (
+                <Field
+                  label={format === OriginDocumentFormat.json ? 'JSON Path Expression' : 'XPath Expression'}
+                  invalid={!!errors.timestampExpression}
+                  error={errors.timestampExpression && errors.timestampExpression.message}
+                >
+                  <Input
+                    {...register('timestampExpression', {})}
+                    disabled={!editable}
+                    placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
+                    css=""
+                  />
+                </Field>
+              ))}
               <Field label="Storage Period" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
                 <InputControl
                   render={({ field: { onChange, ref, ...field } }) => (
