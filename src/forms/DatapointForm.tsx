@@ -1,4 +1,4 @@
-import React, {FC} from 'react';
+import React, { FC } from 'react';
 import {
   AuthenticationType,
   DatapointSettings,
@@ -30,7 +30,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
   const defaultAuthenticationType = AuthenticationType.none;
   const defaultFormat = OriginDocumentFormat.json;
   const defaultScaling = ScalingFunction.lin;
-  const defaultTimestampType:TimestampType = TimestampType.polltime;
+  const defaultTimestampType: TimestampType = TimestampType.polltime;
 
   return (
     <Form<DatapointSettings>
@@ -317,7 +317,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   name="timestampType"
                 />
               </Field>
-              {( timestampType !== TimestampType.polltime && (
+              {timestampType !== TimestampType.polltime && (
                 <Field
                   label={format === OriginDocumentFormat.json ? 'JSON Path Expression' : 'XPath Expression'}
                   invalid={!!errors.timestampExpression}
@@ -330,7 +330,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     css=""
                   />
                 </Field>
-              ))}
+              )}
               <Field label="Storage Period" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
                 <InputControl
                   render={({ field: { onChange, ref, ...field } }) => (
