@@ -3,6 +3,7 @@ import { ProjectSettings } from '../types';
 import { TimeZonePicker, Button, Field, FieldSet, Form, Input, InputControl, Select } from '@grafana/ui';
 import { getNames as getCountryNames } from 'country-list';
 import { SelectableValue } from '@grafana/data';
+import { PATTERN_NAME } from './common';
 
 interface Props {
   project?: ProjectSettings;
@@ -34,7 +35,7 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit }) => {
                   {...register('name', {
                     required: 'Project name is required',
                     pattern: {
-                      value: /[a-zA-Z][A-Za-z0-9_]*/,
+                      value: PATTERN_NAME,
                       message: 'Allowed letters, numbers and "_". Must start with a letter.',
                     },
                   })}

@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { SubsystemSettings } from '../types';
 import { Button, Field, FieldSet, Form, Input } from '@grafana/ui';
+import { PATTERN_NAME } from './common';
 
 interface Props {
   editable?: boolean;
@@ -26,7 +27,7 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
                   {...register('name', {
                     required: 'Subsystem name is required',
                     pattern: {
-                      value: /[a-zA-Z][A-Za-z0-9_]*/,
+                      value: PATTERN_NAME,
                       message: 'Allowed letters, numbers and "_". Must start with a letter.',
                     },
                   })}

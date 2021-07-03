@@ -19,6 +19,7 @@ import {
   RadioButtonGroup,
   Select,
 } from '@grafana/ui';
+import { PATTERN_NAME } from './common';
 
 interface Props {
   editable?: boolean;
@@ -57,7 +58,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   {...register('name', {
                     required: 'Datapoint name is required',
                     pattern: {
-                      value: /[a-zA-Z][A-Za-z0-9_]*/,
+                      value: PATTERN_NAME,
                       message: 'Allowed letters, numbers and "_". Must start with a letter.',
                     },
                   })}
