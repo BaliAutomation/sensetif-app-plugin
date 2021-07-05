@@ -4,7 +4,9 @@ import {
   AddProjectPage,
   AddSubsystemPage,
   DatapointsPage,
+  EditDatapointPage,
   EditProjectPage,
+  EditSubsystemPage,
   ProjectsPage,
   SubsystemsPage,
 } from 'pages';
@@ -52,6 +54,16 @@ export const goToAddSubsystem = (projectName: string) => {
   });
 };
 
+export const goToEditSubsystem = (projectName: string, subsystemName: string) => {
+  getLocationSrv().update({
+    query: {
+      tab: EditSubsystemPage.id,
+      project: projectName,
+      subsystem: subsystemName,
+    },
+  });
+};
+
 export const goToDatapoints = (projectName: string, subsystemName: string) => {
   getLocationSrv().update({
     query: {
@@ -68,6 +80,17 @@ export const goToAddDatapoint = (projectName: string, subsystemName: string) => 
       tab: AddDatapointPage.id,
       project: projectName,
       subsystem: subsystemName,
+    },
+  });
+};
+
+export const goToEditDatapoint = (projectName: string, subsystemName: string, datapointName: string) => {
+  getLocationSrv().update({
+    query: {
+      tab: EditDatapointPage.id,
+      project: projectName,
+      subsystem: subsystemName,
+      datapoint: datapointName,
     },
   });
 };

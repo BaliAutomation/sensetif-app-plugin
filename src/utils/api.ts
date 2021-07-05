@@ -83,7 +83,7 @@ export const getDatapoint = (
   projectName: string,
   subsystemName: string,
   datapointName: string
-): Promise<DatapointSettings[]> =>
+): Promise<DatapointSettings> =>
   request(projectName + '/' + subsystemName + '/' + datapointName, 'GET', '', WAIT_AFTER_EXEC_MS);
 
 export const upsertDatapoint = (projectName: string, subsystemName: string, datapoint: DatapointSettings) => {

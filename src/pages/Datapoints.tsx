@@ -5,7 +5,7 @@ import { Alert, Icon } from '@grafana/ui';
 
 import { DatapointSettings, SubsystemSettings } from '../types';
 import { deleteDatapoint, getDatapoints, getSubsystem } from 'utils/api';
-import { goToAddDatapoint } from 'utils/navigation';
+import { goToAddDatapoint, goToEditDatapoint } from 'utils/navigation';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
 
@@ -71,7 +71,9 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
         isLoading={isLoading}
         elements={datapoints}
         onClick={(point) => {}}
-        onEdit={(point) => {}}
+        onEdit={(point) => {
+          goToEditDatapoint(projectName, subsystemName, point.name);
+        }}
         onDelete={(point) => removeDatapoint(point.name)}
         getTitle={(point) => point.name}
       />

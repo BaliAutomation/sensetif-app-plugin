@@ -12,7 +12,7 @@ export const CardActions = ({ onDelete, onEdit }: CardActionsProps) => {
       <IconButton
         key="edit"
         name="edit"
-        tooltip="Edit this project"
+        tooltip="Edit"
         tooltipPlacement="top"
         size="xl"
         onClick={(e) => {
@@ -24,7 +24,7 @@ export const CardActions = ({ onDelete, onEdit }: CardActionsProps) => {
       <IconButton
         key="delete"
         name="trash-alt"
-        tooltip="Delete this project"
+        tooltip="Delete"
         tooltipPlacement="top"
         size="xl"
         onClick={(e) => {

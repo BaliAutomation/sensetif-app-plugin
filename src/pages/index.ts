@@ -5,8 +5,10 @@ import { Billing } from './Billing';
 import { EditProject } from './EditProject';
 import { AddProject } from './AddProject';
 import { AddSubsystem } from './AddSubsystem';
+import { EditSubsystem } from './EditSubsystem';
 import { Datapoints } from './Datapoints';
 import { AddDatapoint } from './AddDatapoint';
+import { EditDatapoint } from './EditDatapoint';
 
 export type PageDefinition = {
   component: React.FC<AppRootProps>;
@@ -50,6 +52,13 @@ export const AddSubsystemPage: PageDefinition = {
   text: ' Add Subsystem',
 };
 
+export const EditSubsystemPage: PageDefinition = {
+  component: EditSubsystem,
+  icon: 'fa fa-project-diagram',
+  id: 'edit_subsystem',
+  text: ' Edit Subsystem',
+};
+
 export const DatapointsPage: PageDefinition = {
   component: Datapoints,
   icon: 'fa fa-project-diagram',
@@ -62,6 +71,13 @@ export const AddDatapointPage: PageDefinition = {
   icon: 'fa fa-project-diagram',
   id: 'new_datapoints',
   text: ' Add Datapoint',
+};
+
+export const EditDatapointPage: PageDefinition = {
+  component: EditDatapoint,
+  icon: 'fa fa-project-diagram',
+  id: 'edit_datapoint',
+  text: ' Edit Datapoint',
 };
 
 export const BillingsPage: PageDefinition = {
@@ -78,8 +94,10 @@ pages[EditProjectPage.id] = EditProjectPage;
 
 pages[SubsystemsPage.id] = SubsystemsPage;
 pages[AddSubsystemPage.id] = AddSubsystemPage;
+pages[EditSubsystemPage.id] = EditSubsystemPage;
 
 pages[DatapointsPage.id] = DatapointsPage;
 pages[AddDatapointPage.id] = AddDatapointPage;
+pages[EditDatapointPage.id] = EditDatapointPage;
 
 pages[BillingsPage.id] = BillingsPage;

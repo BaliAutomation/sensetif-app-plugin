@@ -4,17 +4,17 @@ import { Button, Field, FieldSet, Form, Input } from '@grafana/ui';
 import { PATTERN_NAME } from './common';
 
 interface Props {
-  editable?: boolean;
   subsystem?: SubsystemSettings;
   onSubmit: (data: SubsystemSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
 }
 
-export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
+export const SubsystemForm: FC<Props> = ({ subsystem, onSubmit }) => {
   return (
     <Form<SubsystemSettings>
       onSubmit={onSubmit}
       defaultValues={{
         name: subsystem?.name,
+        title: subsystem?.title,
         locallocation: subsystem?.locallocation,
       }}
     >
@@ -22,7 +22,12 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
         return (
           <>
             <FieldSet label="Subsystem details">
-              <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
+              <Field
+                label="Name"
+                invalid={!!errors.name}
+                error={errors.name && errors.name.message}
+                disabled={!!subsystem}
+              >
                 <Input
                   {...register('name', {
                     required: 'Subsystem name is required',
@@ -32,7 +37,6 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
                     },
                   })}
                   css=""
-                  disabled={!editable}
                   placeholder="Subsystem name"
                 />
               </Field>
@@ -43,7 +47,6 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
                     required: 'Subsystem title is required',
                   })}
                   css=""
-                  disabled={!editable}
                   placeholder="Subsystem title"
                 />
               </Field>
@@ -57,12 +60,11 @@ export const SubsystemForm: FC<Props> = ({ editable, subsystem, onSubmit }) => {
                   {...register('locallocation', {
                     required: 'Location is required',
                   })}
-                  disabled={!editable}
                   placeholder="Local location"
                   css=""
                 />
               </Field>
-              <Button type="submit">{editable ? 'Update' : 'Save'}</Button>
+              <Button type="submit">{subsystem ? 'Update' : 'Save'}</Button>
             </FieldSet>
           </>
         );

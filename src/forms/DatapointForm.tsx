@@ -23,12 +23,11 @@ import { css } from '@emotion/css';
 import { PATTERN_NAME } from './common';
 
 interface Props {
-  editable?: boolean;
   datapoint?: DatapointSettings;
   onSubmit: (data: DatapointSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
 }
 
-export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
+export const DatapointForm: FC<Props> = ({ datapoint, onSubmit }) => {
   const defaultAuthenticationType = AuthenticationType.none;
   const defaultFormat = OriginDocumentFormat.json;
   const defaultScaling = ScalingFunction.lin;
@@ -46,11 +45,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
     <Form<DatapointSettings>
       onSubmit={onSubmit}
       defaultValues={{
-        name: datapoint?.name,
-        format: datapoint?.format,
-        url: datapoint?.url,
-        unit: datapoint?.unit,
-        valueExpression: datapoint?.valueExpression,
+        ...datapoint,
       }}
     >
       {({ register, errors, control, watch }) => {
@@ -62,7 +57,12 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
         return (
           <>
             <FieldSet label="Datapoint details">
-              <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
+              <Field
+                label="Name"
+                invalid={!!errors.name}
+                error={errors.name && errors.name.message}
+                disabled={!!datapoint}
+              >
                 <Input
                   {...register('name', {
                     required: 'Datapoint name is required',
@@ -71,7 +71,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       message: 'Allowed letters, numbers and "_". Must start with a letter.',
                     },
                   })}
-                  disabled={!editable}
                   placeholder="Datapoint name"
                   css=""
                 />
@@ -113,7 +112,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   {...register('url', {
                     required: 'URL is required',
                   })}
-                  disabled={!editable}
                   type="url"
                   placeholder="Datapoint URL"
                   css=""
@@ -156,7 +154,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       {...register('auth.u', {
                         required: 'Username is required',
                       })}
-                      disabled={!editable}
                       placeholder="Username"
                     />
                   </Field>
@@ -168,7 +165,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       })}
                       type="password"
                       placeholder="Password"
-                      disabled={!editable}
                     />
                   </Field>
                 </>
@@ -184,7 +180,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     {...register('authKey', {
                       required: 'Authorization Key is required',
                     })}
-                    disabled={!editable}
                     placeholder="Key"
                   />
                 </Field>
@@ -221,7 +216,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                     required: 'expression is required',
                   })}
                   css={''}
-                  disabled={!editable}
                   placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
                 />
               </Field>
@@ -231,7 +225,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                   {...register('unit', {
                     required: 'Unit is required',
                   })}
-                  disabled={!editable}
                   placeholder="unit"
                   css=""
                 />
@@ -276,7 +269,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       {...register('k', {
                         valueAsNumber: true,
                       })}
-                      disabled={!editable}
                       type="number"
                       step="any"
                       className={numericInputStyle}
@@ -292,7 +284,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       {...register('m', {
                         valueAsNumber: true,
                       })}
-                      disabled={!editable}
                       type="number"
                       step="any"
                       className={numericInputStyle}
@@ -339,7 +330,6 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                 >
                   <Input
                     {...register('timestampExpression', {})}
-                    disabled={!editable}
                     placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
                     css=""
                   />
@@ -373,7 +363,7 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
               </Field>
             </FieldSet>
 
-            <Button type="submit">{editable ? 'Update' : 'Save'}</Button>
+            <Button type="submit">{datapoint ? 'Update' : 'Save'}</Button>
           </>
         );
       }}
