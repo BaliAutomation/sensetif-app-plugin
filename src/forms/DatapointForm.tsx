@@ -19,6 +19,7 @@ import {
   RadioButtonGroup,
   Select,
 } from '@grafana/ui';
+import { css } from '@emotion/css';
 import { PATTERN_NAME } from './common';
 
 interface Props {
@@ -32,6 +33,14 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
   const defaultFormat = OriginDocumentFormat.json;
   const defaultScaling = ScalingFunction.lin;
   const defaultTimestampType: TimestampType = TimestampType.polltime;
+
+  const numericInputStyle = css`
+    /* hides spin buttons */
+    input[type='number']::-webkit-inner-spin-button {
+      display: none;
+      -webkit-appearance: none;
+    }
+  `;
 
   return (
     <Form<DatapointSettings>
@@ -269,6 +278,8 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       })}
                       disabled={!editable}
                       type="number"
+                      step="any"
+                      className={numericInputStyle}
                       css=""
                     />
                   </Field>
@@ -283,6 +294,8 @@ export const DatapointForm: FC<Props> = ({ editable, datapoint, onSubmit }) => {
                       })}
                       disabled={!editable}
                       type="number"
+                      step="any"
+                      className={numericInputStyle}
                       css=""
                     />
                   </Field>
