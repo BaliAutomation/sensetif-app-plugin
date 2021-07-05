@@ -56,7 +56,7 @@ export const renameProject = (oldName: string, newName: string) => {
 export const getSubsystems = (projectName: string): Promise<SubsystemSettings[]> =>
   request(projectName + '/_', 'GET', '', WAIT_AFTER_EXEC_MS);
 
-export const getSubsystem = (projectName: string, subsystemName: string): Promise<SubsystemSettings[]> =>
+export const getSubsystem = (projectName: string, subsystemName: string): Promise<SubsystemSettings> =>
   request(projectName + '/' + subsystemName, 'GET', '', WAIT_AFTER_EXEC_MS);
 
 export const upsertSubsystem = (projectName: string, subsystem: SubsystemSettings) => {

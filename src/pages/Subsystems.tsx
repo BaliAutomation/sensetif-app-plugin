@@ -1,10 +1,11 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { ProjectSettings, SubsystemSettings } from 'types';
-import { Alert, Button, Icon, Legend } from '@grafana/ui';
+import { Alert, Icon } from '@grafana/ui';
 import { goToAddSubsystem, goToDatapoints } from 'utils/navigation';
 import { deleteSubsystem, getProject, getSubsystems } from 'utils/api';
 import { CardsList } from 'components/CardsList';
+import { PageHeader } from 'components/PageTitle';
 
 export const Subsystems: FC<AppRootProps> = ({ query }) => {
   const projectName: string = query['project'];
@@ -49,17 +50,12 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
 
   return (
     <>
-      <div className="page-action-bar">
-        <div className="page-action-bar__spacer" />
-        {isLoading ? null : (
-          <Legend>
-            <div>Project: {project!.name}</div>
-          </Legend>
-        )}
-        <Button icon="plus" variant="secondary" onClick={() => goToAddSubsystem(projectName)}>
-          Add Subsystem
-        </Button>
-      </div>
+      <PageHeader
+        title={project?.title}
+        subtitle={project?.name}
+        buttonText={'Add Subsystem'}
+        onClick={() => goToAddSubsystem(projectName)}
+      />
 
       {!isLoading && subsystems.length === 0 && (
         <Alert severity="info" title="Please add subsystems.">

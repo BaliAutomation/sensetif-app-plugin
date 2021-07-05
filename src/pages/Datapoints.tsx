@@ -1,24 +1,26 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
-import { Button, Alert, Icon } from '@grafana/ui';
+import { Alert, Icon } from '@grafana/ui';
 
-import { DatapointSettings } from '../types';
-import { deleteDatapoint, getDatapoints } from 'utils/api';
+import { DatapointSettings, SubsystemSettings } from '../types';
+import { deleteDatapoint, getDatapoints, getSubsystem } from 'utils/api';
 import { goToAddDatapoint } from 'utils/navigation';
 import { CardsList } from 'components/CardsList';
+import { PageHeader } from 'components/PageTitle';
 
 export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
   const projectName: string = query['project'];
   const subsystemName: string = query['subsystem'];
 
   const [datapoints, setDatapoints] = useState<DatapointSettings[]>([]);
+  const [subsystem, setSubsystem] = useState<SubsystemSettings>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setIsLoading(true);
     logInfo('Trying to fetch datapoints.');
-    Promise.all([loadDatapoints(projectName, subsystemName)]);
+    Promise.all([loadSubsystem(projectName, subsystemName), loadDatapoints(projectName, subsystemName)]);
   }, [projectName, subsystemName]);
 
   const loadDatapoints = (projectName: string, subsystemName: string) => {
@@ -33,17 +35,22 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
       });
   };
 
+  const loadSubsystem = (projectName: string, subsystemName: string) =>
+    getSubsystem(projectName, subsystemName).then((res: SubsystemSettings) => {
+      setSubsystem(res);
+    });
+
   const removeDatapoint = (name: string): Promise<void> =>
     deleteDatapoint(projectName, subsystemName, name).then(() => loadDatapoints(projectName, subsystemName));
 
   return (
     <>
-      <div className="page-action-bar">
-        <div className="page-action-bar__spacer" />
-        <Button icon="plus" variant="secondary" onClick={() => goToAddDatapoint(projectName, subsystemName)}>
-          Add Datapoint
-        </Button>
-      </div>
+      <PageHeader
+        title={subsystem?.title}
+        subtitle={subsystem && `${projectName} - ${subsystemName}`}
+        buttonText={'Add Datapoint'}
+        onClick={() => goToAddDatapoint(projectName, subsystemName)}
+      />
 
       {!isLoading && datapoints.length === 0 && (
         <Alert severity="info" title="Please add datapoints.">
