@@ -70,7 +70,9 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
       <CardsList<DatapointSettings>
         isLoading={isLoading}
         elements={datapoints}
-        onClick={(point) => {}}
+        onClick={(point) => {
+          goToEditDatapoint(projectName, subsystemName, point.name);
+        }}
         onEdit={(point) => {
           goToEditDatapoint(projectName, subsystemName, point.name);
         }}
@@ -79,4 +81,4 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
       />
     </>
   );
-};
+}
