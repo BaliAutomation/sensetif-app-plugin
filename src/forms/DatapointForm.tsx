@@ -87,15 +87,15 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit }) => {
                       {...field}
                       onChange={(value) => onChange(value.value)}
                       options={[
-                        { label: '5 minutes', value: PollInterval.a },
-                        { label: '10 minutes', value: PollInterval.b },
-                        { label: '15 minutes', value: PollInterval.c },
-                        { label: '30 minutes', value: PollInterval.d },
-                        { label: '1 hour', value: PollInterval.e },
-                        { label: '3 hours', value: PollInterval.f },
-                        { label: '6 hours', value: PollInterval.g },
-                        { label: '12 hours', value: PollInterval.h },
-                        { label: '24 hours', value: PollInterval.i },
+                        { label: '5 minutes', value: PollInterval.b },
+                        { label: '10 minutes', value: PollInterval.c },
+                        { label: '15 minutes', value: PollInterval.d },
+                        { label: '30 minutes', value: PollInterval.e },
+                        { label: '1 hour', value: PollInterval.f },
+                        { label: '3 hours', value: PollInterval.g },
+                        { label: '6 hours', value: PollInterval.h },
+                        { label: '12 hours', value: PollInterval.i },
+                        { label: '24 hours', value: PollInterval.j },
                       ]}
                     />
                   )}

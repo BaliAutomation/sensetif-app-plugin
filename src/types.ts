@@ -104,15 +104,16 @@ export enum ScalingFunction {
 }
 
 export enum PollInterval {
-  a, // 5 minutes
-  b, // 10 minutes
-  c, // 15 minutes
-  d, // 30 minutes
-  e, // 1 hour
-  f, // 3 hours
-  g, // 6 hours
-  h, // 12 hours
-  i, // 24 hours
+  a, // 1 minutes (do not show)
+  b, // 5 minutes
+  c, // 10 minutes
+  d, // 15 minutes
+  e, // 30 minutes
+  f, // 1 hour
+  g, // 3 hours
+  h, // 6 hours
+  i, // 12 hours
+  j, // 24 hours
 }
 export enum OriginDocumentFormat {
   json,
