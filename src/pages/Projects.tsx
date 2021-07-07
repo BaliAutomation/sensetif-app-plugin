@@ -1,11 +1,12 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
-import { Button, Alert, Icon } from '@grafana/ui';
+import { Alert, Icon } from '@grafana/ui';
 import { ProjectSettings } from '../types';
 import { goToAddProject, goToEditProject, goToSubsystems } from 'utils/navigation';
 import { deleteProject, getProjects } from 'utils/api';
 import { CardsList } from 'components/CardsList';
+import { PageHeader } from 'components/PageTitle';
 
 export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
   const [projects, setProjects] = useState<ProjectSettings[]>([]);
@@ -36,12 +37,7 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
 
   return (
     <>
-      <div className="page-action-bar">
-        <div className="page-action-bar__spacer" />
-        <Button icon="plus" variant="secondary" onClick={() => goToAddProject()}>
-          Add Project
-        </Button>
-      </div>
+      <PageHeader title={''} subtitle={''} primaryText={'Add Project'} onPrimaryClick={() => goToAddProject()} />
 
       {!isLoading && projects.length === 0 && (
         <Alert severity={'info'} title="Please add projects.">

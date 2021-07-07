@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { ProjectSettings, SubsystemSettings } from 'types';
 import { Alert, Icon } from '@grafana/ui';
-import { goToAddSubsystem, goToDatapoints, goToEditSubsystem } from 'utils/navigation';
+import { goToAddSubsystem, goToDatapoints, goToEditSubsystem, goToProjects } from 'utils/navigation';
 import { deleteSubsystem, getProject, getSubsystems } from 'utils/api';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
@@ -53,8 +53,10 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
       <PageHeader
         title={project?.title}
         subtitle={project?.name}
-        buttonText={'Add Subsystem'}
-        onClick={() => goToAddSubsystem(projectName)}
+        primaryText={'Add Subsystem'}
+        onPrimaryClick={() => goToAddSubsystem(projectName)}
+        secondaryText={'Back'}
+        onSecondaryClick={() => goToProjects()}
       />
 
       {!isLoading && subsystems.length === 0 && (

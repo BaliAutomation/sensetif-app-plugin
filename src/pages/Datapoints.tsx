@@ -5,7 +5,7 @@ import { Alert, Icon } from '@grafana/ui';
 
 import { DatapointSettings, SubsystemSettings } from '../types';
 import { deleteDatapoint, getDatapoints, getSubsystem } from 'utils/api';
-import { goToAddDatapoint, goToEditDatapoint } from 'utils/navigation';
+import { goToAddDatapoint, goToEditDatapoint, goToSubsystems } from 'utils/navigation';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
 
@@ -48,8 +48,10 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
       <PageHeader
         title={subsystem?.title}
         subtitle={subsystem && `${projectName} - ${subsystemName}`}
-        buttonText={'Add Datapoint'}
-        onClick={() => goToAddDatapoint(projectName, subsystemName)}
+        primaryText={'Add Datapoint'}
+        onPrimaryClick={() => goToAddDatapoint(projectName, subsystemName)}
+        secondaryText={'Back'}
+        onSecondaryClick={() => goToSubsystems(projectName)}
       />
 
       {!isLoading && datapoints.length === 0 && (
