@@ -13,6 +13,7 @@ export const AddSubsystem: FC<AppRootProps> = ({ query }) => {
         onSubmit={(subsystem) => {
           upsertSubsystem(projectName, subsystem).then(() => goToSubsystems(projectName));
         }}
+        onCancel={() => goToSubsystems(projectName)}
       />
     </>
   );

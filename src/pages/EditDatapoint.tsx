@@ -54,7 +54,11 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
 
   return (
     <>
-      <DatapointForm datapoint={datapoint} onSubmit={(data) => updateDatapoint(data)} />
+      <DatapointForm
+        datapoint={datapoint}
+        onSubmit={(data) => updateDatapoint(data)}
+        onCancel={() => goToDatapoints(projectName, subsystemName)}
+      />
     </>
   );
 };

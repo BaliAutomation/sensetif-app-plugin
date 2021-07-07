@@ -52,7 +52,7 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
 
   return (
     <>
-      <ProjectForm project={project} onSubmit={(data) => updateProject(data)} />
+      <ProjectForm project={project} onSubmit={(data) => updateProject(data)} onCancel={() => goToProjects()} />
     </>
   );
 };

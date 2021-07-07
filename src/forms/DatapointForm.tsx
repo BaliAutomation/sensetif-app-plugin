@@ -25,9 +25,10 @@ import { PATTERN_NAME } from './common';
 interface Props {
   datapoint?: DatapointSettings;
   onSubmit: (data: DatapointSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
+  onCancel: () => void;
 }
 
-export const DatapointForm: FC<Props> = ({ datapoint, onSubmit }) => {
+export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
   const defaultAuthenticationType = AuthenticationType.none;
   const defaultFormat = OriginDocumentFormat.json;
   const defaultScaling = ScalingFunction.lin;
@@ -363,7 +364,12 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit }) => {
               </Field>
             </FieldSet>
 
-            <Button type="submit">{datapoint ? 'Update' : 'Save'}</Button>
+            <HorizontalGroup>
+              <Button type="button" variant={'secondary'} onClick={onCancel}>
+                {'Cancel'}
+              </Button>
+              <Button type="submit">{!!datapoint ? 'Update' : 'Save'}</Button>
+            </HorizontalGroup>
           </>
         );
       }}

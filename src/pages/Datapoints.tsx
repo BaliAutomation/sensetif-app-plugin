@@ -81,4 +81,4 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
       />
     </>
   );
-}
+};

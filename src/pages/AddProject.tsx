@@ -11,6 +11,7 @@ export const AddProject: FC<Props> = () => {
         onSubmit={(project) => {
           upsertProject(project).then(() => goToProjects());
         }}
+        onCancel={() => goToProjects()}
       />
     </>
   );

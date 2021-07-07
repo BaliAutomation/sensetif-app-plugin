@@ -14,6 +14,7 @@ export const AddDatapoint: FC<AppRootProps> = ({ query }) => {
         onSubmit={(datapoint) => {
           upsertDatapoint(projectName, subsystemName, datapoint).then(() => goToDatapoints(projectName, subsystemName));
         }}
+        onCancel={() => goToDatapoints(projectName, subsystemName)}
       />
     </>
   );

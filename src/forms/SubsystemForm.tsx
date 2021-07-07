@@ -1,14 +1,15 @@
 import React, { FC } from 'react';
 import { SubsystemSettings } from '../types';
-import { Button, Field, FieldSet, Form, Input } from '@grafana/ui';
+import { Button, Field, FieldSet, Form, HorizontalGroup, Input } from '@grafana/ui';
 import { PATTERN_NAME } from './common';
 
 interface Props {
   subsystem?: SubsystemSettings;
   onSubmit: (data: SubsystemSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
+  onCancel: () => void;
 }
 
-export const SubsystemForm: FC<Props> = ({ subsystem, onSubmit }) => {
+export const SubsystemForm: FC<Props> = ({ subsystem, onSubmit, onCancel }) => {
   return (
     <Form<SubsystemSettings>
       onSubmit={onSubmit}
@@ -64,7 +65,12 @@ export const SubsystemForm: FC<Props> = ({ subsystem, onSubmit }) => {
                   css=""
                 />
               </Field>
-              <Button type="submit">{subsystem ? 'Update' : 'Save'}</Button>
+              <HorizontalGroup>
+                <Button type="button" variant={'secondary'} onClick={onCancel}>
+                  {'Cancel'}
+                </Button>
+                <Button type="submit">{!!subsystem ? 'Update' : 'Save'}</Button>
+              </HorizontalGroup>
             </FieldSet>
           </>
         );

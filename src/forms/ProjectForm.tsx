@@ -1,6 +1,16 @@
 import React, { FC } from 'react';
 import { ProjectSettings } from '../types';
-import { TimeZonePicker, Button, Field, FieldSet, Form, Input, InputControl, Select } from '@grafana/ui';
+import {
+  TimeZonePicker,
+  Button,
+  Field,
+  FieldSet,
+  Form,
+  Input,
+  InputControl,
+  Select,
+  HorizontalGroup,
+} from '@grafana/ui';
 import { getNames as getCountryNames } from 'country-list';
 import { SelectableValue } from '@grafana/data';
 import { PATTERN_NAME } from './common';
@@ -8,9 +18,10 @@ import { PATTERN_NAME } from './common';
 interface Props {
   project?: ProjectSettings;
   onSubmit: (data: ProjectSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
+  onCancel: () => void;
 }
 
-export const ProjectForm: FC<Props> = ({ project, onSubmit }) => {
+export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
   return (
     <Form<ProjectSettings>
       onSubmit={onSubmit}
@@ -105,7 +116,12 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit }) => {
                   css=""
                 />
               </Field>
-              <Button type="submit">{!!project ? 'Update' : 'Save'}</Button>
+              <HorizontalGroup>
+                <Button type="button" variant={'secondary'} onClick={onCancel}>
+                  {'Cancel'}
+                </Button>
+                <Button type="submit">{!!project ? 'Update' : 'Save'}</Button>
+              </HorizontalGroup>
             </FieldSet>
           </>
         );

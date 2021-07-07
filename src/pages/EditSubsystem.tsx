@@ -53,7 +53,11 @@ export const EditSubsystem: FC<AppRootProps> = ({ query }) => {
 
   return (
     <>
-      <SubsystemForm subsystem={subsystem} onSubmit={(data) => updateSubsystem(data)} />
+      <SubsystemForm
+        subsystem={subsystem}
+        onSubmit={(data) => updateSubsystem(data)}
+        onCancel={() => goToSubsystems(projectName)}
+      />
     </>
   );
 };
