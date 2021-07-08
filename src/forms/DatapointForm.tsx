@@ -29,11 +29,6 @@ interface Props {
 }
 
 export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
-  const defaultAuthenticationType = AuthenticationType.none;
-  const defaultFormat = OriginDocumentFormat.json;
-  const defaultScaling = ScalingFunction.lin;
-  const defaultTimestampType: TimestampType = TimestampType.polltime;
-
   const numericInputStyle = css`
     /* hides spin buttons */
     input[type='number']::-webkit-inner-spin-button {
@@ -42,18 +37,20 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
     }
   `;
 
+  const defaultValues: Partial<DatapointSettings> = datapoint ?? {
+    authenticationType: AuthenticationType.none,
+    format: OriginDocumentFormat.json,
+    scaling: ScalingFunction.lin,
+    timestampType: TimestampType.polltime,
+  };
+
   return (
-    <Form<DatapointSettings>
-      onSubmit={onSubmit}
-      defaultValues={{
-        ...datapoint,
-      }}
-    >
+    <Form<DatapointSettings> onSubmit={onSubmit} defaultValues={defaultValues}>
       {({ register, errors, control, watch }) => {
-        const authType = watch('authenticationType', defaultAuthenticationType);
-        const format = watch('format', defaultFormat);
-        const scaling = watch('scaling', defaultScaling);
-        const timestampType = watch('timestampType', defaultTimestampType);
+        const authType = watch('authenticationType');
+        const format = watch('format');
+        const scaling = watch('scaling');
+        const timestampType = watch('timestampType');
 
         return (
           <>
@@ -142,7 +139,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                     required: 'Auth selection is required',
                   }}
                   control={control}
-                  defaultValue={defaultAuthenticationType}
+                  defaultValue={defaultValues.authenticationType}
                   name="authenticationType"
                 />
               </Field>
@@ -203,7 +200,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                     required: 'Format selection is required',
                   }}
                   control={control}
-                  defaultValue={defaultFormat}
+                  defaultValue={defaultValues.format}
                   name="format"
                 />
               </Field>
