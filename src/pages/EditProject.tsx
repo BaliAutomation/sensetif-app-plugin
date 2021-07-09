@@ -7,15 +7,15 @@ import { getProject, upsertProject } from 'utils/api';
 import { goToProjects } from 'utils/navigation';
 
 export const EditProject: FC<AppRootProps> = ({ query }) => {
-  const name: string = query['project'];
+  const projectName: string = query['project'];
 
   const [project, setProject] = useState<ProjectSettings>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [fetchErr, setFetchErr] = useState(undefined);
 
   useEffect(() => {
-    loadProject(name);
-  }, [name]);
+    loadProject(projectName);
+  }, [projectName]);
 
   const loadProject = (name: string) => {
     setIsLoading(true);
@@ -33,6 +33,7 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
   };
 
   const updateProject = (project: ProjectSettings) => {
+    project.name = projectName;
     upsertProject(project)
       .then(() => goToProjects())
       .catch((err) => console.log(err));
