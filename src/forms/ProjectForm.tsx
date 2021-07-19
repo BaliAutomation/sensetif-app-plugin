@@ -26,10 +26,7 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
     <Form<ProjectSettings>
       onSubmit={onSubmit}
       defaultValues={{
-        name: project?.name,
-        title: project?.title,
-        city: project?.city,
-        geolocation: project?.geolocation,
+        ...project,
       }}
     >
       {({ register, errors, control }) => {
