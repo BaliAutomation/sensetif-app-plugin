@@ -55,12 +55,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
         return (
           <>
             <FieldSet label="Datapoint details">
-              <Field
-                label="Name"
-                invalid={!!errors.name}
-                error={errors.name && errors.name.message}
-                disabled={!!datapoint}
-              >
+              <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {
                     required: 'Datapoint name is required',
@@ -69,6 +64,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                       message: 'Allowed letters, numbers and "_". Must start with a letter.',
                     },
                   })}
+                  readOnly={!!datapoint}
                   placeholder="Datapoint name"
                   css=""
                 />

@@ -33,12 +33,7 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
         return (
           <>
             <FieldSet label="Project details">
-              <Field
-                label="Name"
-                invalid={!!errors.name}
-                error={errors.name && errors.name.message}
-                disabled={!!project}
-              >
+              <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {
                     required: 'Project name is required',
@@ -47,6 +42,7 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                       message: 'Allowed letters, numbers and "_". Must start with a letter.',
                     },
                   })}
+                  readOnly={!!project}
                   placeholder="Project name"
                   css=""
                 />

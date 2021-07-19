@@ -23,12 +23,7 @@ export const SubsystemForm: FC<Props> = ({ subsystem, onSubmit, onCancel }) => {
         return (
           <>
             <FieldSet label="Subsystem details">
-              <Field
-                label="Name"
-                invalid={!!errors.name}
-                error={errors.name && errors.name.message}
-                disabled={!!subsystem}
-              >
+              <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {
                     required: 'Subsystem name is required',
@@ -38,6 +33,7 @@ export const SubsystemForm: FC<Props> = ({ subsystem, onSubmit, onCancel }) => {
                     },
                   })}
                   css=""
+                  readOnly={!!subsystem}
                   placeholder="Subsystem name"
                 />
               </Field>

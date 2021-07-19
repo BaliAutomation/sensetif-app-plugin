@@ -35,7 +35,6 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
   };
 
   const updateDatapoint = (dp: DatapointSettings) => {
-    dp.name = datapointName;
     upsertDatapoint(projectName, subsystemName, dp)
       .then(() => goToDatapoints(projectName, subsystemName))
       .catch((err) => console.log(err));

@@ -33,7 +33,6 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
   };
 
   const updateProject = (project: ProjectSettings) => {
-    project.name = projectName;
     upsertProject(project)
       .then(() => goToProjects())
       .catch((err) => console.log(err));

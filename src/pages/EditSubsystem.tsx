@@ -34,7 +34,6 @@ export const EditSubsystem: FC<AppRootProps> = ({ query }) => {
   };
 
   const updateSubsystem = (sub: SubsystemSettings) => {
-    sub.name = subsystemName;
     upsertSubsystem(projectName, sub)
       .then(() => goToSubsystems(projectName))
       .catch((err) => console.log(err));
