@@ -62,7 +62,6 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
         onDelete={(project) => removeProject(project.name)}
         getSubtitle={(project) => (project.city ? project.city : 'Not specified')}
         getTitle={(project) => project.title}
-        getRightSideText={(project) => (project.subsystems?.length ? `${project.subsystems?.length}` : 'No subsystems')}
       />
     </>
   );
