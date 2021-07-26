@@ -21,11 +21,39 @@ export interface SubsystemSettings {
   datapoints: DatapointSettings[];
 }
 
+export enum DatasourceType {
+  web, ttnv3
+}
+
+export interface Datasource {
+
+}
+
 export interface DatapointSettings {
   project: string;
   subsystem: string;
   name: string; // validate regexp:[a-z][A-Za-z0-9_.]*
   interval: PollInterval;
+  sourcetype: DatasourceType;
+  datasource: Datasource;
+
+  // Ideally only show k and m for ScalingFunctions that uses them, and show the formula with the scaling function
+  scaling: ScalingFunction;
+  k: number;
+  m: number;
+  unit: string; // Allow all characters
+  timeToLive: TimeToLive;
+}
+
+export interface Ttnv3Datasource extends Datasource {
+  zone: string;
+  application: string;
+  device: string;
+  pointname: string;
+  authorizationKey: string;
+}
+
+export interface WebDatasource extends Datasource {
   url: string; // validate URL, incl anchor and query arguments, but disallow user:pwd@
 
   // Authentication is going to need a lot in the future, but for now user/pass is fine
@@ -37,16 +65,9 @@ export interface DatapointSettings {
 
   format: OriginDocumentFormat;
   valueExpression: string; // if format==xml, then xpath. if format==json, then jsonpath. If there is library available for validation, do that. If not, put in a function and we figure that out later.
-  unit: string; // Allow all characters
-
-  // Ideally only show k and m for ScalingFunctions that uses them, and show the formula with the scaling function
-  scaling: ScalingFunction;
-  k: number;
-  m: number;
 
   timestampType: TimestampType;
   timestampExpression: string; // if format==xml, then xpath. if format==json, then jsonpath.
-  timeToLive: TimeToLive;
 }
 
 export enum TimeToLive {
@@ -115,6 +136,7 @@ export enum PollInterval {
   i, // 12 hours
   j, // 24 hours
 }
+
 export enum OriginDocumentFormat {
   json,
   xml,
@@ -127,4 +149,5 @@ export enum AuthenticationType {
   authorizationKey,
 }
 
-export interface GlobalSettings {}
+export interface GlobalSettings {
+}
