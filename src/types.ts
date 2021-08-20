@@ -22,11 +22,8 @@ export interface SubsystemSettings {
 }
 
 export enum DatasourceType {
-  web, ttnv3
-}
-
-export interface Datasource {
-
+  web,
+  ttnv3,
 }
 
 export interface DatapointSettings {
@@ -35,7 +32,7 @@ export interface DatapointSettings {
   name: string; // validate regexp:[a-z][A-Za-z0-9_.]*
   interval: PollInterval;
   sourcetype: DatasourceType;
-  datasource: Datasource;
+  datasource: WebDatasource | Ttnv3Datasource;
 
   // Ideally only show k and m for ScalingFunctions that uses them, and show the formula with the scaling function
   scaling: ScalingFunction;
@@ -45,7 +42,7 @@ export interface DatapointSettings {
   timeToLive: TimeToLive;
 }
 
-export interface Ttnv3Datasource extends Datasource {
+export interface Ttnv3Datasource {
   zone: string;
   application: string;
   device: string;
@@ -53,7 +50,7 @@ export interface Ttnv3Datasource extends Datasource {
   authorizationKey: string;
 }
 
-export interface WebDatasource extends Datasource {
+export interface WebDatasource {
   url: string; // validate URL, incl anchor and query arguments, but disallow user:pwd@
 
   // Authentication is going to need a lot in the future, but for now user/pass is fine
@@ -149,5 +146,4 @@ export enum AuthenticationType {
   authorizationKey,
 }
 
-export interface GlobalSettings {
-}
+export interface GlobalSettings {}

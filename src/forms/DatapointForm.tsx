@@ -1,18 +1,20 @@
 import React, { FC } from 'react';
 import {
-  AuthenticationType,
   DatapointSettings,
+  DatasourceType,
   OriginDocumentFormat,
   PollInterval,
   ScalingFunction,
-  TimestampType,
   TimeToLive,
+  Ttnv3Datasource,
+  WebDatasource,
 } from '../types';
 import {
   Button,
   Field,
   FieldSet,
   Form,
+  FormAPI,
   HorizontalGroup,
   Input,
   InputControl,
@@ -21,6 +23,8 @@ import {
 } from '@grafana/ui';
 import { css } from '@emotion/css';
 import { PATTERN_NAME } from './common';
+import { WebDatasourceForm } from './datapoint/WebDatasourceForm';
+import { Ttnv3DatasourceForm } from './datapoint/Ttnv3DatasourceForm';
 
 interface Props {
   datapoint?: DatapointSettings;
@@ -38,19 +42,16 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
   `;
 
   const defaultValues: Partial<DatapointSettings> = datapoint ?? {
-    authenticationType: AuthenticationType.none,
-    format: OriginDocumentFormat.json,
     scaling: ScalingFunction.lin,
-    timestampType: TimestampType.polltime,
+    sourcetype: DatasourceType.web,
   };
 
   return (
     <Form<DatapointSettings> onSubmit={onSubmit} defaultValues={defaultValues}>
-      {({ register, errors, control, watch }) => {
-        const authType = watch('authenticationType');
-        const format = watch('format');
+      {(formAPI: FormAPI<DatapointSettings>) => {
+        const { register, errors, control, watch } = formAPI;
         const scaling = watch('scaling');
-        const timestampType = watch('timestampType');
+        const sourceType = watch('sourcetype');
 
         return (
           <>
@@ -100,130 +101,43 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                   control={control}
                 />
               </Field>
-
-              <Field label="URL" invalid={!!errors.url} error={errors.url && errors.url.message}>
-                <Input
-                  {...register('url', {
-                    required: 'URL is required',
-                  })}
-                  type="url"
-                  placeholder="Datapoint URL"
-                  css=""
-                />
-              </Field>
             </FieldSet>
 
-            {/* auth */}
-            <FieldSet label="Authorization">
-              <Field
-                label="Authentication type"
-                invalid={!!errors.authenticationType}
-                error={errors.authenticationType && errors.authenticationType.message}
-              >
-                <InputControl
-                  render={({ field }) => (
-                    <RadioButtonGroup
-                      {...field}
-                      options={[
-                        { label: 'None', value: AuthenticationType.none },
-                        { label: 'User & Password', value: AuthenticationType.basic },
-                        { label: 'Authorization key', value: AuthenticationType.authorizationKey },
-                      ]}
-                    />
-                  )}
-                  rules={{
-                    required: 'Auth selection is required',
-                  }}
-                  control={control}
-                  defaultValue={defaultValues.authenticationType}
-                  name="authenticationType"
-                />
-              </Field>
-
-              {authType === AuthenticationType.basic && (
-                <>
-                  <Field label="Username" invalid={!!errors.auth?.u} error={errors.auth?.u && errors.auth.u.message}>
-                    <Input
-                      css=""
-                      {...register('auth.u', {
-                        required: 'Username is required',
-                      })}
-                      placeholder="Username"
-                    />
-                  </Field>
-                  <Field label="Password" invalid={!!errors.auth?.p} error={errors.auth?.p && errors.auth.p.message}>
-                    <Input
-                      css=""
-                      {...register('auth.p', {
-                        required: 'Password is required',
-                      })}
-                      type="password"
-                      placeholder="Password"
-                    />
-                  </Field>
-                </>
-              )}
-              {/* {authType === AuthenticationType.authorizationKey && (
-                <Field
-                  label="Authorization key"
-                  invalid={!!errors.authKey}
-                  error={errors.authKey && errors.authKey.message}
-                >
-                  <Input
-                    css=""
-                    {...register('authKey', {
-                      required: 'Authorization Key is required',
-                    })}
-                    placeholder="Key"
+            <Field label="Source Type">
+              <InputControl
+                render={({ field }) => (
+                  <RadioButtonGroup
+                    {...field}
+                    options={[
+                      { label: 'web', value: DatasourceType.web },
+                      { label: 'ttnv3', value: DatasourceType.ttnv3 },
+                    ]}
                   />
-                </Field>
-              )} */}
-            </FieldSet>
+                )}
+                rules={{
+                  required: 'Source type selection is required',
+                }}
+                control={control}
+                defaultValue={defaultValues.sourcetype}
+                name="sourcetype"
+              />
+            </Field>
+            {sourceType === DatasourceType.ttnv3 && (
+              <Ttnv3DatasourceForm {...formAPI} datasource={datapoint?.datasource as Ttnv3Datasource} />
+            )}
+            {sourceType === DatasourceType.web && (
+              <WebDatasourceForm {...formAPI} datasource={datapoint?.datasource as WebDatasource} />
+            )}
 
-            <FieldSet label="Document Format">
-              <Field label="Format" invalid={!!errors.format} error={errors.format && errors.format.message}>
-                <InputControl
-                  render={({ field }) => (
-                    <RadioButtonGroup
-                      {...field}
-                      options={[
-                        { label: 'json', value: OriginDocumentFormat.json },
-                        { label: 'xml', value: OriginDocumentFormat.xml },
-                      ]}
-                    />
-                  )}
-                  rules={{
-                    required: 'Format selection is required',
-                  }}
-                  control={control}
-                  defaultValue={defaultValues.format}
-                  name="format"
-                />
-              </Field>
-              <Field
-                label={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
-                invalid={!!errors.valueExpression}
-                error={errors.valueExpression && errors.valueExpression.message}
-              >
-                <Input
-                  {...register('valueExpression', {
-                    required: 'expression is required',
-                  })}
-                  css={''}
-                  placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
-                />
-              </Field>
-
-              <Field label="Unit" invalid={!!errors.unit} error={errors.unit && errors.unit.message}>
-                <Input
-                  {...register('unit', {
-                    required: 'Unit is required',
-                  })}
-                  placeholder="unit"
-                  css=""
-                />
-              </Field>
-            </FieldSet>
+            <Field label="Unit" invalid={!!errors.unit} error={errors.unit && errors.unit.message}>
+              <Input
+                {...register('unit', {
+                  required: 'Unit is required',
+                })}
+                placeholder="unit"
+                css=""
+              />
+            </Field>
             <FieldSet label="Scaling">
               <HorizontalGroup>
                 <Field label="Function" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
@@ -288,47 +202,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
               </HorizontalGroup>
             </FieldSet>
 
-            <FieldSet label="Timestamp">
-              <Field
-                label="Type"
-                invalid={!!errors.timestampType}
-                error={errors.timestampType && errors.timestampType.message}
-              >
-                <InputControl
-                  render={({ field: { onChange, ref, ...field } }) => (
-                    <Select
-                      {...field}
-                      onChange={(value) => onChange(value.value)}
-                      options={[
-                        { label: 'Poll Time', value: TimestampType.polltime },
-                        { label: 'Milliseconds', value: TimestampType.epochMillis },
-                        { label: 'Seconds', value: TimestampType.epochSeconds },
-                        { label: 'ISO8601 with Timezone', value: TimestampType.iso8601_zoned },
-                        { label: 'ISO8601 with Offset', value: TimestampType.iso8601_offset },
-                      ]}
-                    />
-                  )}
-                  rules={{
-                    required: 'Timestamp Type selection is required',
-                  }}
-                  control={control}
-                  defaultValue={TimestampType.epochMillis}
-                  name="timestampType"
-                />
-              </Field>
-              {timestampType !== TimestampType.polltime && (
-                <Field
-                  label={format === OriginDocumentFormat.json ? 'JSON Path Expression' : 'XPath Expression'}
-                  invalid={!!errors.timestampExpression}
-                  error={errors.timestampExpression && errors.timestampExpression.message}
-                >
-                  <Input
-                    {...register('timestampExpression', {})}
-                    placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
-                    css=""
-                  />
-                </Field>
-              )}
+            <FieldSet label="TTL">
               <Field label="Storage Period" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
                 <InputControl
                   render={({ field: { onChange, ref, ...field } }) => (
