@@ -22,24 +22,30 @@ export interface SubsystemSettings {
 }
 
 export enum DatasourceType {
-  web,
-  ttnv3,
+  web = 'web',
+  ttnv3 = 'ttnv3',
+}
+
+export interface Processing {
+  unit: string; // Allow all characters
+  scaling: ScalingFunction;
+  k: number;
+  m: number;
+  min: number;
+  max: number;
+  condition: string;
+  scalefunc: string
 }
 
 export interface DatapointSettings {
   project: string;
   subsystem: string;
   name: string; // validate regexp:[a-z][A-Za-z0-9_.]*
-  interval: PollInterval;
-  sourcetype: DatasourceType;
-  datasource: WebDatasource | Ttnv3Datasource;
-
-  // Ideally only show k and m for ScalingFunctions that uses them, and show the formula with the scaling function
-  scaling: ScalingFunction;
-  k: number;
-  m: number;
-  unit: string; // Allow all characters
+  pollinterval: PollInterval;
+  proc: Processing;
   timeToLive: TimeToLive;
+  datasourcetype: DatasourceType;
+  datasource: WebDatasource | Ttnv3Datasource;
 }
 
 export interface Ttnv3Datasource {
@@ -68,82 +74,85 @@ export interface WebDatasource {
 }
 
 export enum TimeToLive {
-  a, // 3 months
-  b, // 6 months
-  c, // 1 year
-  d, // 2 years
-  e, // 3 years
-  f, // 4 years
-  g, // 5 years
-  h, // forever
+  a = 'a', // 3 months
+  b = 'b', // 6 months
+  c = 'c', // 1 year
+  d = 'd', // 2 years
+  e = 'e', // 3 years
+  f = 'f', // 4 years
+  g = 'g', // 5 years
+  h = 'h', // forever
 }
 
 export enum TimestampType {
-  epochMillis,
-  epochSeconds,
-  iso8601_zoned,
-  iso8601_offset,
-  polltime,
+  epochMillis = 'epochMillis',
+  epochSeconds = 'epochSeconds',
+  iso8601_zoned = 'iso8601_zoned',
+  iso8601_offset = 'iso8601_offset',
+  polltime = 'polltime',
 }
 
 export enum ScalingFunction {
   /** f(x) = k * x + m */
-  lin,
+  lin = 'lin',
 
   /** f(x) = k * ln(m*x) */
-  log,
+  log = 'log',
 
   /** f(x) = k * e^(m*x) */
-  exp,
+  exp = 'exp',
 
   /** Inputs are degrees, to be converted to radians. */
-  rad,
+  rad = 'rad',
 
   /** Input are radians, to be converted to degrees. */
-  deg,
+  deg = 'deg',
 
   /** Input Fahrenheit, output Celsius */
-  fToC,
+  fToC = 'fToC',
 
   /** Input Celsius, output Fahrenheit */
-  cToF,
+  cToF = 'cToF',
 
   /** Input Kelvin, output Celsius */
-  kToC,
+  kToC = 'kToC',
 
   /** Input Celsius, output Kelvin */
-  cToK,
+  cToK = 'cToK',
 
   /** Input Fahrenheit, output Kelvin */
-  fToK,
+  fToK = 'fToK',
 
   /** Input Kelvin, output Fahrenheit */
-  kTof,
+  kToF = 'ktoF',
 }
 
 export enum PollInterval {
-  a, // 1 minutes (do not show)
-  b, // 5 minutes
-  c, // 10 minutes
-  d, // 15 minutes
-  e, // 30 minutes
-  f, // 1 hour
-  g, // 3 hours
-  h, // 6 hours
-  i, // 12 hours
-  j, // 24 hours
+  one_minute = 'one_minute', // 1 minutes (do not show)
+  five_minutes = 'five_minutes', // 5 minutes
+  ten_minutes = 'ten_minutes', // 10 minutes
+  fifteen_minutes = 'fifteen_minutes', // 15 minutes
+  twenty_minutes = 'twenty_minutes', // 20 minutes
+  thirty_minutes = 'thirty_minutes', // 30 minutes
+  one_hour = 'one_hour', // 1 hours
+  two_hours = 'two_hours', // 2 hours
+  three_hours = 'three_hours', // 3 hours
+  six_hours = 'six_hours', // 6 hours
+  twelve_hours = 'twelve_hours', // 12 hours
+  one_day = 'one_day', // 1 day
+  weekly = 'weekly', // 1 week
+  monthly = 'monthly', // 1 month
 }
 
 export enum OriginDocumentFormat {
-  json,
-  xml,
-  //  ttn,    // The Things Network
+  json = 'json',
+  xml = 'xml',
 }
 
 export enum AuthenticationType {
-  none,
-  basic,
-  authorizationKey,
+  none = 'none',
+  basic = 'basic',
+  bearerToken = 'bearerToken',
 }
 
 export interface GlobalSettings {}

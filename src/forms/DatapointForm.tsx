@@ -43,7 +43,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
 
   const defaultValues: Partial<DatapointSettings> = datapoint ?? {
     scaling: ScalingFunction.lin,
-    sourcetype: DatasourceType.web,
+    datasourcetype: DatasourceType.web,
   };
 
   return (
@@ -51,7 +51,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
       {(formAPI: FormAPI<DatapointSettings>) => {
         const { register, errors, control, watch } = formAPI;
         const scaling = watch('scaling');
-        const sourceType = watch('sourcetype');
+        const sourceType = watch('datasourcetype');
 
         return (
           <>
@@ -73,8 +73,8 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
 
               <Field
                 label="Poll interval"
-                invalid={!!errors.interval}
-                error={errors.interval && errors.interval.message}
+                invalid={!!errors.pollinterval}
+                error={errors.pollinterval && errors.pollinterval.message}
               >
                 <InputControl
                   render={({ field: { onChange, ref, ...field } }) => (
@@ -82,22 +82,26 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                       {...field}
                       onChange={(value) => onChange(value.value)}
                       options={[
-                        { label: '5 minutes', value: PollInterval.b },
-                        { label: '10 minutes', value: PollInterval.c },
-                        { label: '15 minutes', value: PollInterval.d },
-                        { label: '30 minutes', value: PollInterval.e },
-                        { label: '1 hour', value: PollInterval.f },
-                        { label: '3 hours', value: PollInterval.g },
-                        { label: '6 hours', value: PollInterval.h },
-                        { label: '12 hours', value: PollInterval.i },
-                        { label: '24 hours', value: PollInterval.j },
+                        { label: '5 minutes', value: PollInterval.five_minutes },
+                        { label: '10 minutes', value: PollInterval.ten_minutes },
+                        { label: '15 minutes', value: PollInterval.fifteen_minutes },
+                        { label: '20 minutes', value: PollInterval.twenty_minutes },
+                        { label: '30 minutes', value: PollInterval.thirty_minutes },
+                        { label: '1 hour', value: PollInterval.one_hour },
+                        { label: '2 hours', value: PollInterval.two_hours },
+                        { label: '3 hours', value: PollInterval.three_hours },
+                        { label: '6 hours', value: PollInterval.six_hours },
+                        { label: '12 hours', value: PollInterval.twelve_hours },
+                        { label: '24 hours', value: PollInterval.one_day },
+                        { label: '1 week', value: PollInterval.weekly },
+                        { label: '1 month', value: PollInterval.monthly },
                       ]}
                     />
                   )}
                   rules={{
                     required: 'Interval selection is required',
                   }}
-                  name="interval"
+                  name="pollinterval"
                   control={control}
                 />
               </Field>
@@ -118,8 +122,8 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                   required: 'Source type selection is required',
                 }}
                 control={control}
-                defaultValue={defaultValues.sourcetype}
-                name="sourcetype"
+                defaultValue={defaultValues.datasourcetype}
+                name="datasourcetype"
               />
             </Field>
             {sourceType === DatasourceType.ttnv3 && (
@@ -156,7 +160,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                           { label: 'Celsius->Fahrenheit', value: ScalingFunction.cToF },
                           { label: 'Kelvin->Celsius', value: ScalingFunction.kToC },
                           { label: 'Celsius->Kelvin', value: ScalingFunction.cToK },
-                          { label: 'Kelvin->Fahrenheit', value: ScalingFunction.kTof },
+                          { label: 'Kelvin->Fahrenheit', value: ScalingFunction.kToF },
                           { label: 'Fahrenheit->Kelvin', value: ScalingFunction.fToK },
                         ]}
                       />
