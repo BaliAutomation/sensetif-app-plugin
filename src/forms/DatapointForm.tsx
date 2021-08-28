@@ -42,7 +42,16 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
   `;
 
   const defaultValues: Partial<DatapointSettings> = datapoint ?? {
-    scaling: ScalingFunction.lin,
+    proc: {
+      scaling: ScalingFunction.lin,
+      unit: '',
+      k: 1.0,
+      m: 0.0,
+      min: -10000,
+      max: 10000,
+      condition: '',
+      scalefunc: '',
+    },
     datasourcetype: DatasourceType.web,
   };
 
@@ -50,7 +59,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
     <Form<DatapointSettings> onSubmit={onSubmit} defaultValues={defaultValues}>
       {(formAPI: FormAPI<DatapointSettings>) => {
         const { register, errors, control, watch } = formAPI;
-        const scaling = watch('scaling');
+        const scaling = watch('proc.scaling');
         const sourceType = watch('datasourcetype');
 
         return (
@@ -133,9 +142,13 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
               <WebDatasourceForm {...formAPI} datasource={datapoint?.datasource as WebDatasource} />
             )}
 
-            <Field label="Unit" invalid={!!errors.unit} error={errors.unit && errors.unit.message}>
+            <Field
+              label="Unit"
+              invalid={!errors.proc || !!errors.proc.unit}
+              error={errors.proc ? errors.proc.unit && errors.proc.unit.message : 'unknown error'}
+            >
               <Input
-                {...register('unit', {
+                {...register('proc.unit', {
                   required: 'Unit is required',
                 })}
                 placeholder="unit"
@@ -144,7 +157,11 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
             </Field>
             <FieldSet label="Scaling">
               <HorizontalGroup>
-                <Field label="Function" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
+                <Field
+                  label="Function"
+                  invalid={!errors.proc || !!errors.proc.scaling}
+                  error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : 'unknown error'}
+                >
                   <InputControl
                     render={({ field: { onChange, ref, ...field } }) => (
                       <Select
@@ -170,7 +187,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                     }}
                     control={control}
                     defaultValue={OriginDocumentFormat.json}
-                    name="scaling"
+                    name="proc.scaling"
                   />
                 </Field>
                 {(scaling === ScalingFunction.lin ||
@@ -178,7 +195,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                   scaling === ScalingFunction.exp) && (
                   <Field label="k">
                     <Input
-                      {...register('k', {
+                      {...register('proc.k', {
                         valueAsNumber: true,
                       })}
                       type="number"
@@ -193,7 +210,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                   scaling === ScalingFunction.exp) && (
                   <Field label="m">
                     <Input
-                      {...register('m', {
+                      {...register('proc.m', {
                         valueAsNumber: true,
                       })}
                       type="number"
@@ -207,7 +224,11 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
             </FieldSet>
 
             <FieldSet label="TTL">
-              <Field label="Storage Period" invalid={!!errors.scaling} error={errors.scaling && errors.scaling.message}>
+              <Field
+                label="Storage Period"
+                invalid={!errors.proc || !!errors.proc.scaling}
+                error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : 'unkwown error'}
+              >
                 <InputControl
                   render={({ field: { onChange, ref, ...field } }) => (
                     <Select

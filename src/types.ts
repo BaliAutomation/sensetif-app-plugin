@@ -34,7 +34,7 @@ export interface Processing {
   min: number;
   max: number;
   condition: string;
-  scalefunc: string
+  scalefunc: string;
 }
 
 export interface DatapointSettings {
