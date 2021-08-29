@@ -18,7 +18,7 @@ export const WebDatasourceForm: FC<Props> = ({
 }) => {
   const defaultValues: Partial<WebDatasource> = datasource ?? {
     authenticationType: AuthenticationType.none,
-    format: OriginDocumentFormat.json,
+    format: OriginDocumentFormat.jsondoc,
     timestampType: TimestampType.polltime,
   };
 
@@ -111,8 +111,8 @@ export const WebDatasourceForm: FC<Props> = ({
                 <RadioButtonGroup
                   {...field}
                   options={[
-                    { label: 'json', value: OriginDocumentFormat.json },
-                    { label: 'xml', value: OriginDocumentFormat.xml },
+                    { label: 'json', value: OriginDocumentFormat.jsondoc },
+                    { label: 'xml', value: OriginDocumentFormat.xmldoc },
                   ]}
                 />
               )}
@@ -125,7 +125,7 @@ export const WebDatasourceForm: FC<Props> = ({
             />
           </Field>
           <Field
-            label={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
+            label={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
             invalid={!!dsErrors?.valueExpression}
             error={dsErrors?.valueExpression && dsErrors?.valueExpression.message}
           >
@@ -134,7 +134,7 @@ export const WebDatasourceForm: FC<Props> = ({
                 required: 'expression is required',
               })}
               css={''}
-              placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
+              placeholder={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
             />
           </Field>
         </FieldSet>
@@ -169,13 +169,13 @@ export const WebDatasourceForm: FC<Props> = ({
           </Field>
           {timestampType !== TimestampType.polltime && (
             <Field
-              label={format === OriginDocumentFormat.json ? 'JSON Path Expression' : 'XPath Expression'}
+              label={format === OriginDocumentFormat.jsondoc ? 'JSON Path Expression' : 'XPath Expression'}
               invalid={!!dsErrors?.timestampExpression}
               error={dsErrors?.timestampExpression && dsErrors?.timestampExpression.message}
             >
               <Input
                 {...register('datasource.timestampExpression', {})}
-                placeholder={format === OriginDocumentFormat.json ? 'JSON Path' : 'XPath'}
+                placeholder={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
                 css=""
               />
             </Field>

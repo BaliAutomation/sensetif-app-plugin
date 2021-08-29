@@ -186,7 +186,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                       required: 'Function selection is required',
                     }}
                     control={control}
-                    defaultValue={OriginDocumentFormat.json}
+                    defaultValue={OriginDocumentFormat.jsondoc}
                     name="proc.scaling"
                   />
                 </Field>
@@ -235,14 +235,17 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                       {...field}
                       onChange={(value) => onChange(value.value)}
                       options={[
-                        { label: '3 months', value: TimeToLive.a },
-                        { label: '6 months', value: TimeToLive.b },
-                        { label: '1 year', value: TimeToLive.c },
-                        { label: '2 years', value: TimeToLive.d },
-                        { label: '3 years', value: TimeToLive.e },
-                        { label: '4 years', value: TimeToLive.f },
-                        { label: '5 years', value: TimeToLive.g },
-                        { label: 'forever', value: TimeToLive.h },
+                        // { label: '1 week', value: TimeToLive.a },
+                        { label: '1 month', value: TimeToLive.b },
+                        { label: '3 months', value: TimeToLive.c },
+                        { label: '6 months', value: TimeToLive.d },
+                        { label: '1 year', value: TimeToLive.e },
+                        // { label: '2 years', value: TimeToLive.f },
+                        { label: '3 years', value: TimeToLive.g },
+                        // { label: '4 years', value: TimeToLive.h },
+                        // { label: '5 years', value: TimeToLive.i },
+                        // { label: '10 years', value: TimeToLive.i },
+                        // { label: 'forever', value: TimeToLive.k },
                       ]}
                     />
                   )}

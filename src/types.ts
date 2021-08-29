@@ -74,14 +74,17 @@ export interface WebDatasource {
 }
 
 export enum TimeToLive {
-  a = 'a', // 3 months
-  b = 'b', // 6 months
-  c = 'c', // 1 year
-  d = 'd', // 2 years
-  e = 'e', // 3 years
-  f = 'f', // 4 years
-  g = 'g', // 5 years
-  h = 'h', // forever
+  a = 'a', // 1 week
+  b = 'b', // 1 month
+  c = 'c', // 3 months
+  d = 'd', // 6 months
+  e = 'e', // 1 year
+  f = 'f', // 2 years
+  g = 'g', // 3 years
+  h = 'h', // 4 years
+  i = 'i', // 5 years
+  j = 'j', // 10 years
+  k = 'k', // forever
 }
 
 export enum TimestampType {
@@ -145,8 +148,8 @@ export enum PollInterval {
 }
 
 export enum OriginDocumentFormat {
-  json = 'json',
-  xml = 'xml',
+  jsondoc = 'jsondoc',
+  xmldoc = 'xmldoc',
 }
 
 export enum AuthenticationType {
