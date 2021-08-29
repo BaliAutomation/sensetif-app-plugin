@@ -145,7 +145,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
             <Field
               label="Unit"
               invalid={!errors.proc || !!errors.proc.unit}
-              error={errors.proc ? errors.proc.unit && errors.proc.unit.message : ''}
+              error={errors.proc ? errors.proc.unit && errors.proc.unit.message : undefined}
             >
               <Input
                 {...register('proc.unit', {
@@ -160,7 +160,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                 <Field
                   label="Function"
                   invalid={!errors.proc || !!errors.proc.scaling}
-                  error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : ''}
+                  error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : undefined}
                 >
                   <InputControl
                     render={({ field: { onChange, ref, ...field } }) => (
@@ -227,7 +227,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
               <Field
                 label="Storage Period"
                 invalid={!errors.proc || !!errors.proc.scaling}
-                error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : ''}
+                error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : undefined}
               >
                 <InputControl
                   render={({ field: { onChange, ref, ...field } }) => (
