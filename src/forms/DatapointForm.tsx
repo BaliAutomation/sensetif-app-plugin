@@ -63,7 +63,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
         const sourceType = watch('datasourcetype');
 
         function datapointLabel(datapoint: DatapointSettings | undefined) {
-          return 'Datapoint in ' + datapoint?.project + '/' + datapoint?.subsystem;
+          return 'Datapoint : ' + datapoint?.project + '/' + datapoint?.subsystem;
         }
 
         return (
@@ -233,32 +233,33 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
               </HorizontalGroup>
             </FieldSet>
 
-            <Field label="Source Type">
-              <InputControl
-                render={({ field }) => (
-                  <RadioButtonGroup
-                    {...field}
-                    options={[
-                      { label: 'web', value: DatasourceType.web },
-                      { label: 'ttnv3', value: DatasourceType.ttnv3 },
-                    ]}
-                  />
-                )}
-                rules={{
-                  required: 'Source type selection is required',
-                }}
-                control={control}
-                defaultValue={defaultValues.datasourcetype}
-                name="datasourcetype"
-              />
-            </Field>
-            {sourceType === DatasourceType.ttnv3 && (
-              <Ttnv3DatasourceForm {...formAPI} datasource={datapoint?.datasource as Ttnv3Datasource} />
-            )}
-            {sourceType === DatasourceType.web && (
-              <WebDatasourceForm {...formAPI} datasource={datapoint?.datasource as WebDatasource} />
-            )}
-
+            <FieldSet label="Datasource">
+              <Field label="Type">
+                <InputControl
+                  render={({ field }) => (
+                    <RadioButtonGroup
+                      {...field}
+                      options={[
+                        { label: 'Http(s)', value: DatasourceType.web },
+                        { label: 'Things Network', value: DatasourceType.ttnv3 },
+                      ]}
+                    />
+                  )}
+                  rules={{
+                    required: 'Source type selection is required',
+                  }}
+                  control={control}
+                  defaultValue={defaultValues.datasourcetype}
+                  name="datasourcetype"
+                />
+              </Field>
+              {sourceType === DatasourceType.ttnv3 && (
+                <Ttnv3DatasourceForm {...formAPI} datasource={datapoint?.datasource as Ttnv3Datasource} />
+              )}
+              {sourceType === DatasourceType.web && (
+                <WebDatasourceForm {...formAPI} datasource={datapoint?.datasource as WebDatasource} />
+              )}
+            </FieldSet>
             <HorizontalGroup>
               <Button type="button" variant={'secondary'} onClick={onCancel}>
                 {'Cancel'}

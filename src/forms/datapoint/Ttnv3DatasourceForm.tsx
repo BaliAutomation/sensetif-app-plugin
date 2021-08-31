@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { DatapointSettings, Ttnv3Datasource } from '../../types';
-import { Field, FieldSet, FormAPI, Input } from '@grafana/ui';
+import { Field, FormAPI, Input } from '@grafana/ui';
 import { FieldErrors } from 'react-hook-form';
 
 interface Props extends FormAPI<DatapointSettings> {
@@ -24,69 +24,67 @@ export const Ttnv3DatasourceForm: FC<Props> = ({
 
   return (
     <>
-      <FieldSet label="TTNv3 Datasource">
-        <Field label="Zone" invalid={!!dsErrors?.zone} error={dsErrors?.zone && dsErrors?.zone.message}>
-          <Input
-            {...register('datasource.zone', {
-              required: 'Zone is required',
-            })}
-            placeholder="Zone"
-            css=""
-          />
-        </Field>
+      <Field label="Zone" invalid={!!dsErrors?.zone} error={dsErrors?.zone && dsErrors?.zone.message}>
+        <Input
+          {...register('datasource.zone', {
+            required: 'Zone is required',
+          })}
+          placeholder="Zone"
+          css=""
+        />
+      </Field>
 
-        <Field
-          label="Application"
-          invalid={!!dsErrors?.application}
-          error={dsErrors?.application && dsErrors?.application.message}
-        >
-          <Input
-            {...register('datasource.application', {
-              required: 'Application is required',
-            })}
-            placeholder="Application"
-            css=""
-          />
-        </Field>
+      <Field
+        label="Application"
+        invalid={!!dsErrors?.application}
+        error={dsErrors?.application && dsErrors?.application.message}
+      >
+        <Input
+          {...register('datasource.application', {
+            required: 'Application is required',
+          })}
+          placeholder="Application"
+          css=""
+        />
+      </Field>
 
-        <Field label="Device" invalid={!!dsErrors?.device} error={dsErrors?.device && dsErrors?.device.message}>
-          <Input
-            {...register('datasource.device', {
-              required: 'Device is required',
-            })}
-            placeholder="Device"
-            css=""
-          />
-        </Field>
+      <Field label="Device" invalid={!!dsErrors?.device} error={dsErrors?.device && dsErrors?.device.message}>
+        <Input
+          {...register('datasource.device', {
+            required: 'Device is required',
+          })}
+          placeholder="Device"
+          css=""
+        />
+      </Field>
 
-        <Field
-          label="Pointname"
-          invalid={!!dsErrors?.pointname}
-          error={dsErrors?.pointname && dsErrors?.pointname.message}
-        >
-          <Input
-            {...register('datasource.pointname', {
-              required: 'Pointname is required',
-            })}
-            placeholder="Pointname"
-            css=""
-          />
-        </Field>
+      <Field
+        label="Pointname"
+        invalid={!!dsErrors?.pointname}
+        error={dsErrors?.pointname && dsErrors?.pointname.message}
+      >
+        <Input
+          {...register('datasource.pointname', {
+            required: 'Pointname is required',
+          })}
+          placeholder="Pointname"
+          css=""
+        />
+      </Field>
 
-        <Field
-          label="Authorization Key"
-          invalid={!!dsErrors?.authorizationKey}
-          error={dsErrors?.authorizationKey && dsErrors?.authorizationKey.message}
-        >
-          <Input
-            {...register('datasource.authorizationKey', {
-              required: 'Key is required',
-            })}
-            placeholder="Key"
-            css=""
-          />
-        </Field>
-      </FieldSet>
+      <Field
+        label="Authorization Key"
+        invalid={!!dsErrors?.authorizationKey}
+        error={dsErrors?.authorizationKey && dsErrors?.authorizationKey.message}
+      >
+        <Input
+          {...register('datasource.authorizationKey', {
+            required: 'Key is required',
+          })}
+          placeholder="Key"
+          css=""
+        />
+      </Field>
     </>
   );
 };
