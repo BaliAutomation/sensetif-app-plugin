@@ -144,7 +144,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
 
             <Field
               label="Unit"
-              invalid={!errors.proc || !!errors.proc.unit}
+              invalid={!!errors.proc && !!errors.proc.unit}
               error={errors.proc ? errors.proc.unit && errors.proc.unit.message : undefined}
             >
               <Input
