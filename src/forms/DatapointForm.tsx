@@ -63,7 +63,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
         const sourceType = watch('datasourcetype');
 
         function datapointLabel(datapoint: DatapointSettings | undefined) {
-          return "Datapoint in " + datapoint?.project + "/" + datapoint?.subsystem;
+          return 'Datapoint in ' + datapoint?.project + '/' + datapoint?.subsystem;
         }
 
         return (
