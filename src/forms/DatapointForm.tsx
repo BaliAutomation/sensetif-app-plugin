@@ -18,6 +18,7 @@ import {
   HorizontalGroup,
   Input,
   InputControl,
+  Label,
   RadioButtonGroup,
   Select,
 } from '@grafana/ui';
@@ -64,13 +65,12 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
         const scaling = watch('proc.scaling');
         const sourceType = watch('datasourcetype');
 
-        function datapointLabel(datapoint: DatapointSettings | undefined) {
-          return 'Datapoint : ' + projectName + '/' + subsystemName;
-        }
-
         return (
           <>
-            <FieldSet label={datapointLabel(datapoint)}>
+            <FieldSet label="Datapoint">
+              <Label>Project: {projectName}</Label>
+              <Label>Subsystem: {subsystemName}</Label>
+              <br />
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {

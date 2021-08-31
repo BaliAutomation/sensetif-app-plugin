@@ -1,15 +1,16 @@
 import React, { FC } from 'react';
 import { SubsystemSettings } from '../types';
-import { Button, Field, FieldSet, Form, HorizontalGroup, Input } from '@grafana/ui';
+import { Button, Field, FieldSet, Form, HorizontalGroup, Input, Label } from '@grafana/ui';
 import { PATTERN_NAME } from './common';
 
 interface Props {
   subsystem?: SubsystemSettings;
   onSubmit: (data: SubsystemSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
   onCancel: () => void;
+  projectName: string;
 }
 
-export const SubsystemForm: FC<Props> = ({ subsystem, onSubmit, onCancel }) => {
+export const SubsystemForm: FC<Props> = ({ subsystem, projectName, onSubmit, onCancel }) => {
   return (
     <Form<SubsystemSettings>
       onSubmit={onSubmit}
@@ -22,7 +23,9 @@ export const SubsystemForm: FC<Props> = ({ subsystem, onSubmit, onCancel }) => {
       {({ register, errors }) => {
         return (
           <>
-            <FieldSet label="Subsystem details">
+            <FieldSet label="Subsystem">
+              <Label>Project: {projectName}</Label>
+              <br />
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {

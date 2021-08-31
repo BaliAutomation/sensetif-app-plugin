@@ -10,6 +10,7 @@ export const AddSubsystem: FC<AppRootProps> = ({ query }) => {
   return (
     <>
       <SubsystemForm
+        projectName={projectName}
         onSubmit={(subsystem) => {
           upsertSubsystem(projectName, subsystem).then(() => goToSubsystems(projectName));
         }}
