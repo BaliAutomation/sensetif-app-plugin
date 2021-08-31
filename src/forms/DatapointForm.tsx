@@ -30,9 +30,11 @@ interface Props {
   datapoint?: DatapointSettings;
   onSubmit: (data: DatapointSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
   onCancel: () => void;
+  projectName: string;
+  subsystemName: string;
 }
 
-export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
+export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName, onSubmit, onCancel }) => {
   const numericInputStyle = css`
     /* hides spin buttons */
     input[type='number']::-webkit-inner-spin-button {
@@ -63,7 +65,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
         const sourceType = watch('datasourcetype');
 
         function datapointLabel(datapoint: DatapointSettings | undefined) {
-          return 'Datapoint : ' + datapoint?.project + '/' + datapoint?.subsystem;
+          return 'Datapoint : ' + projectName + '/' + subsystemName;
         }
 
         return (

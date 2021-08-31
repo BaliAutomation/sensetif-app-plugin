@@ -34,12 +34,6 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
       });
   };
 
-  const updateDatapoint = (dp: DatapointSettings) => {
-    upsertDatapoint(projectName, subsystemName, dp)
-      .then(() => goToDatapoints(projectName, subsystemName))
-      .catch((err) => console.log(err));
-  };
-
   if (isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
   }
@@ -56,7 +50,11 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
     <>
       <DatapointForm
         datapoint={datapoint}
-        onSubmit={(data) => updateDatapoint(data)}
+        subsystemName={subsystemName}
+        projectName={projectName}
+        onSubmit={(data) =>
+          upsertDatapoint(projectName, subsystemName, data).then(() => goToDatapoints(projectName, subsystemName))
+        }
         onCancel={() => goToDatapoints(projectName, subsystemName)}
       />
     </>
