@@ -62,9 +62,13 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
         const scaling = watch('proc.scaling');
         const sourceType = watch('datasourcetype');
 
+        function datapointLabel(datapoint: DatapointSettings | undefined) {
+          return "Datapoint in " + datapoint?.project + "/" + datapoint?.subsystem;
+        }
+
         return (
           <>
-            <FieldSet label="Datapoint in {datapoint?.project}/{datapoint?.subsystem}">
+            <FieldSet label={datapointLabel(datapoint)}>
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {
