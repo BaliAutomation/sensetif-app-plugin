@@ -64,7 +64,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
 
         return (
           <>
-            <FieldSet label="Datapoint details">
+            <FieldSet label="Datapoint in {datapoint?.project}/{datapoint?.subsystem}">
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {
@@ -79,86 +79,92 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
                   css=""
                 />
               </Field>
-
-              <Field
-                label="Poll interval"
-                invalid={!!errors.pollinterval}
-                error={errors.pollinterval && errors.pollinterval.message}
-              >
-                <InputControl
-                  render={({ field: { onChange, ref, ...field } }) => (
-                    <Select
-                      {...field}
-                      onChange={(value) => onChange(value.value)}
-                      options={[
-                        { label: '5 minutes', value: PollInterval.five_minutes },
-                        { label: '10 minutes', value: PollInterval.ten_minutes },
-                        { label: '15 minutes', value: PollInterval.fifteen_minutes },
-                        { label: '20 minutes', value: PollInterval.twenty_minutes },
-                        { label: '30 minutes', value: PollInterval.thirty_minutes },
-                        { label: '1 hour', value: PollInterval.one_hour },
-                        { label: '2 hours', value: PollInterval.two_hours },
-                        { label: '3 hours', value: PollInterval.three_hours },
-                        { label: '6 hours', value: PollInterval.six_hours },
-                        { label: '12 hours', value: PollInterval.twelve_hours },
-                        { label: '24 hours', value: PollInterval.one_day },
-                        { label: '1 week', value: PollInterval.weekly },
-                        { label: '1 month', value: PollInterval.monthly },
-                      ]}
-                    />
-                  )}
-                  rules={{
-                    required: 'Interval selection is required',
-                  }}
-                  name="pollinterval"
-                  control={control}
-                />
-              </Field>
-            </FieldSet>
-
-            <Field label="Source Type">
-              <InputControl
-                render={({ field }) => (
-                  <RadioButtonGroup
-                    {...field}
-                    options={[
-                      { label: 'web', value: DatasourceType.web },
-                      { label: 'ttnv3', value: DatasourceType.ttnv3 },
-                    ]}
-                  />
-                )}
-                rules={{
-                  required: 'Source type selection is required',
-                }}
-                control={control}
-                defaultValue={defaultValues.datasourcetype}
-                name="datasourcetype"
-              />
-            </Field>
-            {sourceType === DatasourceType.ttnv3 && (
-              <Ttnv3DatasourceForm {...formAPI} datasource={datapoint?.datasource as Ttnv3Datasource} />
-            )}
-            {sourceType === DatasourceType.web && (
-              <WebDatasourceForm {...formAPI} datasource={datapoint?.datasource as WebDatasource} />
-            )}
-
-            <Field
-              label="Unit"
-              invalid={!!errors.proc && !!errors.proc.unit}
-              error={errors.proc ? errors.proc.unit && errors.proc.unit.message : undefined}
-            >
-              <Input
-                {...register('proc.unit', {
-                  required: 'Unit is required',
-                })}
-                placeholder="unit"
-                css=""
-              />
-            </Field>
-            <FieldSet label="Scaling">
               <HorizontalGroup>
                 <Field
-                  label="Function"
+                  label="Poll interval"
+                  invalid={!!errors.pollinterval}
+                  error={errors.pollinterval && errors.pollinterval.message}
+                >
+                  <InputControl
+                    render={({ field: { onChange, ref, ...field } }) => (
+                      <Select
+                        {...field}
+                        onChange={(value) => onChange(value.value)}
+                        options={[
+                          { label: '5 minutes', value: PollInterval.five_minutes },
+                          { label: '10 minutes', value: PollInterval.ten_minutes },
+                          { label: '15 minutes', value: PollInterval.fifteen_minutes },
+                          { label: '20 minutes', value: PollInterval.twenty_minutes },
+                          { label: '30 minutes', value: PollInterval.thirty_minutes },
+                          { label: '1 hour', value: PollInterval.one_hour },
+                          { label: '2 hours', value: PollInterval.two_hours },
+                          { label: '3 hours', value: PollInterval.three_hours },
+                          { label: '6 hours', value: PollInterval.six_hours },
+                          { label: '12 hours', value: PollInterval.twelve_hours },
+                          { label: '24 hours', value: PollInterval.one_day },
+                          { label: '1 week', value: PollInterval.weekly },
+                          { label: '1 month', value: PollInterval.monthly },
+                        ]}
+                      />
+                    )}
+                    rules={{
+                      required: 'Interval selection is required',
+                    }}
+                    name="pollinterval"
+                    control={control}
+                  />
+                </Field>
+                <Field
+                  label="Storage Period"
+                  invalid={!errors.proc || !!errors.proc.scaling}
+                  error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : undefined}
+                >
+                  <InputControl
+                    render={({ field: { onChange, ref, ...field } }) => (
+                      <Select
+                        {...field}
+                        onChange={(value) => onChange(value.value)}
+                        options={[
+                          // { label: '1 week', value: TimeToLive.a },
+                          { label: '1 month', value: TimeToLive.b },
+                          { label: '3 months', value: TimeToLive.c },
+                          { label: '6 months', value: TimeToLive.d },
+                          { label: '1 year', value: TimeToLive.e },
+                          // { label: '2 years', value: TimeToLive.f },
+                          { label: '3 years', value: TimeToLive.g },
+                          // { label: '4 years', value: TimeToLive.h },
+                          // { label: '5 years', value: TimeToLive.i },
+                          // { label: '10 years', value: TimeToLive.i },
+                          // { label: 'forever', value: TimeToLive.k },
+                        ]}
+                      />
+                    )}
+                    rules={{
+                      required: 'Storage Period selection is required',
+                    }}
+                    control={control}
+                    defaultValue={TimeToLive.a}
+                    name="timeToLive"
+                  />
+                </Field>
+              </HorizontalGroup>
+
+              <Field
+                label="Unit"
+                invalid={!!errors.proc && !!errors.proc.unit}
+                error={errors.proc ? errors.proc.unit && errors.proc.unit.message : undefined}
+              >
+                <Input
+                  {...register('proc.unit', {
+                    required: 'Unit is required',
+                  })}
+                  placeholder="unit"
+                  css=""
+                />
+              </Field>
+              <HorizontalGroup>
+                <Field
+                  label="Scaling"
                   invalid={!errors.proc || !!errors.proc.scaling}
                   error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : undefined}
                 >
@@ -223,41 +229,31 @@ export const DatapointForm: FC<Props> = ({ datapoint, onSubmit, onCancel }) => {
               </HorizontalGroup>
             </FieldSet>
 
-            <FieldSet label="TTL">
-              <Field
-                label="Storage Period"
-                invalid={!errors.proc || !!errors.proc.scaling}
-                error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : undefined}
-              >
-                <InputControl
-                  render={({ field: { onChange, ref, ...field } }) => (
-                    <Select
-                      {...field}
-                      onChange={(value) => onChange(value.value)}
-                      options={[
-                        // { label: '1 week', value: TimeToLive.a },
-                        { label: '1 month', value: TimeToLive.b },
-                        { label: '3 months', value: TimeToLive.c },
-                        { label: '6 months', value: TimeToLive.d },
-                        { label: '1 year', value: TimeToLive.e },
-                        // { label: '2 years', value: TimeToLive.f },
-                        { label: '3 years', value: TimeToLive.g },
-                        // { label: '4 years', value: TimeToLive.h },
-                        // { label: '5 years', value: TimeToLive.i },
-                        // { label: '10 years', value: TimeToLive.i },
-                        // { label: 'forever', value: TimeToLive.k },
-                      ]}
-                    />
-                  )}
-                  rules={{
-                    required: 'Storage Period selection is required',
-                  }}
-                  control={control}
-                  defaultValue={TimeToLive.a}
-                  name="timeToLive"
-                />
-              </Field>
-            </FieldSet>
+            <Field label="Source Type">
+              <InputControl
+                render={({ field }) => (
+                  <RadioButtonGroup
+                    {...field}
+                    options={[
+                      { label: 'web', value: DatasourceType.web },
+                      { label: 'ttnv3', value: DatasourceType.ttnv3 },
+                    ]}
+                  />
+                )}
+                rules={{
+                  required: 'Source type selection is required',
+                }}
+                control={control}
+                defaultValue={defaultValues.datasourcetype}
+                name="datasourcetype"
+              />
+            </Field>
+            {sourceType === DatasourceType.ttnv3 && (
+              <Ttnv3DatasourceForm {...formAPI} datasource={datapoint?.datasource as Ttnv3Datasource} />
+            )}
+            {sourceType === DatasourceType.web && (
+              <WebDatasourceForm {...formAPI} datasource={datapoint?.datasource as WebDatasource} />
+            )}
 
             <HorizontalGroup>
               <Button type="button" variant={'secondary'} onClick={onCancel}>
