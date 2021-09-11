@@ -58,11 +58,7 @@ export const Ttnv3DatasourceForm: FC<Props> = ({
         />
       </Field>
 
-      <Field
-        label="Point"
-        invalid={!!dsErrors?.point}
-        error={dsErrors?.point && dsErrors?.point.message}
-      >
+      <Field label="Point" invalid={!!dsErrors?.point} error={dsErrors?.point && dsErrors?.point.message}>
         <Input
           {...register('datasource.point', {
             required: 'Point is required',
