@@ -23,9 +23,9 @@ export const SubsystemForm: FC<Props> = ({ subsystem, projectName, onSubmit, onC
       {({ register, errors }) => {
         return (
           <>
+            <Label>Project: {projectName}</Label>
+            <br />
             <FieldSet label="Subsystem">
-              <Label>Project: {projectName}</Label>
-              <br />
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {

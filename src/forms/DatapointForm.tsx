@@ -67,10 +67,10 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
 
         return (
           <>
+            <Label>Project: {projectName}</Label>
+            <Label>Subsystem: {subsystemName}</Label>
+            <br />
             <FieldSet label="Datapoint">
-              <Label>Project: {projectName}</Label>
-              <Label>Subsystem: {subsystemName}</Label>
-              <br />
               <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>
                 <Input
                   {...register('name', {

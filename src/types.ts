@@ -52,8 +52,8 @@ export interface Ttnv3Datasource {
   zone: string;
   application: string;
   device: string;
-  pointname: string;
-  authorizationKey: string;
+  point: string;
+  authorizationkey: string;
 }
 
 export interface WebDatasource {

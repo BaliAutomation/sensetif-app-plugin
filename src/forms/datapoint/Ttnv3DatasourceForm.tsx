@@ -59,26 +59,26 @@ export const Ttnv3DatasourceForm: FC<Props> = ({
       </Field>
 
       <Field
-        label="Pointname"
-        invalid={!!dsErrors?.pointname}
-        error={dsErrors?.pointname && dsErrors?.pointname.message}
+        label="Point"
+        invalid={!!dsErrors?.point}
+        error={dsErrors?.point && dsErrors?.point.message}
       >
         <Input
-          {...register('datasource.pointname', {
-            required: 'Pointname is required',
+          {...register('datasource.point', {
+            required: 'Point is required',
           })}
-          placeholder="Pointname"
+          placeholder="Point"
           css=""
         />
       </Field>
 
       <Field
         label="Authorization Key"
-        invalid={!!dsErrors?.authorizationKey}
-        error={dsErrors?.authorizationKey && dsErrors?.authorizationKey.message}
+        invalid={!!dsErrors?.authorizationkey}
+        error={dsErrors?.authorizationkey && dsErrors?.authorizationkey.message}
       >
         <Input
-          {...register('datasource.authorizationKey', {
+          {...register('datasource.authorizationkey', {
             required: 'Key is required',
           })}
           placeholder="Key"
