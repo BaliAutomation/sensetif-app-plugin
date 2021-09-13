@@ -7,9 +7,9 @@ interface TitleProps {
 }
 
 export interface Props extends TitleProps {
-  primaryText: string;
+  primaryText?: string;
   primaryIcon?: IconName;
-  onPrimaryClick: () => void;
+  onPrimaryClick?: () => void;
 
   secondaryText?: string;
   secondaryIcon?: IconName;
@@ -44,10 +44,11 @@ export const PageHeader = ({
               {secondaryText}
             </Button>
           )}
-
-          <Button icon={primaryIcon ?? 'plus'} variant="primary" onClick={onPrimaryClick}>
-            {primaryText}
-          </Button>
+          {primaryText && (
+            <Button icon={primaryIcon ?? 'plus'} variant="primary" onClick={onPrimaryClick}>
+              {primaryText}
+            </Button>
+          )}
         </div>
       </div>
     </div>

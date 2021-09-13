@@ -35,7 +35,7 @@
   "includes": [
     {
       "type": "page",
-      "name": "Projects Manager",
+      "name": "Projects",
       "path": "/a/sensetif-app?tab=projects",
       "role": "Viewer",
       "addToNav": true,
@@ -43,8 +43,8 @@
     },
     {
       "type": "page",
-      "name": "Billing Manager",
-      "path": "/a/sensetif-app?tab=billing",
+      "name": "Plans",
+      "path": "/a/sensetif-app?tab=plans",
       "role": "Admin",
       "addToNav": true
     }

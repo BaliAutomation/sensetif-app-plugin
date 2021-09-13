@@ -11,7 +11,7 @@ interface Props<T> {
   getSubtitle?: (element: T) => string;
   getRightSideText?: (element: T) => string;
 
-  onDelete: (element: T) => void;
+  onDelete?: (element: T) => void;
   onEdit: (element: T) => void;
   onClick: (element: T) => void;
 }
@@ -76,7 +76,9 @@ export const CardsList = <ObjectType,>(props: Props<ObjectType>) => {
         }
         onDismiss={() => setToBeDeleted(undefined)}
         onConfirm={async () => {
-          await props.onDelete(toBeDeleted!);
+          if (props.onDelete) {
+            await props.onDelete(toBeDeleted!);
+          }
           setToBeDeleted(undefined);
         }}
       />

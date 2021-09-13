@@ -157,3 +157,41 @@ export enum AuthenticationType {
 }
 
 export interface GlobalSettings {}
+
+export interface PlanLimits {
+  maxprojects: number;
+  maxcollaborators: number;
+  maxdatapoints: number;
+  maxstorage: TimeToLive;
+  minpollinterval: PollInterval;
+}
+
+export interface PlanSettings {
+  name: string;
+  title: string;
+  description: string;
+  private: boolean;
+  current: boolean;
+  active: boolean;
+  limits: PlanLimits;
+  start: Date;
+  end: Date;
+  price: number;
+  currency: string;
+}
+
+export interface InvoiceSettings {
+  invoicedate: Date;
+  plantitle: string;
+  plandescription: string;
+  stats: string;
+  amount: number;
+  currency: string;
+}
+
+export interface PaymentSettings {
+  invoicedate: Date;
+  paymentdate: Date;
+  amount: number;
+  currency: string;
+}

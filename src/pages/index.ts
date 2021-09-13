@@ -1,7 +1,7 @@
 import { AppRootProps } from '@grafana/data';
 import { Projects } from './Projects';
 import { Subsystems } from './Subsystems';
-import { Billing } from './Billing';
+import { Plans } from './Plans';
 import { EditProject } from './EditProject';
 import { AddProject } from './AddProject';
 import { AddSubsystem } from './AddSubsystem';
@@ -81,10 +81,10 @@ export const EditDatapointPage: PageDefinition = {
 };
 
 export const BillingsPage: PageDefinition = {
-  component: Billing,
+  component: Plans,
   icon: 'fa fa-file-invoice-dollar',
-  id: 'billing',
-  text: ' Billing',
+  id: 'plans',
+  text: ' Plans',
 };
 
 export const pages: Record<string, PageDefinition> = {};
