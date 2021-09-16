@@ -95,6 +95,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                     render={({ field: { onChange, ref, ...field } }) => (
                       <Select
                         {...field}
+                        disabled={!!datapoint}
                         onChange={(value) => onChange(value.value)}
                         options={[
                           { label: '5 minutes', value: PollInterval.five_minutes },
