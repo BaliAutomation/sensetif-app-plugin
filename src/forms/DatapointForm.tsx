@@ -3,7 +3,6 @@ import {
   DatapointSettings,
   DatasourceType,
   OriginDocumentFormat,
-  PollInterval,
   ScalingFunction,
   TimeToLive,
   Ttnv3Datasource,
@@ -26,6 +25,7 @@ import { css } from '@emotion/css';
 import { PATTERN_NAME } from './common';
 import { WebDatasourceForm } from './datapoint/WebDatasourceForm';
 import { Ttnv3DatasourceForm } from './datapoint/Ttnv3DatasourceForm';
+import { AvailableTimeToLivePeriods, AvailablePollIntervals } from '../utils/consts';
 
 interface Props {
   datapoint?: DatapointSettings;
@@ -97,21 +97,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                         {...field}
                         disabled={!!datapoint}
                         onChange={(value) => onChange(value.value)}
-                        options={[
-                          { label: '5 minutes', value: PollInterval.five_minutes },
-                          { label: '10 minutes', value: PollInterval.ten_minutes },
-                          { label: '15 minutes', value: PollInterval.fifteen_minutes },
-                          { label: '20 minutes', value: PollInterval.twenty_minutes },
-                          { label: '30 minutes', value: PollInterval.thirty_minutes },
-                          { label: '1 hour', value: PollInterval.one_hour },
-                          { label: '2 hours', value: PollInterval.two_hours },
-                          { label: '3 hours', value: PollInterval.three_hours },
-                          { label: '6 hours', value: PollInterval.six_hours },
-                          { label: '12 hours', value: PollInterval.twelve_hours },
-                          { label: '24 hours', value: PollInterval.one_day },
-                          { label: '1 week', value: PollInterval.weekly },
-                          { label: '1 month', value: PollInterval.monthly },
-                        ]}
+                        options={AvailablePollIntervals}
                       />
                     )}
                     rules={{
@@ -131,19 +117,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                       <Select
                         {...field}
                         onChange={(value) => onChange(value.value)}
-                        options={[
-                          // { label: '1 week', value: TimeToLive.a },
-                          { label: '1 month', value: TimeToLive.b },
-                          { label: '3 months', value: TimeToLive.c },
-                          { label: '6 months', value: TimeToLive.d },
-                          { label: '1 year', value: TimeToLive.e },
-                          // { label: '2 years', value: TimeToLive.f },
-                          { label: '3 years', value: TimeToLive.g },
-                          // { label: '4 years', value: TimeToLive.h },
-                          // { label: '5 years', value: TimeToLive.i },
-                          // { label: '10 years', value: TimeToLive.i },
-                          // { label: 'forever', value: TimeToLive.k },
-                        ]}
+                        options={AvailableTimeToLivePeriods}
                       />
                     )}
                     rules={{

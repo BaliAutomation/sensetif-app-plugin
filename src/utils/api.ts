@@ -1,12 +1,5 @@
 import { getBackendSrv } from '@grafana/runtime';
-import {
-  DatapointSettings,
-  InvoiceSettings,
-  PaymentSettings,
-  PlanSettings,
-  ProjectSettings,
-  SubsystemSettings,
-} from 'types';
+import { DatapointSettings, OrganizationSettings, PlanSettings, ProjectSettings, SubsystemSettings } from 'types';
 import { API_RESOURCES } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 1000;
@@ -121,5 +114,5 @@ export const renameDatapoint = (
 };
 
 export const getPlans = (): Promise<PlanSettings[]> => request('_plans', 'GET', '', WAIT_AFTER_EXEC_MS);
-export const getInvoices = (): Promise<InvoiceSettings[]> => request('_invoices', 'GET', '', WAIT_AFTER_EXEC_MS);
-export const getPayments = (): Promise<PaymentSettings[]> => request('_payments', 'GET', '', WAIT_AFTER_EXEC_MS);
+export const getOrganization = (): Promise<OrganizationSettings[]> =>
+  request('_organizations', 'GET', '', WAIT_AFTER_EXEC_MS);

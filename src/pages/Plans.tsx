@@ -2,10 +2,8 @@ import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
 import { Alert, Icon } from '@grafana/ui';
-
 import { PlanSettings } from '../types';
 import { getPlans } from 'utils/api';
-import { PageHeader } from 'components/PageTitle';
 import { PlansList } from '../components/PlansList';
 
 export const Plans: FC<AppRootProps> = ({ query, path, meta }) => {
@@ -14,9 +12,11 @@ export const Plans: FC<AppRootProps> = ({ query, path, meta }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    logInfo('Trying to fetch plans.');
+    logInfo('Trying to fetch Plans.');
     loadPlans();
   }, []);
+
+  const selectPlan = (plan: PlanSettings) => {};
 
   const loadPlans = () => {
     setIsLoading(true);
@@ -32,15 +32,10 @@ export const Plans: FC<AppRootProps> = ({ query, path, meta }) => {
 
   return (
     <>
-      <PageHeader title="Plans" subtitle="A plan for every need." />
-
       {!isLoading && plans.length === 0 && (
-        <Alert severity="info" title="No Plans are available at the moment.">
+        <Alert severity={'info'} title="Plans are not yet available.">
           <div>
-            <p>
-              A Plan is a billing scheme tailored for ease of cost oversight, yet flexible enough to handle most
-              users&apos; needs.
-            </p>
+            <p style={{ marginBottom: '16px' }}>Standby while we work out the Plans to offer.</p>
           </div>
           <a href="https://sensetif.com/docs/plans-info.html" className="external-link">
             <Icon name="book" />
@@ -48,8 +43,7 @@ export const Plans: FC<AppRootProps> = ({ query, path, meta }) => {
           </a>
         </Alert>
       )}
-
-      <PlansList<PlanSettings> isLoading={isLoading} plans={plans} onClick={(plan) => logInfo('onClick!!!!')} />
+      <PlansList<PlanSettings> isLoading={isLoading} plans={plans} onClick={selectPlan} />
     </>
   );
 };

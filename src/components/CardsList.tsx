@@ -12,8 +12,8 @@ interface Props<T> {
   getRightSideText?: (element: T) => string;
 
   onDelete?: (element: T) => void;
-  onEdit: (element: T) => void;
-  onClick: (element: T) => void;
+  onEdit?: (element: T) => void;
+  onClick?: (element: T) => void;
 }
 
 export const CardsList = <ObjectType,>(props: Props<ObjectType>) => {
@@ -31,7 +31,11 @@ export const CardsList = <ObjectType,>(props: Props<ObjectType>) => {
             {props.elements.map((element, index) => {
               return (
                 <li className="card-item-wrapper" key={index} aria-label="check-card">
-                  <div className="card-item" onClick={() => props.onClick(element)} style={{ cursor: 'pointer' }}>
+                  <div
+                    className="card-item"
+                    onClick={() => (props.onClick ? props.onClick(element) : '')}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <HorizontalGroup justify="space-between">
                       <HorizontalGroup justify="flex-start">
                         <Container margin="xs">
@@ -50,7 +54,7 @@ export const CardsList = <ObjectType,>(props: Props<ObjectType>) => {
                           </div>
                         )}
                         <CardActions
-                          onEdit={() => props.onEdit(element)}
+                          onEdit={() => (props.onEdit ? props.onEdit(element) : '')}
                           onDelete={() => {
                             setToBeDeleted(element);
                           }}
@@ -65,23 +69,25 @@ export const CardsList = <ObjectType,>(props: Props<ObjectType>) => {
         </section>
       </div>
 
-      <DeleteCardModal
-        isOpen={!!toBeDeleted}
-        title={'Delete'}
-        body={
-          <div>
-            Are you sure you want to delete this element? <br />
-            {/* <small>{"This affect project's subsystems and all realted data."}</small> */}
-          </div>
-        }
-        onDismiss={() => setToBeDeleted(undefined)}
-        onConfirm={async () => {
-          if (props.onDelete) {
-            await props.onDelete(toBeDeleted!);
+      {props.onDelete && (
+        <DeleteCardModal
+          isOpen={!!toBeDeleted}
+          title={'Delete'}
+          body={
+            <div>
+              Are you sure you want to delete this element? <br />
+              {/* <small>{"This affect project's subsystems and all realted data."}</small> */}
+            </div>
           }
-          setToBeDeleted(undefined);
-        }}
-      />
+          onDismiss={() => setToBeDeleted(undefined)}
+          onConfirm={async () => {
+            if (props.onDelete) {
+              await props.onDelete(toBeDeleted!);
+            }
+            setToBeDeleted(undefined);
+          }}
+        />
+      )}
     </>
   );
 };

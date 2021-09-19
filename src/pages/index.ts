@@ -80,7 +80,7 @@ export const EditDatapointPage: PageDefinition = {
   text: ' Edit Datapoint',
 };
 
-export const BillingsPage: PageDefinition = {
+export const PlansPage: PageDefinition = {
   component: Plans,
   icon: 'fa fa-file-invoice-dollar',
   id: 'plans',
@@ -100,4 +100,4 @@ pages[DatapointsPage.id] = DatapointsPage;
 pages[AddDatapointPage.id] = AddDatapointPage;
 pages[EditDatapointPage.id] = EditDatapointPage;
 
-pages[BillingsPage.id] = BillingsPage;
+pages[PlansPage.id] = PlansPage;

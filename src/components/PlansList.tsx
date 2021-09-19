@@ -1,6 +1,7 @@
 import React from 'react';
 import { HorizontalGroup, Container, VerticalGroup, LoadingPlaceholder } from '@grafana/ui';
 import { PlanSettings } from '../types';
+import { PollIntervals, TimeToLivePeriods } from '../utils/consts';
 
 interface Props<T> {
   isLoading: boolean;
@@ -8,6 +9,9 @@ interface Props<T> {
   onClick: (element: T) => void;
 }
 
+function getProperty<T, K extends keyof T>(obj: T, key: K) {
+  return obj[key];
+}
 export const PlansList = <PlanSettings,>(props: Props<PlanSettings>) => {
   if (props.isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
@@ -28,20 +32,18 @@ export const PlansList = <PlanSettings,>(props: Props<PlanSettings>) => {
                           <i className={'fa fa-project-diagram'} />
                         </Container>
                         <VerticalGroup>
-                          <div className="card-item-name">{plan.name}</div>
-                          {plan.description && <div className="card-item-sub-name">{plan.description}</div>}
+                          <div className="card-item-name">{plan.title}</div>
+                          {plan.subtitle && <div className="card-item-type">{plan.subtitle}</div>}
+                          <br />
+                          {plan.description && <div>{plan.description}</div>}
+                          <br />
+                          <div>Max Projects: {plan.limits.maxprojects}</div>
+                          <div>Max Datapoints: {plan.limits.maxdatapoints}</div>
+                          <div>Max Storage Period: {getProperty(TimeToLivePeriods, plan.limits.maxstorage)}</div>
+                          <div>Min Poll Interval: {getProperty(PollIntervals, plan.limits.minpollinterval)}</div>
                         </VerticalGroup>
                       </HorizontalGroup>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                        <div className="card-item-header">
-                          <div className="card-item-type">Max Projects: {plan.limits.maxprojects}</div>
-                          <div className="card-item-type">Max Datapoints: {plan.limits.maxdatapoints}</div>
-                          <div className="card-item-type">Max Collaborators: {plan.limits.maxcollaborators}</div>
-                          <div className="card-item-type">Max Storage Period: {plan.limits.maxstorage}</div>
-                          <div className="card-item-type">Min Poll Interval: {plan.limits.minpollinterval}</div>
-                        </div>
-                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }} />
                     </HorizontalGroup>
                   </div>
                 </li>
