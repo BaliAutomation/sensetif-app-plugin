@@ -158,42 +158,7 @@ export enum AuthenticationType {
 
 export interface GlobalSettings {}
 
-export interface PlanLimits {
-  maxprojects: number;
-  maxdatapoints: number;
-  maxstorage: TimeToLive;
-  minpollinterval: PollInterval;
-}
-
 export interface PlanSettings {
-  name: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  private: boolean;
-  current: boolean;
-  stripeprice: string;
-  active: boolean;
-  limits: PlanLimits;
-  start: Date;
-  end: Date;
-  price: number;
-  currency: string;
-}
-
-export interface Address {
-  address1: string;
-  address2: string;
-  city: string;
-  zipcode: string;
-  state: string;
-  country: string;
-}
-
-export interface OrganizationSettings {
-  name: string;
-  address: Address;
-  email: string;
-  stripecustomer: string;
-  currentplan: string;
+  products: any[];
+  prices: any[];
 }
