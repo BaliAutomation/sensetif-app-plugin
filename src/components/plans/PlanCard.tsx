@@ -1,5 +1,5 @@
 import { getBackendSrv } from '@grafana/runtime';
-import { HorizontalGroup, Container, VerticalGroup, Button } from '@grafana/ui';
+import { HorizontalGroup, VerticalGroup, Button } from '@grafana/ui';
 import React from 'react';
 import { PollIntervals, TimeToLivePeriods } from 'utils/consts';
 
@@ -12,35 +12,24 @@ export const PlanCard = ({ product, prices }: Props) => {
   return (
     <div aria-label="check-card" className="card-item" style={{ cursor: 'pointer', margin: '2px' }}>
       <VerticalGroup>
-        <HorizontalGroup justify="flex-start">
-          <Container margin="xs">
-            <i className={'fa fa-project-diagram'} />
-          </Container>
-          <VerticalGroup>
-            <div style={{ marginBottom: '2em' }}>
-              <div className="card-item-name">{product.name}</div>
-              <div className="card-item-type">{product.metadata.slogan}</div>
-            </div>
+        <div style={{ marginBottom: '2em' }}>
+          <div className="card-item-name">{product.name}</div>
+          <div className="card-item-type">{product.metadata.slogan}</div>
+        </div>
 
-            <div style={{ marginBottom: '2em', height: '5em' }}>{product.description}</div>
+        <div style={{ marginBottom: '2em', height: '5em' }}>{product.description}</div>
+        <HorizontalGroup justify={'space-between'}>
+          <span style={{ fontWeight: 'bold' }}>Max Datapoints:</span> <span>{product.metadata.maxdatapoints}</span>
+        </HorizontalGroup>
 
-            <VerticalGroup>
-              <HorizontalGroup justify={'space-between'}>
-                <span style={{ fontWeight: 'bold' }}>Max Datapoints:</span>{' '}
-                <span>{product.metadata.maxdatapoints}</span>
-              </HorizontalGroup>
+        <HorizontalGroup justify={'space-between'}>
+          <span style={{ fontWeight: 'bold' }}>Max Storage Period:</span> {/* @ts-ignore */}
+          <span>{TimeToLivePeriods[product.metadata.maxstorage]}</span>
+        </HorizontalGroup>
 
-              <HorizontalGroup justify={'space-between'}>
-                <span style={{ fontWeight: 'bold' }}>Max Storage Period:</span> {/* @ts-ignore */}
-                <span>{TimeToLivePeriods[product.metadata.maxstorage]}</span>
-              </HorizontalGroup>
-
-              <HorizontalGroup justify={'space-between'}>
-                <span style={{ fontWeight: 'bold' }}>Min Poll Interval:</span> {/* @ts-ignore */}
-                <span>{PollIntervals[product.metadata.minpollinterval]}</span>
-              </HorizontalGroup>
-            </VerticalGroup>
-          </VerticalGroup>
+        <HorizontalGroup justify={'space-between'}>
+          <span style={{ fontWeight: 'bold' }}>Min Poll Interval:</span> {/* @ts-ignore */}
+          <span>{PollIntervals[product.metadata.minpollinterval]}</span>
         </HorizontalGroup>
         <div style={{ marginTop: '1em' }} />
         {prices.map((price) => (
