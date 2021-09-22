@@ -19,7 +19,7 @@ export const PlansList = (props: Props) => {
   return (
     <>
       <section className="card-section card-list-layout-list">
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr)' }}>
           {props.plans.products.map((product, index) => (
             <PlanCard key={product.id} aria-label="check-card" product={product} prices={prices(product)} />
           ))}
