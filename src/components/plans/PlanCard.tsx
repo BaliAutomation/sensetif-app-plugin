@@ -4,11 +4,14 @@ import React from 'react';
 import { PollIntervals, TimeToLivePeriods } from 'utils/consts';
 
 interface Props {
-  product: any;
-  prices: any[];
+  plan: {
+    product: any;
+    prices: any[];
+  };
 }
 
-export const PlanCard = ({ product, prices }: Props) => {
+export const PlanCard = ({ plan }: Props) => {
+  const { product, prices } = plan;
   return (
     <div aria-label="check-card" className="card-item" style={{ cursor: 'pointer', margin: '2px' }}>
       <VerticalGroup>

@@ -5,7 +5,7 @@ import { PlanCard } from './plans/PlanCard';
 
 interface Props {
   isLoading: boolean;
-  plans: PlanSettings;
+  plans: PlanSettings[];
   onClick: (element: PlanSettings) => void;
 }
 
@@ -14,14 +14,28 @@ export const PlansList = (props: Props) => {
     return <LoadingPlaceholder text="Loading..." />;
   }
 
-  const prices = (product: any) => props.plans.prices.filter((price) => price.product.id === product.id).reverse();
+  const getMonthlyPrice = (plan: PlanSettings) =>
+    plan.prices.filter((price: any) => price.recurring).find((price: any) => price.recurring.interval === 'month')
+      .unit_amount;
+
+  const byMonthlyPrice = (a: PlanSettings, b: PlanSettings) => {
+    const monthlyPriceA = getMonthlyPrice(a);
+    const monthlyPriceB = getMonthlyPrice(b);
+
+    if (monthlyPriceA > monthlyPriceB) {
+      return 1;
+    } else if (monthlyPriceA < monthlyPriceB) {
+      return -1;
+    }
+    return 0;
+  };
 
   return (
     <>
       <section className="card-section card-list-layout-list">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr)' }}>
-          {props.plans.products.map((product, index) => (
-            <PlanCard key={product.id} aria-label="check-card" product={product} prices={prices(product)} />
+          {props.plans.sort(byMonthlyPrice).map((plan, index) => (
+            <PlanCard key={plan.product.id} aria-label="check-card" plan={plan} />
           ))}
         </div>
       </section>

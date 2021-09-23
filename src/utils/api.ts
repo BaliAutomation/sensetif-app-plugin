@@ -113,4 +113,4 @@ export const renameDatapoint = (
   return request(projectName + '/' + subsystemName + '/' + oldName, 'POST', JSON.stringify(change), WAIT_AFTER_EXEC_MS);
 };
 
-export const getPlans = (): Promise<PlanSettings> => request('_plans', 'GET', '', WAIT_AFTER_EXEC_MS);
+export const getPlans = (): Promise<PlanSettings[]> => request('_plans', 'GET', '', WAIT_AFTER_EXEC_MS);

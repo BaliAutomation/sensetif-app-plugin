@@ -159,6 +159,6 @@ export enum AuthenticationType {
 export interface GlobalSettings {}
 
 export interface PlanSettings {
-  products: any[];
+  product: any;
   prices: any[];
 }

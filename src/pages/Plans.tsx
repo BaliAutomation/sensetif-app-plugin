@@ -7,7 +7,7 @@ import { PlansList } from '../components/PlansList';
 import { PlanSettings } from '../types';
 
 export const Plans: FC<AppRootProps> = ({ query, path, meta }) => {
-  const [plans, setPlans] = useState<PlanSettings>({ prices: [], products: [] });
+  const [plans, setPlans] = useState<PlanSettings[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export const Plans: FC<AppRootProps> = ({ query, path, meta }) => {
 
   return (
     <>
-      {!isLoading && plans.products.length === 0 && (
+      {!isLoading && plans.length === 0 && (
         <Alert severity={'info'} title="Plans are not yet available.">
           <div>
             <p style={{ marginBottom: '16px' }}>Standby while we work out the Plans to offer.</p>
