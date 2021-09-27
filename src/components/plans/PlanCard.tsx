@@ -13,7 +13,7 @@ interface Props {
 export const PlanCard = ({ plan }: Props) => {
   const { product, prices } = plan;
   return (
-    <div aria-label="check-card" className="card-item" style={{ cursor: 'pointer', margin: '2px' }}>
+    <div aria-label="check-card" className="card-item" style={{ cursor: 'pointer' }}>
       <VerticalGroup>
         <div style={{ marginBottom: '2em' }}>
           <div className="card-item-name">{product.name}</div>
