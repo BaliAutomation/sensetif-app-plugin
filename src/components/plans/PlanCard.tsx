@@ -42,7 +42,7 @@ export const PlanCard = ({ plan }: Props) => {
             fullWidth={true}
             type="button"
             onClick={() =>
-              checkout( price.id ).then( (url) => {
+              checkout(price.id).then((url) => {
                 document.location.href = url;
               })
             }
