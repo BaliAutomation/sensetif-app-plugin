@@ -114,3 +114,8 @@ export const renameDatapoint = (
 };
 
 export const getPlans = (): Promise<PlanSettings[]> => request('_plans', 'GET', '', WAIT_AFTER_EXEC_MS);
+
+export const checkout = (
+  price: string,
+): Promise<string> =>
+  request('_plans/checkout', 'POST', '{ "price": "' + price + '"}', 1);

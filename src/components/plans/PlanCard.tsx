@@ -1,7 +1,7 @@
-import { getBackendSrv } from '@grafana/runtime';
 import { HorizontalGroup, VerticalGroup, Button } from '@grafana/ui';
 import React from 'react';
 import { PollIntervals, TimeToLivePeriods } from 'utils/consts';
+import { checkout } from '../../utils/api';
 
 interface Props {
   plan: {
@@ -42,7 +42,9 @@ export const PlanCard = ({ plan }: Props) => {
             fullWidth={true}
             type="button"
             onClick={() =>
-              getBackendSrv().post('/api/plugins/sensetif-datasource/resources/_plans/checkout', { price: price.id })
+              checkout( price.id ).then( (url) => {
+                document.location.href = url;
+              })
             }
             variant={price?.recurring?.interval === 'year' ? 'primary' : 'secondary'}
             size={price?.recurring?.interval === 'year' ? 'lg' : 'md'}
