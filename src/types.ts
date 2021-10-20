@@ -162,3 +162,11 @@ export interface PlanSettings {
   product: any;
   prices: any[];
 }
+
+export interface Payment {
+  paid: Date;
+  amount: number;
+  currency: string;
+  description: string;
+  invoicelink: string;
+}
