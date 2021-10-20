@@ -9,6 +9,9 @@ import { EditSubsystem } from './EditSubsystem';
 import { Datapoints } from './Datapoints';
 import { AddDatapoint } from './AddDatapoint';
 import { EditDatapoint } from './EditDatapoint';
+import { Payments } from './Payments';
+import { Succeeded } from './Succeeded';
+import { Cancelled } from './Cancelled';
 
 export type PageDefinition = {
   component: React.FC<AppRootProps>;
@@ -85,6 +88,27 @@ export const PlansPage: PageDefinition = {
   icon: 'fa fa-file-invoice-dollar',
   id: 'plans',
   text: ' Plans',
+};
+
+export const PaymentsPage: PageDefinition = {
+  component: Payments,
+  icon: 'fa fa-money',
+  id: 'payments',
+  text: ' Payments',
+};
+
+export const SucceededPage: PageDefinition = {
+  component: Succeeded,
+  icon: 'fa fa-check',
+  id: 'succeeded',
+  text: ' Succeeded',
+};
+
+export const CancelledPage: PageDefinition = {
+  component: Cancelled,
+  icon: 'fa fa-minus-circle',
+  id: 'cancelled',
+  text: ' Cancelled',
 };
 
 export const pages: Record<string, PageDefinition> = {};

@@ -7,6 +7,7 @@ import {
   EditDatapointPage,
   EditProjectPage,
   EditSubsystemPage,
+  PaymentsPage,
   ProjectsPage,
   SubsystemsPage,
 } from 'pages';
@@ -91,6 +92,14 @@ export const goToEditDatapoint = (projectName: string, subsystemName: string, da
       project: projectName,
       subsystem: subsystemName,
       datapoint: datapointName,
+    },
+  });
+};
+
+export const goToPayments = () => {
+  getLocationSrv().update({
+    query: {
+      tab: PaymentsPage.id,
     },
   });
 };

@@ -1,5 +1,5 @@
 import { getBackendSrv } from '@grafana/runtime';
-import { DatapointSettings, PlanSettings, ProjectSettings, SubsystemSettings } from 'types';
+import { DatapointSettings, Payment, PlanSettings, ProjectSettings, SubsystemSettings } from 'types';
 import { API_RESOURCES } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 1000;
@@ -117,3 +117,11 @@ export const getPlans = (): Promise<PlanSettings[]> => request('_plans', 'GET', 
 
 export const checkout = (price: string): Promise<string> =>
   request('_plans/checkout', 'POST', '{ "price": "' + price + '"}', 1);
+
+export const getPayments = (): Promise<Payment[]> => request('_payments/', 'GET', '', 0);
+
+export const confirmation = (sessionId: string): Promise<string> =>
+  request('_payments/confirmation', 'POST', '{ "id": "' + sessionId + '"}', 2000);
+
+export const cancelled = (sessionId: string): Promise<string> =>
+  request('_payments/cancelled', 'POST', '{ "id": "' + sessionId + '"}', 2000);
