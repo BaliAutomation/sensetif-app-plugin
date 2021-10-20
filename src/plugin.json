@@ -47,6 +47,20 @@
       "path": "/a/sensetif-app?tab=plans",
       "role": "Admin",
       "addToNav": true
+    },
+    {
+      "type": "page",
+      "name": "Success",
+      "path": "/a/sensetif-app?tab=succeeded",
+      "role": "Editor",
+      "addToNav": false
+    },
+    {
+      "type": "page",
+      "name": "Cancelled",
+      "path": "/a/sensetif-app?tab=cancelled",
+      "role": "Editor",
+      "addToNav": false
     }
   ],
   "dependencies": {
