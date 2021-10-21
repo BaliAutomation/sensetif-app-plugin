@@ -125,3 +125,5 @@ pages[AddDatapointPage.id] = AddDatapointPage;
 pages[EditDatapointPage.id] = EditDatapointPage;
 
 pages[PlansPage.id] = PlansPage;
+pages[SucceededPage.id] = SucceededPage;
+pages[CancelledPage.id] = CancelledPage;
