@@ -1,4 +1,4 @@
-import { HorizontalGroup, VerticalGroup, Button } from '@grafana/ui';
+import { HorizontalGroup, VerticalGroup, Button, Badge } from '@grafana/ui';
 import React from 'react';
 import { PollIntervals, TimeToLivePeriods } from 'utils/consts';
 import { checkout } from '../../utils/api';
@@ -8,14 +8,16 @@ interface Props {
     product: any;
     prices: any[];
   };
+  selected?: boolean;
 }
 
-export const PlanCard = ({ plan }: Props) => {
+export const PlanCard = ({ plan, selected }: Props) => {
   const { product, prices } = plan;
   return (
     <div aria-label="check-card" className="card-item" style={{ cursor: 'pointer' }}>
       <VerticalGroup>
         <div style={{ marginBottom: '2em' }}>
+          {selected && <Badge text="Active Plan" color="green" tooltip="This plan is currently active" />}
           <div className="card-item-name">{product.name}</div>
           <div className="card-item-type">{product.metadata.slogan}</div>
         </div>

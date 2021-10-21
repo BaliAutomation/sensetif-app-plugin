@@ -8,6 +8,7 @@ import {
   EditProjectPage,
   EditSubsystemPage,
   PaymentsPage,
+  PlansPage,
   ProjectsPage,
   SubsystemsPage,
 } from 'pages';
@@ -100,6 +101,14 @@ export const goToPayments = () => {
   getLocationSrv().update({
     query: {
       tab: PaymentsPage.id,
+    },
+  });
+};
+
+export const goToPlans = () => {
+  getLocationSrv().update({
+    query: {
+      tab: PlansPage.id,
     },
   });
 };

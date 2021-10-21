@@ -161,6 +161,7 @@ export interface GlobalSettings {}
 export interface PlanSettings {
   product: any;
   prices: any[];
+  selected?: boolean;
 }
 
 export interface Payment {
