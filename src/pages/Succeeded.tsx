@@ -9,7 +9,7 @@ export const Succeeded: FC<AppRootProps> = ({ query }) => {
   confirmation(sessionId).then((resp) => goToPayments());
   return (
     <>
-      <PageHeader title="Payment Received" subtitle="Thank You!" />
+      <PageHeader title="Subscription Started" subtitle="Thank You!" />
     </>
   );
 };

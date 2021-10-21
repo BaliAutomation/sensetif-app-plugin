@@ -121,7 +121,7 @@ export const checkout = (price: string): Promise<string> =>
 export const getPayments = (): Promise<Payment[]> => request('_payments/', 'GET', '', 0);
 
 export const confirmation = (sessionId: string): Promise<string> =>
-  request('_payments/confirmation', 'POST', '{ "id": "' + sessionId + '"}', 2000);
+  request('_checkout/success', 'POST', '{ "id": "' + sessionId + '"}', 5000);
 
 export const cancelled = (sessionId: string): Promise<string> =>
-  request('_payments/cancelled', 'POST', '{ "id": "' + sessionId + '"}', 2000);
+  request('_checkout/cancelled', 'POST', '{ "id": "' + sessionId + '"}', 5000);
