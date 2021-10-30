@@ -1,4 +1,4 @@
-import { getLocationSrv } from '@grafana/runtime';
+import { getLocationSrv, logInfo } from '@grafana/runtime';
 import {
   AddDatapointPage,
   AddProjectPage,
@@ -87,6 +87,7 @@ export const goToAddDatapoint = (projectName: string, subsystemName: string) => 
 };
 
 export const goToEditDatapoint = (projectName: string, subsystemName: string, datapointName: string) => {
+  logInfo('Go To EditDatapoint');
   getLocationSrv().update({
     query: {
       tab: EditDatapointPage.id,
