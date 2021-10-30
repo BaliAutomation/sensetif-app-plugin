@@ -7,6 +7,7 @@ import { goToDatapoints } from 'utils/navigation';
 import { DatapointForm } from 'forms/DatapointForm';
 
 export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
+  console.log("Edit Datapoint 1");
   const projectName: string = query['project'];
   const subsystemName: string = query['subsystem'];
   const datapointName: string = query['datapoint'];
@@ -18,10 +19,12 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
   useEffect(() => {
     loadDatapoint(projectName, subsystemName, datapointName);
   }, [projectName, subsystemName, datapointName]);
+  console.log("Edit Datapoint 2");
 
   const loadDatapoint = (project: string, subsystem: string, datapoint: string) => {
     setIsLoading(true);
     setFetchErr(undefined);
+    console.log("Edit Datapoint 3");
     return getDatapoint(project, subsystem, datapoint)
       .then((dp) => setDatapoint(dp))
       .catch((err) => {
@@ -33,6 +36,7 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
         setIsLoading(false);
       });
   };
+  console.log("Edit Datapoint 4");
 
   if (isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
@@ -45,6 +49,7 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
       </Alert>
     );
   }
+  console.log("Edit Datapoint 5");
 
   return (
     <>
