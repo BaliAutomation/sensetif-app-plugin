@@ -31,7 +31,7 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
   };
 
   const removeProject = (name: string): Promise<void> => {
-    console.log('Deleting project: ' + name);
+    logInfo('Deleting project: ' + name);
     return deleteProject(name).then(() => loadProjects());
   };
 

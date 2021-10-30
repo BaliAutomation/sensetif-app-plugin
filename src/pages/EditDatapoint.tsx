@@ -5,9 +5,10 @@ import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { getDatapoint, upsertDatapoint } from 'utils/api';
 import { goToDatapoints } from 'utils/navigation';
 import { DatapointForm } from 'forms/DatapointForm';
+import { logError, logInfo } from '@grafana/runtime';
 
 export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
-  console.log('Edit Datapoint 1');
+  logInfo('EditDatapoint 1');
   const projectName: string = query['project'];
   const subsystemName: string = query['subsystem'];
   const datapointName: string = query['datapoint'];
@@ -19,24 +20,23 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
   useEffect(() => {
     loadDatapoint(projectName, subsystemName, datapointName);
   }, [projectName, subsystemName, datapointName]);
-  console.log('Edit Datapoint 2');
+  logInfo('EditDatapoint 2');
 
   const loadDatapoint = (project: string, subsystem: string, datapoint: string) => {
     setIsLoading(true);
     setFetchErr(undefined);
-    console.log('Edit Datapoint 3');
+    logInfo('EditDatapoint 3');
     return getDatapoint(project, subsystem, datapoint)
       .then((dp) => setDatapoint(dp))
       .catch((err) => {
-        console.log('err:');
-        console.log(err);
+        logError(err);
         setFetchErr(err);
       })
       .finally(() => {
         setIsLoading(false);
       });
   };
-  console.log('Edit Datapoint 4');
+  logInfo('EditDatapoint 4');
 
   if (isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
@@ -49,7 +49,7 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
       </Alert>
     );
   }
-  console.log('Edit Datapoint 5');
+  logInfo('EditDatapoint 5');
 
   return (
     <>

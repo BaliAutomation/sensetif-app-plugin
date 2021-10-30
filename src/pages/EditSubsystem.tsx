@@ -5,6 +5,7 @@ import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { getSubsystem, upsertSubsystem } from 'utils/api';
 import { goToSubsystems } from 'utils/navigation';
 import { SubsystemForm } from 'forms/SubsystemForm';
+import { logError } from '@grafana/runtime';
 
 export const EditSubsystem: FC<AppRootProps> = ({ query }) => {
   const projectName: string = query['project'];
@@ -24,8 +25,7 @@ export const EditSubsystem: FC<AppRootProps> = ({ query }) => {
     return getSubsystem(project, subsystem)
       .then((sub) => setSubsystem(sub))
       .catch((err) => {
-        console.log('err:');
-        console.log(err);
+        logError(err);
         setFetchErr(err);
       })
       .finally(() => {
@@ -36,7 +36,7 @@ export const EditSubsystem: FC<AppRootProps> = ({ query }) => {
   const updateSubsystem = (sub: SubsystemSettings) => {
     upsertSubsystem(projectName, sub)
       .then(() => goToSubsystems(projectName))
-      .catch((err) => console.log(err));
+      .catch((err) => logError(err));
   };
 
   if (isLoading) {

@@ -5,6 +5,7 @@ import { ProjectSettings } from 'types';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { getProject, upsertProject } from 'utils/api';
 import { goToProjects } from 'utils/navigation';
+import { logError } from '@grafana/runtime';
 
 export const EditProject: FC<AppRootProps> = ({ query }) => {
   const projectName: string = query['project'];
@@ -23,8 +24,7 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
     return getProject(name)
       .then((project) => setProject(project))
       .catch((err) => {
-        console.log('err:');
-        console.log(err);
+        logError(err);
         setFetchErr(err);
       })
       .finally(() => {
@@ -35,7 +35,7 @@ export const EditProject: FC<AppRootProps> = ({ query }) => {
   const updateProject = (project: ProjectSettings) => {
     upsertProject(project)
       .then(() => goToProjects())
-      .catch((err) => console.log(err));
+      .catch((err) => logError(err));
   };
 
   if (isLoading) {
