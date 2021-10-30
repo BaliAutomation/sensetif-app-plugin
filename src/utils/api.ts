@@ -5,6 +5,7 @@ import { API_RESOURCES } from './consts';
 const WAIT_AFTER_EXEC_MS = 1000;
 
 const request = (path: string, method: string, body: string, waitTime = 0) => {
+  console.log('Request: ' + method + ' ' + path);
   let srv = getBackendSrv();
   let request: Promise<any>;
   switch (method) {

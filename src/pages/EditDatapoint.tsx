@@ -16,10 +16,10 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
   const [fetchErr, setFetchErr] = useState(undefined);
 
   useEffect(() => {
-    loadSubsystem(projectName, subsystemName, datapointName);
+    loadDatapoint(projectName, subsystemName, datapointName);
   }, [projectName, subsystemName, datapointName]);
 
-  const loadSubsystem = (project: string, subsystem: string, datapoint: string) => {
+  const loadDatapoint = (project: string, subsystem: string, datapoint: string) => {
     setIsLoading(true);
     setFetchErr(undefined);
     return getDatapoint(project, subsystem, datapoint)
