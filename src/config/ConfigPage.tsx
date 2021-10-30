@@ -6,6 +6,7 @@ import { getBackendSrv } from '@grafana/runtime';
 export class ConfigPageBody extends PureComponent<PluginConfigPageProps<PluginMeta>> {
   constructor(props: PluginConfigPageProps<PluginMeta>) {
     super(props);
+    console.log('Loading Sensetif plugin.');
   }
 
   enable = () => {
