@@ -1,11 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "app",
-  "name": "Configuration",
+  "name": "Collecting Data",
   "id": "sensetif-app",
   "autoEnabled": true,
   "info": {
-    "description": "Sensetif - IoT sensor data capture, storage and visualization.",
+    "description": "Sensetif - IoT sensor data capture, storage, analysis and visualization.",
     "author": {
       "name": "Niclas Hedhman <niclas@hedhman.org>"
     },
