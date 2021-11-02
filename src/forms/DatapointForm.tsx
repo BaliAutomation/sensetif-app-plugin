@@ -1,9 +1,11 @@
 import React, { FC } from 'react';
 import {
+  AuthenticationType,
   DatapointSettings,
   DatasourceType,
   OriginDocumentFormat,
   ScalingFunction,
+  TimestampType,
   TimeToLive,
   Ttnv3Datasource,
   WebDatasource,
@@ -25,7 +27,7 @@ import { css } from '@emotion/css';
 import { PATTERN_NAME } from './common';
 import { WebDatasourceForm } from './datapoint/WebDatasourceForm';
 import { Ttnv3DatasourceForm } from './datapoint/Ttnv3DatasourceForm';
-import { AvailableTimeToLivePeriods, AvailablePollIntervals } from '../utils/consts';
+import { AvailablePollIntervals, AvailableTimeToLivePeriods } from '../utils/consts';
 
 interface Props {
   datapoint?: DatapointSettings;
@@ -56,6 +58,15 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
       scalefunc: '',
     },
     datasourcetype: DatasourceType.web,
+    datasource: {
+      url: '',
+      authenticationType: AuthenticationType.none,
+      auth: '',
+      format: OriginDocumentFormat.jsondoc,
+      valueExpression: '',
+      timestampType: TimestampType.polltime,
+      timestampExpression: ''
+    }
   };
 
   return (
