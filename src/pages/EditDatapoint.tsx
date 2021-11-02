@@ -5,10 +5,9 @@ import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { getDatapoint, upsertDatapoint } from 'utils/api';
 import { goToDatapoints } from 'utils/navigation';
 import { DatapointForm } from 'forms/DatapointForm';
-import { logError, logInfo } from '@grafana/runtime';
+import { logError } from '@grafana/runtime';
 
 export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
-  logInfo('EditDatapoint 1');
   const projectName: string = query['project'];
   const subsystemName: string = query['subsystem'];
   const datapointName: string = query['datapoint'];
@@ -20,12 +19,10 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
   useEffect(() => {
     loadDatapoint(projectName, subsystemName, datapointName);
   }, [projectName, subsystemName, datapointName]);
-  logInfo('EditDatapoint 2');
 
   const loadDatapoint = (project: string, subsystem: string, datapoint: string) => {
     setIsLoading(true);
     setFetchErr(undefined);
-    logInfo('EditDatapoint 3');
     return getDatapoint(project, subsystem, datapoint)
       .then((dp) => setDatapoint(dp))
       .catch((err) => {
@@ -36,10 +33,15 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
         setIsLoading(false);
       });
   };
-  logInfo('EditDatapoint 4');
+
+  const updateDatapoint = (datapoint: DatapointSettings) => {
+    upsertDatapoint(projectName, subsystemName, datapoint)
+      .then(() => goToDatapoints(projectName, subsystemName))
+      .catch((err) => logError(err));
+  };
 
   if (isLoading) {
-    return <LoadingPlaceholder text="Loading..." />;
+    return <LoadingPlaceholder text="Loading..."/>;
   }
 
   if (fetchErr) {
@@ -49,17 +51,13 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
       </Alert>
     );
   }
-  logInfo('EditDatapoint 5');
-
   return (
     <>
       <DatapointForm
         datapoint={datapoint}
         subsystemName={subsystemName}
         projectName={projectName}
-        onSubmit={(data) =>
-          upsertDatapoint(projectName, subsystemName, data).then(() => goToDatapoints(projectName, subsystemName))
-        }
+        onSubmit={(data) => updateDatapoint(data)}
         onCancel={() => goToDatapoints(projectName, subsystemName)}
       />
     </>
