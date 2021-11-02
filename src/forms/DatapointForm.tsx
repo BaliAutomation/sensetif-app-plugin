@@ -65,8 +65,8 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
       format: OriginDocumentFormat.jsondoc,
       valueExpression: '',
       timestampType: TimestampType.polltime,
-      timestampExpression: ''
-    }
+      timestampExpression: '',
+    },
   };
 
   return (
