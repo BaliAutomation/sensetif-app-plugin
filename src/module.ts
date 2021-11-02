@@ -9,3 +9,4 @@ export const plugin = new AppPlugin<SensetifAppSettings>().setRootPage(SensetifR
   body: ConfigPageBody,
   id: 'setup',
 });
+console.log('NICLAS!!!');
