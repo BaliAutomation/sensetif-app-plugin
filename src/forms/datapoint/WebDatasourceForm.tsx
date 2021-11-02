@@ -16,12 +16,6 @@ export const WebDatasourceForm: FC<Props> = ({
   errors,
   datasource,
 }) => {
-  const defaultValues: Partial<WebDatasource> = datasource ?? {
-    authenticationType: AuthenticationType.none,
-    format: OriginDocumentFormat.jsondoc,
-    timestampType: TimestampType.polltime,
-  };
-
   const dsErrors = errors.datasource as FieldErrors<WebDatasource>;
 
   const timestampType = watch('datasource.timestampType');
@@ -65,7 +59,7 @@ export const WebDatasourceForm: FC<Props> = ({
             required: 'Auth selection is required',
           }}
           control={control}
-          defaultValue={defaultValues.authenticationType}
+          defaultValue={datasource ? datasource.authenticationType : AuthenticationType.none}
           name="datasource.authenticationType"
         />
       </Field>
@@ -127,7 +121,7 @@ export const WebDatasourceForm: FC<Props> = ({
             required: 'Format selection is required',
           }}
           control={control}
-          defaultValue={defaultValues.format}
+          defaultValue={datasource ? datasource.format : OriginDocumentFormat.jsondoc}
           name="datasource.format"
         />
       </Field>
