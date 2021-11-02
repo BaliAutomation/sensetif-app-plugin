@@ -41,7 +41,7 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
   };
 
   if (isLoading) {
-    return <LoadingPlaceholder text="Loading..."/>;
+    return <LoadingPlaceholder text="Loading..." />;
   }
 
   if (fetchErr) {
