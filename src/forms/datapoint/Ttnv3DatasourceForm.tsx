@@ -30,7 +30,6 @@ export const Ttnv3DatasourceForm: FC<Props> = ({
             required: 'Zone is required',
           })}
           placeholder="Zone"
-          css=""
         />
       </Field>
 
@@ -44,7 +43,6 @@ export const Ttnv3DatasourceForm: FC<Props> = ({
             required: 'Application is required',
           })}
           placeholder="Application"
-          css=""
         />
       </Field>
 
@@ -54,7 +52,6 @@ export const Ttnv3DatasourceForm: FC<Props> = ({
             required: 'Device is required',
           })}
           placeholder="Device"
-          css=""
         />
       </Field>
 
@@ -64,7 +61,6 @@ export const Ttnv3DatasourceForm: FC<Props> = ({
             required: 'Point is required',
           })}
           placeholder="Point"
-          css=""
         />
       </Field>
 
@@ -78,7 +74,6 @@ export const Ttnv3DatasourceForm: FC<Props> = ({
             required: 'Key is required',
           })}
           placeholder="Key"
-          css=""
         />
       </Field>
     </>

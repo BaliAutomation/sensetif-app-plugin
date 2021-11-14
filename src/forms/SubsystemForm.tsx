@@ -35,7 +35,6 @@ export const SubsystemForm: FC<Props> = ({ subsystem, projectName, onSubmit, onC
                       message: 'Allowed letters, numbers and "_". Must start with a letter.',
                     },
                   })}
-                  css=""
                   readOnly={!!subsystem}
                   placeholder="Subsystem name"
                 />
@@ -46,7 +45,6 @@ export const SubsystemForm: FC<Props> = ({ subsystem, projectName, onSubmit, onC
                   {...register('title', {
                     required: 'Subsystem title is required',
                   })}
-                  css=""
                   placeholder="Subsystem title"
                 />
               </Field>
@@ -61,7 +59,6 @@ export const SubsystemForm: FC<Props> = ({ subsystem, projectName, onSubmit, onC
                     required: 'Location is required',
                   })}
                   placeholder="Local location"
-                  css=""
                 />
               </Field>
               <HorizontalGroup>
