@@ -1,9 +1,11 @@
 import React, { FC } from 'react';
 import {
+  AuthenticationType,
   DatapointSettings,
   DatasourceType,
   OriginDocumentFormat,
   ScalingFunction,
+  TimestampType,
   TimeToLive,
   Ttnv3Datasource,
   WebDatasource,
@@ -45,31 +47,31 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
     }
   `;
 
-  // const defValues: Partial<DatapointSettings> = datapoint ?? {
-  //   proc: {
-  //     scaling: ScalingFunction.lin,
-  //     unit: '',
-  //     k: 1.0,
-  //     m: 0.0,
-  //     min: -10000,
-  //     max: 10000,
-  //     condition: '',
-  //     scalefunc: '',
-  //   },
-  //   datasourcetype: DatasourceType.web,
-  //   datasource: {
-  //     url: '',
-  //     authenticationType: AuthenticationType.none,
-  //     auth: '',
-  //     format: OriginDocumentFormat.jsondoc,
-  //     valueExpression: '',
-  //     timestampType: TimestampType.polltime,
-  //     timestampExpression: '',
-  //   },
-  // };
+  const defaultValues: Partial<DatapointSettings> = datapoint ?? {
+    proc: {
+      scaling: ScalingFunction.lin,
+      unit: '',
+      k: 1.0,
+      m: 0.0,
+      min: -10000,
+      max: 10000,
+      condition: '',
+      scalefunc: '',
+    },
+    datasourcetype: DatasourceType.web,
+    datasource: {
+      url: '',
+      authenticationType: AuthenticationType.none,
+      auth: '',
+      format: OriginDocumentFormat.jsondoc,
+      valueExpression: '',
+      timestampType: TimestampType.polltime,
+      timestampExpression: '',
+    },
+  };
 
   return (
-    <Form<DatapointSettings> onSubmit={onSubmit} /*defaultValues={defaultValues}*/>
+    <Form<DatapointSettings> onSubmit={onSubmit} defaultValues={datapoint ?? defaultValues}>
       {(formAPI: FormAPI<DatapointSettings>) => {
         const { register, errors, control, watch } = formAPI;
         const scaling = watch('proc.scaling');
