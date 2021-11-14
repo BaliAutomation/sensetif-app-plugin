@@ -44,7 +44,6 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                   })}
                   readOnly={!!project}
                   placeholder="Project name"
-                  css=""
                 />
               </Field>
 
@@ -54,7 +53,6 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                     required: 'Project title is required',
                   })}
                   placeholder="Project title"
-                  css=""
                 />
               </Field>
 
@@ -81,7 +79,6 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                     required: 'City is required',
                   })}
                   placeholder="City"
-                  css=""
                 />
               </Field>
 
@@ -106,7 +103,6 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                     required: 'Geolocation is required',
                   })}
                   placeholder="latitude,longitude"
-                  css=""
                 />
               </Field>
               <HorizontalGroup>

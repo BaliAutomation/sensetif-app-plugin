@@ -92,7 +92,6 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                   })}
                   readOnly={!!datapoint}
                   placeholder="Datapoint name"
-                  css=""
                 />
               </Field>
               <HorizontalGroup>
@@ -150,7 +149,6 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                     required: 'Unit is required',
                   })}
                   placeholder="unit"
-                  css=""
                 />
               </Field>
               <HorizontalGroup>
@@ -198,7 +196,6 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                       type="number"
                       step="any"
                       className={numericInputStyle}
-                      css=""
                     />
                   </Field>
                 )}
@@ -213,7 +210,6 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                       type="number"
                       step="any"
                       className={numericInputStyle}
-                      css=""
                     />
                   </Field>
                 )}

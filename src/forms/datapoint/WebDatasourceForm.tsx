@@ -39,7 +39,6 @@ export const WebDatasourceForm: FC<Props> = ({
           })}
           type="url"
           placeholder="Datapoint URL"
-          css=""
         />
       </Field>
 
@@ -69,7 +68,6 @@ export const WebDatasourceForm: FC<Props> = ({
           {/*<HorizontalGroup>*/}
           <Field label="Username:Password" invalid={!!dsErrors?.auth} error={dsErrors?.auth && dsErrors?.auth.message}>
             <Input
-              css=""
               {...register('datasource.auth', {
                 required: 'Username:Password is required',
               })}
@@ -97,7 +95,6 @@ export const WebDatasourceForm: FC<Props> = ({
         <>
           <Field label="Token" invalid={!!dsErrors?.auth} error={dsErrors?.auth && dsErrors?.auth.message}>
             <Input
-              css=""
               {...register('datasource.auth', {
                 required: 'Token is required',
               })}
@@ -134,7 +131,6 @@ export const WebDatasourceForm: FC<Props> = ({
           {...register('datasource.valueExpression', {
             required: 'expression is required',
           })}
-          css={''}
           placeholder={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
         />
       </Field>
@@ -179,7 +175,6 @@ export const WebDatasourceForm: FC<Props> = ({
             <Input
               {...register('datasource.timestampExpression', {})}
               placeholder={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
-              css=""
             />
           </Field>
         )}
