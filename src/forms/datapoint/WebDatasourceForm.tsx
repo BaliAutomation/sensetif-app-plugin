@@ -33,12 +33,10 @@ export const WebDatasourceForm: FC<Props> = ({
   return (
     <>
       <Field label="URL" invalid={!!dsErrors?.url} error={dsErrors?.url && dsErrors?.url.message}>
-        <Input
-          {...register('datasource.url', {
-            required: 'URL is required',
-          })}
-          type="url"
-          placeholder="Datapoint URL"
+        <InputControl
+          render={({ field }) => <Input {...field} type="url" placeholder="Datapoint URL" />}
+          control={control}
+          name="datasource.url"
         />
       </Field>
 
