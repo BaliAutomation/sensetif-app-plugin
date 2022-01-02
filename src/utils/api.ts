@@ -1,11 +1,5 @@
 import { getBackendSrv, logInfo } from '@grafana/runtime';
-import {
-  DatapointSettings,
-  Payment,
-  PlanSettings,
-  ProjectSettings,
-  SubsystemSettings,
-} from 'types';
+import { DatapointSettings, Payment, PlanSettings, ProjectSettings, SubsystemSettings } from 'types';
 import { API_RESOURCES } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 1000;

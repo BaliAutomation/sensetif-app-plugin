@@ -16,9 +16,11 @@ export const PlansList = (props: Props) => {
 
   const getMonthlyPrice = (plan: PlanSettings) => {
     console.log('PlansList:' + JSON.stringify(plan.prices));
-    (window as any).niclas = { plan: plan };
-    plan.prices.filter((price: any) => price.recurring).find((price: any) => price.recurring.interval === 'month')
-      .unit_amount;
+    const w = window as any;
+    w.niclas = { plan: plan };
+    return plan.prices
+      .filter((price: any) => price.recurring)
+      .find((price: any) => price.recurring.interval === 'month').unit_amount;
   };
 
   const byMonthlyPrice = (a: PlanSettings, b: PlanSettings) => {
@@ -37,7 +39,7 @@ export const PlansList = (props: Props) => {
     <>
       <section className="card-section card-list-layout-list">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr)', gap: '5px' }}>
-          {props.plans.sort(byMonthlyPrice).map((plan, index) => (
+          {props.plans.sort(byMonthlyPrice).map((plan, _) => (
             <PlanCard key={plan.product.id} aria-label="check-card" plan={plan} selected={plan.selected} />
           ))}
         </div>
