@@ -14,9 +14,12 @@ export const PlansList = (props: Props) => {
     return <LoadingPlaceholder text="Loading..." />;
   }
 
-  const getMonthlyPrice = (plan: PlanSettings) =>
+  const getMonthlyPrice = (plan: PlanSettings) => {
+    console.log('PlansList:' + JSON.stringify(plan.prices));
+    (window as any).niclas = { plan: plan };
     plan.prices.filter((price: any) => price.recurring).find((price: any) => price.recurring.interval === 'month')
       .unit_amount;
+  };
 
   const byMonthlyPrice = (a: PlanSettings, b: PlanSettings) => {
     const monthlyPriceA = getMonthlyPrice(a);
