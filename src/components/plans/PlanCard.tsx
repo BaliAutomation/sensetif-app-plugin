@@ -49,9 +49,7 @@ export const PlanCard = ({ plan, selected }: Props) => {
           <span>{PollIntervals[product.metadata.minpollinterval]}</span>
         </HorizontalGroup>
         <div style={{ marginTop: '1em' }} />
-        {console.log('NICLAS!!!!!!!')}
-        {prices.sort(sortByType).map((price) => {
-          console.log('NICLAS:::' + price);
+        {prices.sort(sortByType).map((price) => (
           <Button
             key={price.id}
             className=""
@@ -67,8 +65,8 @@ export const PlanCard = ({ plan, selected }: Props) => {
           >
             {price.recurring ? price.recurring.interval + 'ly' : '10 years'} : &nbsp;
             {price.currency.toUpperCase()} {price.unit_amount / 100}
-          </Button>;
-        })}
+          </Button>
+        ))}
       </VerticalGroup>
     </div>
   );
