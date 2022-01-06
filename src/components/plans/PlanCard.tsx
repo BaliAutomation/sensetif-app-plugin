@@ -15,10 +15,12 @@ export const PlanCard = ({ plan, selected }: Props) => {
   const { product, prices } = plan;
 
   const sortByType = (a: any, b: any) => {
-    if (a.recurring?.interval === a.recurring?.interval)
+    if (a.recurring?.interval === a.recurring?.interval) {
       return 0;
-    if (a.recurring?.interval === 'yearly')
+    }
+    if (a.recurring?.interval === 'yearly') {
       return -1;
+    }
     return 1;
   };
 
