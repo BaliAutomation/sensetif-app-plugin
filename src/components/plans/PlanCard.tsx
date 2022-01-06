@@ -15,6 +15,7 @@ export const PlanCard = ({ plan, selected }: Props) => {
   const { product, prices } = plan;
 
   const sortByType = (a: any, b: any) => {
+    console.log('NICLAS!!!' + JSON.stringify(a.recurring), +',' + JSON.stringify(b.recurring));
     if (a.recurring?.interval === b.recurring?.interval) {
       return 0;
     }
