@@ -25,7 +25,7 @@ export const PlansList = (props: Props) => {
     } else {
       result = 1;
     }
-    w.niclas.queue.push(result);
+    w.niclas.queue.push([result, JSON.stringify(a), JSON.stringify(b)]);
     return result;
   };
 
