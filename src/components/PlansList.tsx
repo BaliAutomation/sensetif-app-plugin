@@ -18,14 +18,14 @@ export const PlansList = (props: Props) => {
 
   const sortByType = (a: any, b: any) => {
     let result;
-    if (a.recurring.interval.unit_amount === b.recurring.interval.unit_amount) {
+    if (a.unit_amount === b.unit_amount) {
       result = 0;
-    } else if (a.recurring.interval.unit_amount > b.recurring.interval.unit_amount) {
+    } else if (a.unit_amount > b.unit_amount) {
       result = -1;
     } else {
       result = 1;
     }
-    w.niclas.queue.push([result, a.recurring.interval.unit_amount, b.recurring.interval.unit_amount]);
+    w.niclas.queue.push([result, a.unit_amount, b.unit_amount]);
     return result;
   };
 
