@@ -2,6 +2,7 @@ import { HorizontalGroup, VerticalGroup, Button, Badge } from '@grafana/ui';
 import React from 'react';
 import { PollIntervals, TimeToLivePeriods } from 'utils/consts';
 import { checkout } from '../../utils/api';
+import { logWarning } from '@grafana/runtime';
 
 interface Props {
   plan: {
@@ -15,7 +16,7 @@ export const PlanCard = ({ plan, selected }: Props) => {
   const { product, prices } = plan;
 
   const sortByType = (a: any, b: any) => {
-    console.log('NICLAS!!!' + JSON.stringify(a.recurring), +',' + JSON.stringify(b.recurring));
+    logWarning('NICLAS!!!' + JSON.stringify(a.recurring) + ',' + JSON.stringify(b.recurring));
     if (a.recurring?.interval === b.recurring?.interval) {
       return 0;
     }
