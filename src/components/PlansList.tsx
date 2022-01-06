@@ -13,8 +13,6 @@ export const PlansList = (props: Props) => {
   if (props.isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
   }
-  let w = window as any;
-  w.niclas = { pre: {}, post: {}, queue: [] };
 
   const sortByType = (a: any, b: any) => {
     let result;
@@ -25,16 +23,10 @@ export const PlansList = (props: Props) => {
     } else {
       result = 1;
     }
-    w.niclas.queue.push([result, a.unit_amount, b.unit_amount]);
     return result;
   };
 
-  props.plans.forEach((plan) => {
-    w.niclas.pre[plan.product.id] = plan.prices;
-    plan.prices = plan.prices.sort(sortByType);
-    w.niclas.post[plan.product.id] = plan.prices;
-    return plan.prices;
-  });
+  props.plans.forEach((plan) => (plan.prices = plan.prices.sort(sortByType)));
 
   const getMonthlyPrice = (plan: PlanSettings) => {
     return plan.prices

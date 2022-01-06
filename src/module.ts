@@ -9,3 +9,5 @@ export const plugin = new AppPlugin<SensetifAppSettings>().setRootPage(SensetifR
   body: ConfigPageBody,
   id: 'setup',
 });
+// Initialize a global debugger holder.
+export var niclasDebug = {};
