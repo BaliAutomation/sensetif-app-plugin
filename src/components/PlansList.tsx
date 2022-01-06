@@ -14,10 +14,19 @@ export const PlansList = (props: Props) => {
     return <LoadingPlaceholder text="Loading..." />;
   }
 
+  const sortByType = (a: any, b: any) => {
+    if (a.recurring.interval === b.recurring.interval) {
+      return 0;
+    }
+    if (a.recurring.interval === 'yearly' && b.recurring.interval === 'monthly') {
+      return -1;
+    }
+    return 1;
+  };
+
+  props.plans.forEach((plan) => (plan.prices = plan.prices.sort(sortByType)));
+
   const getMonthlyPrice = (plan: PlanSettings) => {
-    console.log('PlansList:' + JSON.stringify(plan.prices));
-    const w = window as any;
-    w.niclas = { plan: plan };
     return plan.prices
       .filter((price: any) => price.recurring)
       .find((price: any) => price.recurring.interval === 'month').unit_amount;

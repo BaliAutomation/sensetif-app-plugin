@@ -14,16 +14,6 @@ interface Props {
 export const PlanCard = ({ plan, selected }: Props) => {
   const { product, prices } = plan;
 
-  const sortByType = (a: any, b: any) => {
-    if (a.recurring.interval === b.recurring.interval) {
-      return 0;
-    }
-    if (a.recurring.interval === 'yearly' && b.recurring.interval === 'monthly') {
-      return -1;
-    }
-    return 1;
-  };
-
   return (
     <div aria-label="check-card" className="card-item" style={{ cursor: 'pointer' }}>
       <VerticalGroup>
@@ -48,7 +38,7 @@ export const PlanCard = ({ plan, selected }: Props) => {
           <span>{PollIntervals[product.metadata.minpollinterval]}</span>
         </HorizontalGroup>
         <div style={{ marginTop: '1em' }} />
-        {prices.sort(sortByType).map((price) => (
+        {prices.map((price) => (
           <Button
             key={price.id}
             className=""
