@@ -13,18 +13,23 @@ export const PlansList = (props: Props) => {
   if (props.isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
   }
+  let w = window as any;
+  w.niclas = { pre: {}, post: {} };
 
   const sortByType = (a: any, b: any) => {
-    if (a.recurring.interval === b.recurring.interval) {
+    if (a.recurring.interval.unit_amount === b.recurring.interval.unit_amount) {
       return 0;
     }
-    if (a.recurring.interval === 'yearly' && b.recurring.interval === 'monthly') {
-      return -1;
-    }
-    return 1;
+    return a.recurring.interval.unit_amount > b.recurring.interval.unit_amount ? -1 : 1;
   };
 
-  props.plans.forEach((plan) => (plan.prices = plan.prices.sort(sortByType)));
+  props.plans.forEach((plan) => {
+    w.niclas.pre[plan.product.id] = plan.prices;
+    let after = plan.prices;
+    plan.prices.sort(sortByType);
+    w.niclas.post[plan.product.id] = after;
+    return after;
+  });
 
   const getMonthlyPrice = (plan: PlanSettings) => {
     return plan.prices
