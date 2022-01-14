@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { SubsystemSettings } from '../types';
 import { Button, Field, FieldSet, Form, HorizontalGroup, Input, Label } from '@grafana/ui';
-import { PATTERN_NAME } from './common';
+import { SUBSYSTEM_PATTERN_NAME } from './common';
 
 interface Props {
   subsystem?: SubsystemSettings;
@@ -31,8 +31,8 @@ export const SubsystemForm: FC<Props> = ({ subsystem, projectName, onSubmit, onC
                   {...register('name', {
                     required: 'Subsystem name is required',
                     pattern: {
-                      value: PATTERN_NAME,
-                      message: 'Allowed letters, numbers and "_". Must start with a letter.',
+                      value: SUBSYSTEM_PATTERN_NAME,
+                      message: 'Allowed letters, numbers, and ".-_". Must start with a letter.',
                     },
                   })}
                   readOnly={!!subsystem}

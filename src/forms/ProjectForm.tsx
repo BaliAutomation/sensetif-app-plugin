@@ -13,7 +13,7 @@ import {
 } from '@grafana/ui';
 import { getNames as getCountryNames } from 'country-list';
 import { SelectableValue } from '@grafana/data';
-import { PATTERN_NAME } from './common';
+import { PROJECT_PATTERN_NAME } from './common';
 
 interface Props {
   project?: ProjectSettings;
@@ -38,8 +38,8 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                   {...register('name', {
                     required: 'Project name is required',
                     pattern: {
-                      value: PATTERN_NAME,
-                      message: 'Allowed letters, numbers and "_". Must start with a letter.',
+                      value: PROJECT_PATTERN_NAME,
+                      message: 'Allowed letters, numbers and ".-_". Must start with a letter.',
                     },
                   })}
                   readOnly={!!project}

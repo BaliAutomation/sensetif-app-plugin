@@ -24,7 +24,7 @@ import {
   Select,
 } from '@grafana/ui';
 import { css } from '@emotion/css';
-import { PATTERN_NAME } from './common';
+import { DATAPOINT_PATTERN_NAME } from './common';
 import { WebDatasourceForm } from './datapoint/WebDatasourceForm';
 import { Ttnv3DatasourceForm } from './datapoint/Ttnv3DatasourceForm';
 import { AvailablePollIntervals, AvailableTimeToLivePeriods } from '../utils/consts';
@@ -88,8 +88,8 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                   {...register('name', {
                     required: 'Datapoint name is required',
                     pattern: {
-                      value: PATTERN_NAME,
-                      message: 'Allowed letters, numbers and "_". Must start with a letter.',
+                      value: DATAPOINT_PATTERN_NAME,
+                      message: 'Allowed letters, numbers, and ".-_$[]". Must start with a letter.',
                     },
                   })}
                   readOnly={!!datapoint}
