@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { ProjectSettings } from '../types';
 import {
-  TimeZonePicker,
+  // TimeZonePicker,
   Button,
   Field,
   FieldSet,
@@ -10,6 +10,7 @@ import {
   InputControl,
   Select,
   HorizontalGroup,
+  TimeZonePicker,
 } from '@grafana/ui';
 import { getNames as getCountryNames } from 'country-list';
 import { SelectableValue } from '@grafana/data';
@@ -61,7 +62,7 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                   render={({ field: { onChange, ref, ...field } }) => (
                     <Select
                       {...field}
-                      onChange={(value) => onChange(value.value)}
+                      onChange={(selectable) => onChange(selectable.value)}
                       options={getCountryNames().map((c) => ({ label: c, value: c } as SelectableValue))}
                     />
                   )}
@@ -70,6 +71,7 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                   }}
                   control={control}
                   name="country"
+                  defaultValue={{ label: 'Sweden', value: 'Sweden' } as SelectableValue}
                 />
               </Field>
 
@@ -81,18 +83,16 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                   placeholder="City"
                 />
               </Field>
-
               <Field label="Time zone" invalid={!!errors.timezone} error={errors.timezone && errors.timezone.message}>
                 <InputControl
                   {...register('timezone', {
                     required: 'Timezone selection is required',
                   })}
-                  render={({ field }) => <TimeZonePicker {...field} />}
+                  render={({ field: { ref, ...field } }) => <TimeZonePicker {...field} />}
                   name="timezone"
                   control={control}
                 />
               </Field>
-
               <Field
                 label="Geolocation"
                 invalid={!!errors.geolocation}
@@ -105,6 +105,7 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                   placeholder="latitude,longitude"
                 />
               </Field>
+
               <HorizontalGroup>
                 <Button type="button" variant={'secondary'} onClick={onCancel}>
                   {'Cancel'}

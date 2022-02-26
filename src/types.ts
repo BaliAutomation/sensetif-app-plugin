@@ -24,6 +24,7 @@ export interface SubsystemSettings {
 export enum DatasourceType {
   web = 'web',
   ttnv3 = 'ttnv3',
+  mqtt = 'mqtt',
 }
 
 export interface Processing {
@@ -45,7 +46,7 @@ export interface DatapointSettings {
   proc: Processing;
   timeToLive: TimeToLive;
   datasourcetype: DatasourceType;
-  datasource: WebDatasource | Ttnv3Datasource;
+  datasource: WebDatasource | Ttnv3Datasource | MqttDatasource;
 }
 
 export interface Ttnv3Datasource {
@@ -69,6 +70,22 @@ export interface WebDatasource {
 
   timestampType: TimestampType;
   timestampExpression: string; // if format==xml, then xpath. if format==json, then jsonpath.
+}
+
+export interface MqttDatasource {
+  protocol: MqttProtocol;
+  address: string;
+  port: number;
+  topic: string;
+
+  username: string;
+  password: string;
+
+  format: OriginDocumentFormat;
+  valueExpression: string;
+
+  timestampType: TimestampType;
+  timestampExpression: string;
 }
 
 export enum TimeToLive {
@@ -148,6 +165,17 @@ export enum PollInterval {
 export enum OriginDocumentFormat {
   jsondoc = 'jsondoc',
   xmldoc = 'xmldoc',
+}
+
+export enum MqttProtocol {
+  mqtt = 'mqtt',
+  mqtts = 'mqtts',
+  tcp = 'tcp',
+  tls = 'tls',
+  ws = 'ws',
+  wss = 'wss',
+  wxs = 'wxs',
+  alis = 'alis',
 }
 
 export enum AuthenticationType {

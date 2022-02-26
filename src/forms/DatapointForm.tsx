@@ -1,8 +1,9 @@
 import React, { FC } from 'react';
 import {
-  AuthenticationType,
   DatapointSettings,
   DatasourceType,
+  MqttDatasource,
+  MqttProtocol,
   OriginDocumentFormat,
   ScalingFunction,
   TimestampType,
@@ -25,9 +26,10 @@ import {
 } from '@grafana/ui';
 import { css } from '@emotion/css';
 import { DATAPOINT_PATTERN_NAME } from './common';
+import { AvailablePollIntervals, AvailableTimeToLivePeriods } from '../utils/consts';
+import { MqttDatasourceForm } from './datapoint/MqttDatasourceForm';
 import { WebDatasourceForm } from './datapoint/WebDatasourceForm';
 import { Ttnv3DatasourceForm } from './datapoint/Ttnv3DatasourceForm';
-import { AvailablePollIntervals, AvailableTimeToLivePeriods } from '../utils/consts';
 
 interface Props {
   datapoint?: DatapointSettings;
@@ -47,6 +49,17 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
     }
   `;
 
+  function hasPollInterval(datapoint: DatapointSettings | undefined) {
+    if (datapoint === undefined) {
+      return true;
+    }
+    if (datapoint.datasourcetype !== DatasourceType.web) {
+      return false;
+    }
+    const ds = datapoint.datasource as WebDatasource;
+    return !ds.url.startsWith('mqtt:');
+  }
+
   const defaultValues: Partial<DatapointSettings> = datapoint ?? {
     proc: {
       scaling: ScalingFunction.lin,
@@ -58,11 +71,17 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
       condition: '',
       scalefunc: '',
     },
-    datasourcetype: DatasourceType.web,
+    datasourcetype: DatasourceType.mqtt,
     datasource: {
-      url: '',
-      authenticationType: AuthenticationType.none,
-      auth: '',
+      // url: '',
+      // authenticationType: AuthenticationType.none,
+      // auth: '',
+      protocol: MqttProtocol.tcp,
+      address: '',
+      topic: '',
+      port: 1883,
+      username: '',
+      password: '',
       format: OriginDocumentFormat.jsondoc,
       valueExpression: '',
       timestampType: TimestampType.polltime,
@@ -76,7 +95,6 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
         const { register, errors, control, watch } = formAPI;
         const scaling = watch('proc.scaling');
         const sourceType = watch('datasourcetype');
-
         return (
           <>
             <Label>Project: {projectName}</Label>
@@ -97,27 +115,30 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                 />
               </Field>
               <HorizontalGroup>
-                <Field
-                  label="Poll interval"
-                  invalid={!!errors.pollinterval}
-                  error={errors.pollinterval && errors.pollinterval.message}
-                >
-                  <InputControl
-                    render={({ field: { onChange, ref, ...field } }) => (
-                      <Select
-                        {...field}
-                        disabled={!!datapoint}
-                        onChange={(value) => onChange(value.value)}
-                        options={AvailablePollIntervals}
-                      />
-                    )}
-                    rules={{
-                      required: 'Interval selection is required',
-                    }}
-                    name="pollinterval"
-                    control={control}
-                  />
-                </Field>
+                {hasPollInterval(datapoint) && (
+                  <Field
+                    label="Poll interval"
+                    invalid={!!errors.pollinterval}
+                    error={errors.pollinterval && errors.pollinterval.message}
+                  >
+                    <InputControl
+                      render={({ field: { onChange, ref, ...field } }) => (
+                        <Select
+                          {...field}
+                          disabled={!!datapoint}
+                          onChange={(selectable) => onChange(selectable.value)}
+                          options={AvailablePollIntervals}
+                        />
+                      )}
+                      rules={{
+                        required: 'Interval selection is required',
+                      }}
+                      name="pollinterval"
+                      control={control}
+                      defaultValue={AvailablePollIntervals[5]}
+                    />
+                  </Field>
+                )}
                 <Field
                   label="Storage Period"
                   invalid={!errors.proc || !!errors.proc.scaling}
@@ -127,7 +148,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                     render={({ field: { onChange, ref, ...field } }) => (
                       <Select
                         {...field}
-                        onChange={(value) => onChange(value.value)}
+                        onChange={(selectable) => onChange(selectable.value)}
                         options={AvailableTimeToLivePeriods}
                       />
                     )}
@@ -139,8 +160,8 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                     name="timeToLive"
                   />
                 </Field>
-              </HorizontalGroup>
-
+              </HorizontalGroup>{' '}
+              {})
               <Field
                 label="Unit"
                 invalid={!!errors.proc && !!errors.proc.unit}
@@ -163,11 +184,11 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                     render={({ field: { onChange, ref, ...field } }) => (
                       <Select
                         {...field}
-                        onChange={(value) => onChange(value.value)}
+                        onChange={(selectable) => onChange(selectable.value)}
                         options={[
-                          { label: 'Linear', value: ScalingFunction.lin },
-                          { label: 'Logarithmic', value: ScalingFunction.log },
-                          { label: 'Exponential', value: ScalingFunction.exp },
+                          { label: 'Linear [y = k * x + m]', value: ScalingFunction.lin },
+                          { label: 'Logarithmic [y = k * ln(x * m)]', value: ScalingFunction.log },
+                          { label: 'Exponential [y = k * exp(x * m)]', value: ScalingFunction.exp },
                           { label: 'Degrees->Radians', value: ScalingFunction.rad },
                           { label: 'Radians->Degrees', value: ScalingFunction.deg },
                           { label: 'Fahrenheit->Celsius', value: ScalingFunction.fToC },
@@ -183,7 +204,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                       required: 'Function selection is required',
                     }}
                     control={control}
-                    defaultValue={OriginDocumentFormat.jsondoc}
+                    defaultValue={ScalingFunction.lin}
                     name="proc.scaling"
                   />
                 </Field>
@@ -221,12 +242,13 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
             <FieldSet label="Datasource">
               <Field label="Type">
                 <InputControl
-                  render={({ field }) => (
+                  render={({ field: { ref, ...field } }) => (
                     <RadioButtonGroup
                       {...field}
                       options={[
                         { label: 'Http(s)', value: DatasourceType.web },
                         { label: 'Things Network', value: DatasourceType.ttnv3 },
+                        { label: 'MQTT', value: DatasourceType.mqtt },
                       ]}
                     />
                   )}
@@ -243,6 +265,9 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
               )}
               {sourceType === DatasourceType.web && (
                 <WebDatasourceForm {...formAPI} datasource={datapoint?.datasource as WebDatasource} />
+              )}
+              {sourceType === DatasourceType.mqtt && (
+                <MqttDatasourceForm {...formAPI} ds={datapoint?.datasource as MqttDatasource} />
               )}
             </FieldSet>
             <HorizontalGroup>
