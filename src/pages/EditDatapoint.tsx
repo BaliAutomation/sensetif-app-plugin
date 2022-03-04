@@ -36,8 +36,7 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
 
   const updateDatapoint = (datapoint: DatapointSettings) => {
     // NOTE: This is while we are ONLY doing POLL types from TTN.
-    if( datapoint.datasourcetype === DatasourceType.ttnv3 )
-    {
+    if (datapoint.datasourcetype === DatasourceType.ttnv3) {
       let ds = datapoint.datasource as Ttnv3Datasource;
       ds.poll = true;
       ds.webhook = false;
