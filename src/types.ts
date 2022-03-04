@@ -55,6 +55,9 @@ export interface Ttnv3Datasource {
   device: string;
   point: string;
   authorizationkey: string;
+  poll: boolean;
+  subscribe: boolean;
+  webhook: boolean;
 }
 
 export interface WebDatasource {

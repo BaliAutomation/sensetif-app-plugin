@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
-import { DatapointSettings } from 'types';
+import { DatapointSettings, DatasourceType, Ttnv3Datasource } from 'types';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { getDatapoint, upsertDatapoint } from 'utils/api';
 import { goToDatapoints } from 'utils/navigation';
@@ -35,6 +35,14 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
   };
 
   const updateDatapoint = (datapoint: DatapointSettings) => {
+    // NOTE: This is while we are ONLY doing POLL types from TTN.
+    if( datapoint.datasourcetype === DatasourceType.ttnv3 )
+    {
+      let ds = datapoint.datasource as Ttnv3Datasource;
+      ds.poll = true;
+      ds.webhook = false;
+      ds.subscribe = false;
+    }
     upsertDatapoint(projectName, subsystemName, datapoint)
       .then(() => goToDatapoints(projectName, subsystemName))
       .catch((err) => logError(err));
