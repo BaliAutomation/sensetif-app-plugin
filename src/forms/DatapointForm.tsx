@@ -52,7 +52,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
     if (datapoint === undefined) {
       return true;
     }
-    switch(datapoint.datasourcetype) {
+    switch (datapoint.datasourcetype) {
       case DatasourceType.web:
         return true;
       case DatasourceType.ttnv3:
