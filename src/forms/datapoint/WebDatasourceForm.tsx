@@ -42,7 +42,7 @@ export const WebDatasourceForm: FC<Props> = ({
 
       <Field label="Authentication type">
         <InputControl
-          render={({ field: { onChange, ref, ...field } }) => (
+          render={({ field: { ref, ...field } }) => (
             <RadioButtonGroup
               {...field}
               options={[
