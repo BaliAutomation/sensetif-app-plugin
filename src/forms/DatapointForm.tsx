@@ -163,21 +163,20 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                     />
                   </Field>
                 )}
-              </HorizontalGroup>{' '}
-              {})
-              <Field
-                label="Unit"
-                invalid={!!errors.proc && !!errors.proc.unit}
-                error={errors.proc ? errors.proc.unit && errors.proc.unit.message : undefined}
-              >
-                <Input
-                  {...register('proc.unit', {
-                    required: 'Unit is required',
-                  })}
-                  placeholder="unit"
-                />
-              </Field>
+              </HorizontalGroup>
               <HorizontalGroup>
+                <Field
+                  label="Unit"
+                  invalid={!!errors.proc && !!errors.proc.unit}
+                  error={errors.proc ? errors.proc.unit && errors.proc.unit.message : undefined}
+                >
+                  <Input
+                    {...register('proc.unit', {
+                      required: 'Unit is required',
+                    })}
+                    placeholder="unit"
+                  />
+                </Field>
                 <Field
                   label="Scaling"
                   invalid={!errors.proc || !!errors.proc.scaling}

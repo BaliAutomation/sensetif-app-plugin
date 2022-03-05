@@ -1,5 +1,13 @@
 import { getBackendSrv, logInfo } from '@grafana/runtime';
-import { DatapointSettings, Payment, PlanSettings, ProjectSettings, SubsystemSettings } from 'types';
+import {
+  DatapointSettings,
+  DatasourceType,
+  Payment,
+  PlanSettings,
+  PollInterval,
+  ProjectSettings,
+  SubsystemSettings
+} from 'types';
 import { API_RESOURCES } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 100;
@@ -87,6 +95,10 @@ export const getDatapoint = (
 ): Promise<DatapointSettings> => request(projectName + '/' + subsystemName + '/' + datapointName, 'GET', '', 0);
 
 export const upsertDatapoint = (projectName: string, subsystemName: string, datapoint: DatapointSettings) => {
+  if (datapoint.datasourcetype === DatasourceType.mqtt) {
+    // TODO: MQTT doesn't have a poll interval. Does that mean that pollinterval belongs in the Datasource?
+    datapoint.pollinterval = PollInterval.one_hour;
+  }
   datapoint.project = projectName;
   datapoint.subsystem = subsystemName;
   return request(
