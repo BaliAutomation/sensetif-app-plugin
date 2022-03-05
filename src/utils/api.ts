@@ -6,7 +6,7 @@ import {
   PlanSettings,
   PollInterval,
   ProjectSettings,
-  SubsystemSettings
+  SubsystemSettings,
 } from 'types';
 import { API_RESOURCES } from './consts';
 
