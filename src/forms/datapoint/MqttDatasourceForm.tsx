@@ -49,7 +49,7 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
       </Field>
       <Field label="MQTT protocol">
         <InputControl
-          render={({ field: { onChange, ref, ...field } }) => (
+          render={({ field: { ref, ...field } }) => (
             <RadioButtonGroup
               {...field}
               options={[

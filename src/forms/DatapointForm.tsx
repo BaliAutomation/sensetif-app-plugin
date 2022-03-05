@@ -7,7 +7,6 @@ import {
   OriginDocumentFormat,
   ScalingFunction,
   TimestampType,
-  TimeToLive,
   Ttnv3Datasource,
   WebDatasource,
 } from '../types';
@@ -53,11 +52,15 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
     if (datapoint === undefined) {
       return true;
     }
-    if (datapoint.datasourcetype !== DatasourceType.web) {
-      return false;
+    switch(datapoint.datasourcetype) {
+      case DatasourceType.web:
+        return true;
+      case DatasourceType.ttnv3:
+        return true;
+      case DatasourceType.mqtt:
+        return false;
     }
-    const ds = datapoint.datasource as WebDatasource;
-    return !ds.url.startsWith('mqtt:');
+    return true;
   }
 
   const defaultValues: Partial<DatapointSettings> = datapoint ?? {
@@ -115,6 +118,27 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                 />
               </Field>
               <HorizontalGroup>
+                <Field
+                  label="Storage Period"
+                  invalid={!errors.proc || !!errors.proc.scaling}
+                  error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : undefined}
+                >
+                  <InputControl
+                    render={({ field: { onChange, ref, ...field } }) => (
+                      <Select
+                        {...field}
+                        onChange={(selectable) => onChange(selectable.value)}
+                        options={AvailableTimeToLivePeriods}
+                      />
+                    )}
+                    rules={{
+                      required: 'Storage Period selection is required',
+                    }}
+                    control={control}
+                    defaultValue={AvailableTimeToLivePeriods[0]}
+                    name="timeToLive"
+                  />
+                </Field>
                 {hasPollInterval(datapoint) && (
                   <Field
                     label="Poll interval"
@@ -139,27 +163,6 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                     />
                   </Field>
                 )}
-                <Field
-                  label="Storage Period"
-                  invalid={!errors.proc || !!errors.proc.scaling}
-                  error={errors.proc ? errors.proc.scaling && errors.proc.scaling.message : undefined}
-                >
-                  <InputControl
-                    render={({ field: { onChange, ref, ...field } }) => (
-                      <Select
-                        {...field}
-                        onChange={(selectable) => onChange(selectable.value)}
-                        options={AvailableTimeToLivePeriods}
-                      />
-                    )}
-                    rules={{
-                      required: 'Storage Period selection is required',
-                    }}
-                    control={control}
-                    defaultValue={TimeToLive.a}
-                    name="timeToLive"
-                  />
-                </Field>
               </HorizontalGroup>{' '}
               {})
               <Field
