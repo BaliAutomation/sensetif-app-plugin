@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Sensetiff",
   "scripts": {
+    "legacy": "export NODE_OPTIONS=--openssl-legacy-provider && npm run dev",
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
     "dev": "grafana-toolkit plugin:dev",
@@ -13,10 +14,10 @@
   "author": "Grafana Labs",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@grafana/data": "^8.2.1",
-    "@grafana/runtime": "^8.2.1",
-    "@grafana/toolkit": "^8.2.1",
-    "@grafana/ui": "^8.2.1",
+    "@grafana/data": "^8.4.3",
+    "@grafana/runtime": "^8.4.3",
+    "@grafana/toolkit": "^8.4.3",
+    "@grafana/ui": "^8.4.3",
     "react-hook-form": "7.5.3"
   },
   "engines": {

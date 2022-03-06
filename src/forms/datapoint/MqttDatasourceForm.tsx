@@ -1,50 +1,45 @@
 import React, { FC } from 'react';
-import {
-  AuthenticationType,
-  DatapointSettings,
-  MqttDatasource,
-  MqttProtocol,
-  OriginDocumentFormat,
-  TimestampType,
-} from '../../types';
-import { Field, FormAPI, HorizontalGroup, Input, InputControl, RadioButtonGroup, Select } from '@grafana/ui';
-import { FieldErrors } from 'react-hook-form';
+import { MqttDatasource, MqttProtocol, OriginDocumentFormat, TimestampType } from '../../types';
+import { Field, HorizontalGroup, Input, InputControl, RadioButtonGroup, Select } from '@grafana/ui';
+import { UseFormReturn } from 'react-hook-form';
 
-interface Props extends FormAPI<DatapointSettings> {
-  datasource: MqttDatasource;
-}
+interface Props extends UseFormReturn<MqttDatasource> {}
 
-export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, register, errors, datasource }) => {
-  const dsErrors = errors.datasource as FieldErrors<MqttDatasource>;
-  const timestampType = watch('datasource.timestampType');
-  const authType = watch('datasource.authenticationType');
-  const format = watch('datasource.format');
+export const defaultValues: MqttDatasource = {
+  address: '',
+  topic: '',
+  port: 1883,
+  username: '',
+  password: '',
+  valueExpression: '',
+  timestampExpression: '',
+  format: OriginDocumentFormat.jsondoc,
+  timestampType: TimestampType.polltime,
+  protocol: MqttProtocol.tcp,
+};
 
-  React.useEffect(() => {
-    unregister('datasource');
-  }, [unregister]);
-
-  React.useEffect(() => {
-    authType === AuthenticationType.none && unregister('datasource.password') && unregister('datasource.username');
-  }, [authType, unregister]);
+export const MqttDatasourceForm: FC<Props> = ({ control, watch, register, formState: { errors } }) => {
+  const timestampType = watch('timestampType');
+  const format = watch('format');
+  const protocol = watch('protocol');
 
   return (
     <>
-      <Field label="Address" invalid={!!dsErrors?.address} error={dsErrors?.address && dsErrors?.address.message}>
+      <Field label="Address" invalid={!!errors?.address} error={errors?.address && errors?.address.message}>
         <Input
-          {...register('datasource.address', {
+          {...register('address', {
             required: 'Address is required',
           })}
           placeholder="MQTT broker address or IP number"
         />
       </Field>
-      <Field label="Port" invalid={!!dsErrors?.port} error={dsErrors?.port && dsErrors?.port.message}>
+      <Field label="Port" invalid={!!errors?.port} error={errors?.port && errors?.port.message}>
         <Input
-          {...register('datasource.port', {
+          {...register('port', {
             required: 'Port is required',
           })}
           placeholder="MQTT broker port number"
-          defaultValue={datasource?.protocol === MqttProtocol.tls ? 8883 : 1883}
+          defaultValue={protocol === MqttProtocol.tls ? 8883 : 1883}
         />
       </Field>
       <Field label="MQTT protocol">
@@ -62,27 +57,23 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
             required: 'MQTT transport protocol is required.',
           }}
           control={control}
-          defaultValue={datasource ? datasource.protocol : MqttProtocol.tcp}
-          name="datasource.protocol"
+          defaultValue={protocol ?? MqttProtocol.tcp}
+          name="protocol"
         />
       </Field>
-      <Field label="Topic" invalid={!!dsErrors?.topic} error={dsErrors?.topic && dsErrors?.topic.message}>
+      <Field label="Topic" invalid={!!errors?.topic} error={errors?.topic && errors?.topic.message}>
         <Input
-          {...register('datasource.topic', {
+          {...register('topic', {
             required: 'Topic is required',
           })}
           placeholder="MQTT topic, example: /public/weather/temperature"
         />
       </Field>
-      <Field label="Username" invalid={!!dsErrors?.username} error={dsErrors?.username && dsErrors?.username.message}>
-        <Input {...register('datasource.username')} placeholder="Username at the MQTT broker" defaultValue={''} />
+      <Field label="Username" invalid={!!errors?.username} error={errors?.username && errors?.username.message}>
+        <Input {...register('username')} placeholder="Username at the MQTT broker" defaultValue={''} />
       </Field>
-      <Field label="Password" invalid={!!dsErrors?.password} error={dsErrors?.password && dsErrors?.password.message}>
-        <Input
-          {...register('datasource.password')}
-          placeholder="Password of the user at the MQTT broker"
-          defaultValue={''}
-        />
+      <Field label="Password" invalid={!!errors?.password} error={errors?.password && errors?.password.message}>
+        <Input {...register('password')} placeholder="Password of the user at the MQTT broker" defaultValue={''} />
       </Field>
       <HorizontalGroup>
         <Field label="Document Format">
@@ -100,17 +91,17 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
               required: 'Format selection is required',
             }}
             control={control}
-            defaultValue={datasource ? datasource.format : OriginDocumentFormat.jsondoc}
-            name="datasource.format"
+            defaultValue={format ?? OriginDocumentFormat.jsondoc}
+            name="format"
           />
         </Field>
         <Field
           label={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
-          invalid={!!dsErrors?.valueExpression}
-          error={dsErrors?.valueExpression && dsErrors?.valueExpression.message}
+          invalid={!!errors?.valueExpression}
+          error={errors?.valueExpression && errors?.valueExpression.message}
         >
           <Input
-            {...register('datasource.valueExpression', {
+            {...register('valueExpression', {
               required: 'expression is required',
             })}
             placeholder={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
@@ -120,8 +111,8 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
       <HorizontalGroup>
         <Field
           label="Type of Timestamp"
-          invalid={!!dsErrors?.timestampType}
-          error={dsErrors?.timestampType && dsErrors?.timestampType.message}
+          invalid={!!errors?.timestampType}
+          error={errors?.timestampType && errors?.timestampType.message}
         >
           <InputControl
             render={({ field: { onChange, ref, ...field } }) => (
@@ -142,7 +133,7 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
             }}
             control={control}
             defaultValue={TimestampType.epochMillis}
-            name="datasource.timestampType"
+            name="timestampType"
           />
         </Field>
         {timestampType !== TimestampType.polltime && (
@@ -152,11 +143,11 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
                 ? 'JSON Path Expression for Timestamp'
                 : 'XPath Expression for Timestamp'
             }
-            invalid={!!dsErrors?.timestampExpression}
-            error={dsErrors?.timestampExpression && dsErrors?.timestampExpression.message}
+            invalid={!!errors?.timestampExpression}
+            error={errors?.timestampExpression && errors?.timestampExpression.message}
           >
             <Input
-              {...register('datasource.timestampExpression', {})}
+              {...register('timestampExpression', {})}
               placeholder={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
             />
           </Field>

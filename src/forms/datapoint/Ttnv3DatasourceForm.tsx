@@ -1,24 +1,27 @@
 import React, { FC } from 'react';
-import { DatapointSettings, Ttnv3Datasource } from '../../types';
-import { Field, FormAPI, Input } from '@grafana/ui';
-import { FieldErrors } from 'react-hook-form';
+import { Ttnv3Datasource } from '../../types';
+import { Field, Input } from '@grafana/ui';
+import { UseFormReturn } from 'react-hook-form';
 
-interface Props extends FormAPI<DatapointSettings> {
-  datasource?: Ttnv3Datasource;
-}
+interface Props extends UseFormReturn<Ttnv3Datasource> {}
 
-export const Ttnv3DatasourceForm: FC<Props> = ({ unregister, register, errors }) => {
-  const dsErrors = errors.datasource as FieldErrors<Ttnv3Datasource>;
+export const defaultValues: Ttnv3Datasource = {
+  application: '',
+  authorizationkey: '',
+  device: '',
+  point: '',
+  zone: '',
+  poll: false,
+  subscribe: false,
+  webhook: false,
+};
 
-  React.useEffect(() => {
-    unregister('datasource');
-  }, [unregister]);
-
+export const Ttnv3DatasourceForm: FC<Props> = ({ register, formState: { errors } }) => {
   return (
     <>
-      <Field label="Zone" invalid={!!dsErrors?.zone} error={dsErrors?.zone && dsErrors?.zone.message}>
+      <Field label="Zone" invalid={!!errors?.zone} error={errors?.zone && errors?.zone.message}>
         <Input
-          {...register('datasource.zone', {
+          {...register('zone', {
             required: 'Zone is required',
           })}
           placeholder="Zone"
@@ -27,29 +30,29 @@ export const Ttnv3DatasourceForm: FC<Props> = ({ unregister, register, errors })
 
       <Field
         label="Application"
-        invalid={!!dsErrors?.application}
-        error={dsErrors?.application && dsErrors?.application.message}
+        invalid={!!errors?.application}
+        error={errors?.application && errors?.application.message}
       >
         <Input
-          {...register('datasource.application', {
+          {...register('application', {
             required: 'Application is required',
           })}
           placeholder="Application"
         />
       </Field>
 
-      <Field label="Device" invalid={!!dsErrors?.device} error={dsErrors?.device && dsErrors?.device.message}>
+      <Field label="Device" invalid={!!errors?.device} error={errors?.device && errors?.device.message}>
         <Input
-          {...register('datasource.device', {
+          {...register('device', {
             required: 'Device is required',
           })}
           placeholder="Device"
         />
       </Field>
 
-      <Field label="Point" invalid={!!dsErrors?.point} error={dsErrors?.point && dsErrors?.point.message}>
+      <Field label="Point" invalid={!!errors?.point} error={errors?.point && errors?.point.message}>
         <Input
-          {...register('datasource.point', {
+          {...register('point', {
             required: 'Point is required',
           })}
           placeholder="Point"
@@ -58,11 +61,11 @@ export const Ttnv3DatasourceForm: FC<Props> = ({ unregister, register, errors })
 
       <Field
         label="Authorization Key"
-        invalid={!!dsErrors?.authorizationkey}
-        error={dsErrors?.authorizationkey && dsErrors?.authorizationkey.message}
+        invalid={!!errors?.authorizationkey}
+        error={errors?.authorizationkey && errors?.authorizationkey.message}
       >
         <Input
-          {...register('datasource.authorizationkey', {
+          {...register('authorizationkey', {
             required: 'Key is required',
           })}
           placeholder="Key"

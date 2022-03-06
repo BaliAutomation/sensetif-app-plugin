@@ -1,33 +1,31 @@
 import React, { FC } from 'react';
-import { AuthenticationType, DatapointSettings, OriginDocumentFormat, TimestampType, WebDatasource } from '../../types';
-import { Field, FormAPI, HorizontalGroup, Input, InputControl, RadioButtonGroup, Select } from '@grafana/ui';
-import { FieldErrors } from 'react-hook-form';
+import { AuthenticationType, OriginDocumentFormat, TimestampType, WebDatasource } from '../../types';
+import { Field, HorizontalGroup, Input, InputControl, RadioButtonGroup, Select } from '@grafana/ui';
+import { UseFormReturn } from 'react-hook-form';
 
-interface Props extends FormAPI<DatapointSettings> {
-  datasource?: WebDatasource;
-}
+interface Props extends UseFormReturn<WebDatasource> {}
 
-export const WebDatasourceForm: FC<Props> = ({ unregister, control, watch, register, errors, datasource }) => {
-  const dsErrors = errors.datasource as FieldErrors<WebDatasource>;
-  const timestampType = watch('datasource.timestampType');
-  const authType = watch('datasource.authenticationType');
-  const format = watch('datasource.format');
+export const defaultValues: WebDatasource = {
+  url: '',
+  authenticationType: AuthenticationType.none,
+  format: OriginDocumentFormat.jsondoc,
+  timestampType: TimestampType.epochMillis,
+  timestampExpression: '',
+  valueExpression: '',
+};
 
-  React.useEffect(() => {
-    unregister('datasource');
-  }, [unregister]);
-
-  React.useEffect(() => {
-    authType === AuthenticationType.none && unregister('datasource.auth');
-  }, [authType, unregister]);
+export const WebDatasourceForm: FC<Props> = ({ control, watch, register, formState: { errors } }) => {
+  const timestampType = watch('timestampType');
+  const authType = watch('authenticationType');
+  const format = watch('format');
 
   return (
     <>
-      <Field label="URL" invalid={!!dsErrors?.url} error={dsErrors?.url && dsErrors?.url.message}>
+      <Field label="URL" invalid={!!errors?.url} error={errors?.url && errors?.url.message}>
         <InputControl
           render={({ field: { ref, ...field } }) => <Input {...field} type="url" placeholder="Datapoint URL" />}
           control={control}
-          name="datasource.url"
+          name="url"
           defaultValue={''}
         />
       </Field>
@@ -48,17 +46,17 @@ export const WebDatasourceForm: FC<Props> = ({ unregister, control, watch, regis
             required: 'Auth selection is required',
           }}
           control={control}
-          defaultValue={datasource ? datasource.authenticationType : AuthenticationType.none}
-          name="datasource.authenticationType"
+          defaultValue={authType ?? AuthenticationType.none}
+          name="authenticationType"
         />
       </Field>
 
       {authType === AuthenticationType.basic && (
         <>
           {/*<HorizontalGroup>*/}
-          <Field label="Username:Password" invalid={!!dsErrors?.auth} error={dsErrors?.auth && dsErrors?.auth.message}>
+          <Field label="Username:Password" invalid={!!errors?.auth} error={errors?.auth && errors?.auth.message}>
             <Input
-              {...register('datasource.auth', {
+              {...register('auth', {
                 required: 'Username:Password is required',
               })}
               placeholder="Username:Password"
@@ -68,9 +66,9 @@ export const WebDatasourceForm: FC<Props> = ({ unregister, control, watch, regis
       )}
       {authType === AuthenticationType.bearerToken && (
         <>
-          <Field label="Token" invalid={!!dsErrors?.auth} error={dsErrors?.auth && dsErrors?.auth.message}>
+          <Field label="Token" invalid={!!errors?.auth} error={errors?.auth && errors?.auth.message}>
             <Input
-              {...register('datasource.auth', {
+              {...register('auth', {
                 required: 'Token is required',
               })}
               placeholder="Bearer Token"
@@ -94,17 +92,17 @@ export const WebDatasourceForm: FC<Props> = ({ unregister, control, watch, regis
               required: 'Format selection is required',
             }}
             control={control}
-            defaultValue={datasource ? datasource.format : OriginDocumentFormat.jsondoc}
-            name="datasource.format"
+            defaultValue={format ?? OriginDocumentFormat.jsondoc}
+            name="format"
           />
         </Field>
         <Field
           label={format === OriginDocumentFormat.xmldoc ? 'XPath' : 'JSON Path'}
-          invalid={!!dsErrors?.valueExpression}
-          error={dsErrors?.valueExpression && dsErrors?.valueExpression.message}
+          invalid={!!errors?.valueExpression}
+          error={errors?.valueExpression && errors?.valueExpression.message}
         >
           <Input
-            {...register('datasource.valueExpression', {
+            {...register('valueExpression', {
               required: 'expression is required',
             })}
             placeholder={format === OriginDocumentFormat.xmldoc ? 'XPath' : 'JSON Path'}
@@ -114,8 +112,8 @@ export const WebDatasourceForm: FC<Props> = ({ unregister, control, watch, regis
       <HorizontalGroup>
         <Field
           label="Type of Timestamp"
-          invalid={!!dsErrors?.timestampType}
-          error={dsErrors?.timestampType && dsErrors?.timestampType.message}
+          invalid={!!errors?.timestampType}
+          error={errors?.timestampType && errors?.timestampType.message}
         >
           <InputControl
             render={({ field: { onChange, ref, ...field } }) => (
@@ -136,7 +134,7 @@ export const WebDatasourceForm: FC<Props> = ({ unregister, control, watch, regis
             }}
             control={control}
             defaultValue={TimestampType.polltime}
-            name="datasource.timestampType"
+            name="timestampType"
           />
         </Field>
         {timestampType && timestampType !== TimestampType.polltime && (
@@ -146,11 +144,11 @@ export const WebDatasourceForm: FC<Props> = ({ unregister, control, watch, regis
                 ? 'XPath Expression for Timestamp'
                 : 'JSON Path Expression for Timestamp'
             }
-            invalid={!!dsErrors?.timestampExpression}
-            error={dsErrors?.timestampExpression && dsErrors?.timestampExpression.message}
+            invalid={!!errors?.timestampExpression}
+            error={errors?.timestampExpression && errors?.timestampExpression.message}
           >
             <Input
-              {...register('datasource.timestampExpression', {})}
+              {...register('timestampExpression', {})}
               placeholder={format === OriginDocumentFormat.jsondoc ? 'JSON Path' : 'XPath'}
             />
           </Field>
