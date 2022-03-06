@@ -3,10 +3,7 @@ import {
   DatapointSettings,
   DatasourceType,
   MqttDatasource,
-  MqttProtocol,
-  OriginDocumentFormat,
   ScalingFunction,
-  TimestampType,
   Ttnv3Datasource,
   WebDatasource,
 } from '../types';
@@ -75,21 +72,6 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
       scalefunc: '',
     },
     datasourcetype: DatasourceType.mqtt,
-    datasource: {
-      // url: '',
-      // authenticationType: AuthenticationType.none,
-      // auth: '',
-      protocol: MqttProtocol.tcp,
-      address: '',
-      topic: '',
-      port: 1883,
-      username: '',
-      password: '',
-      format: OriginDocumentFormat.jsondoc,
-      valueExpression: '',
-      timestampType: TimestampType.polltime,
-      timestampExpression: '',
-    },
   };
 
   return (
@@ -269,7 +251,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                 <WebDatasourceForm {...formAPI} datasource={datapoint?.datasource as WebDatasource} />
               )}
               {sourceType === DatasourceType.mqtt && (
-                <MqttDatasourceForm {...formAPI} ds={datapoint?.datasource as MqttDatasource} />
+                <MqttDatasourceForm {...formAPI} datasource={datapoint?.datasource as MqttDatasource} />
               )}
             </FieldSet>
             <HorizontalGroup>

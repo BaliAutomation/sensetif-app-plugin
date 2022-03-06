@@ -7,15 +7,7 @@ interface Props extends FormAPI<DatapointSettings> {
   datasource?: WebDatasource;
 }
 
-export const WebDatasourceForm: FC<Props> = ({
-  setValue,
-  unregister,
-  control,
-  watch,
-  register,
-  errors,
-  datasource,
-}) => {
+export const WebDatasourceForm: FC<Props> = ({ unregister, control, watch, register, errors, datasource }) => {
   const dsErrors = errors.datasource as FieldErrors<WebDatasource>;
   const timestampType = watch('datasource.timestampType');
   const authType = watch('datasource.authenticationType');

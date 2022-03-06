@@ -11,10 +11,10 @@ import { Field, FormAPI, HorizontalGroup, Input, InputControl, RadioButtonGroup,
 import { FieldErrors } from 'react-hook-form';
 
 interface Props extends FormAPI<DatapointSettings> {
-  ds?: MqttDatasource;
+  datasource: MqttDatasource;
 }
 
-export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, register, errors, ds }) => {
+export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, register, errors, datasource }) => {
   const dsErrors = errors.datasource as FieldErrors<MqttDatasource>;
   const timestampType = watch('datasource.timestampType');
   const authType = watch('datasource.authenticationType');
@@ -44,7 +44,7 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
             required: 'Port is required',
           })}
           placeholder="MQTT broker port number"
-          defaultValue={ds?.protocol === MqttProtocol.tls ? 8883 : 1883}
+          defaultValue={datasource?.protocol === MqttProtocol.tls ? 8883 : 1883}
         />
       </Field>
       <Field label="MQTT protocol">
@@ -62,7 +62,7 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
             required: 'MQTT transport protocol is required.',
           }}
           control={control}
-          defaultValue={ds ? ds.protocol : MqttProtocol.tcp}
+          defaultValue={datasource ? datasource.protocol : MqttProtocol.tcp}
           name="datasource.protocol"
         />
       </Field>
@@ -100,7 +100,7 @@ export const MqttDatasourceForm: FC<Props> = ({ unregister, control, watch, regi
               required: 'Format selection is required',
             }}
             control={control}
-            defaultValue={ds ? ds.format : OriginDocumentFormat.jsondoc}
+            defaultValue={datasource ? datasource.format : OriginDocumentFormat.jsondoc}
             name="datasource.format"
           />
         </Field>

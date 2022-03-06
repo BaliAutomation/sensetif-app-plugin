@@ -7,15 +7,7 @@ interface Props extends FormAPI<DatapointSettings> {
   datasource?: Ttnv3Datasource;
 }
 
-export const Ttnv3DatasourceForm: FC<Props> = ({
-  setValue,
-  unregister,
-  control,
-  watch,
-  register,
-  errors,
-  datasource,
-}) => {
+export const Ttnv3DatasourceForm: FC<Props> = ({ unregister, register, errors }) => {
   const dsErrors = errors.datasource as FieldErrors<Ttnv3Datasource>;
 
   React.useEffect(() => {
