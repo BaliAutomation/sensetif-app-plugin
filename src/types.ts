@@ -27,6 +27,8 @@ export enum DatasourceType {
   mqtt = 'mqtt',
 }
 
+export type Datasource = WebDatasource | Ttnv3Datasource | MqttDatasource;
+
 export interface Processing {
   unit: string; // Allow all characters
   scaling: ScalingFunction;
@@ -46,7 +48,7 @@ export interface DatapointSettings {
   proc: Processing;
   timeToLive: TimeToLive;
   datasourcetype: DatasourceType;
-  datasource: WebDatasource | Ttnv3Datasource | MqttDatasource;
+  datasource: Datasource;
 }
 
 export interface Ttnv3Datasource {
