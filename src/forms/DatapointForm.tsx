@@ -92,7 +92,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
   let dsForm = useForm<Datasource>({
     mode: 'onSubmit',
     shouldUnregister: true,
-    defaultValues: defaultDatasource(defaultValues.datasourcetype!),
+    defaultValues: datapoint?.datasource ?? defaultDatasource(defaultValues.datasourcetype!),
   });
 
   const onValid: SubmitHandler<DatapointSettings> = async (datapoint) => {
@@ -283,7 +283,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
               name="datasourcetype"
             />
           </Field>
-          <DatasourceSubform sourceType={sourceType} api={dsForm} />
+          <DatasourceSubform sourceType={sourceType} api={dsForm} ds={datapoint?.datasource} />
         </FieldSet>
         <HorizontalGroup>
           <Button type="button" variant={'secondary'} onClick={onCancel}>
@@ -296,14 +296,22 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
   );
 };
 
-const DatasourceSubform = ({ sourceType, api }: { sourceType: DatasourceType; api: UseFormReturn<Datasource> }) => {
+const DatasourceSubform = ({
+  sourceType,
+  api,
+  ds,
+}: {
+  sourceType: DatasourceType;
+  api: UseFormReturn<Datasource>;
+  ds?: Datasource;
+}) => {
   switch (sourceType) {
     case DatasourceType.mqtt:
-      return <MqttDatasourceForm {...(api as UseFormReturn<MqttDatasource>)} />;
+      return <MqttDatasourceForm ds={ds as MqttDatasource} {...(api as UseFormReturn<MqttDatasource>)} />;
     case DatasourceType.web:
-      return <WebDatasourceForm {...(api as UseFormReturn<WebDatasource>)} />;
+      return <WebDatasourceForm ds={ds as WebDatasource} {...(api as UseFormReturn<WebDatasource>)} />;
     case DatasourceType.ttnv3:
-      return <Ttnv3DatasourceForm {...(api as UseFormReturn<Ttnv3Datasource>)} />;
+      return <Ttnv3DatasourceForm ds={ds as Ttnv3Datasource} {...(api as UseFormReturn<Ttnv3Datasource>)} />;
   }
 };
 

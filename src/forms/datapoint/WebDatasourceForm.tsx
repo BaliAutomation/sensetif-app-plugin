@@ -3,7 +3,9 @@ import { AuthenticationType, OriginDocumentFormat, TimestampType, WebDatasource 
 import { Field, HorizontalGroup, Input, InputControl, RadioButtonGroup, Select } from '@grafana/ui';
 import { UseFormReturn } from 'react-hook-form';
 
-interface Props extends UseFormReturn<WebDatasource> {}
+interface Props extends UseFormReturn<WebDatasource> {
+  ds?: WebDatasource;
+}
 
 export const defaultValues: WebDatasource = {
   url: '',

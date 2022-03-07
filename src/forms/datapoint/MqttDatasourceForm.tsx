@@ -3,7 +3,9 @@ import { MqttDatasource, MqttProtocol, OriginDocumentFormat, TimestampType } fro
 import { Field, HorizontalGroup, Input, InputControl, RadioButtonGroup, Select } from '@grafana/ui';
 import { UseFormReturn } from 'react-hook-form';
 
-interface Props extends UseFormReturn<MqttDatasource> {}
+interface Props extends UseFormReturn<MqttDatasource> {
+  ds?: MqttDatasource;
+}
 
 export const defaultValues: MqttDatasource = {
   address: '',

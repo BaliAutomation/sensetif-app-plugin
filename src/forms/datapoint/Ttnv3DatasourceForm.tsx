@@ -3,7 +3,9 @@ import { Ttnv3Datasource } from '../../types';
 import { Field, Input } from '@grafana/ui';
 import { UseFormReturn } from 'react-hook-form';
 
-interface Props extends UseFormReturn<Ttnv3Datasource> {}
+interface Props extends UseFormReturn<Ttnv3Datasource> {
+  ds?: Ttnv3Datasource;
+}
 
 export const defaultValues: Ttnv3Datasource = {
   application: '',
