@@ -72,6 +72,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
       condition: '',
       scalefunc: '',
     },
+    timeToLive: AvailableTimeToLivePeriods[0].value,
     datasourcetype: DatasourceType.mqtt,
   };
 
@@ -156,7 +157,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                   required: 'Storage Period selection is required',
                 }}
                 control={control}
-                defaultValue={AvailableTimeToLivePeriods[0]}
+                defaultValue={AvailableTimeToLivePeriods[0].value}
                 name="timeToLive"
               />
             </Field>
