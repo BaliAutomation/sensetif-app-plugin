@@ -56,6 +56,7 @@ export interface Ttnv3Datasource {
   application: string;
   device: string;
   point: string;
+  port: number;
   authorizationkey: string;
   poll: boolean;
   subscribe: boolean;
