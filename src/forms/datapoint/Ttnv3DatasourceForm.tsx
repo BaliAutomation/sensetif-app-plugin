@@ -12,7 +12,7 @@ export const defaultValues: Ttnv3Datasource = {
   authorizationkey: '',
   device: '',
   point: '',
-  port: -1,
+  fport: -1,
   zone: '',
   poll: false,
   subscribe: false,
@@ -62,8 +62,8 @@ export const Ttnv3DatasourceForm: FC<Props> = ({ register, formState: { errors }
         />
       </Field>
 
-      <Field label="Port" invalid={!!errors?.port} error={errors?.port && errors?.port.message}>
-        <Input {...register('port', {})} placeholder="Value of f_Port, leave -1 for all ports" />
+      <Field label="F_Port" invalid={!!errors?.fport} error={errors?.fport && errors?.fport.message}>
+        <Input {...register('fport', {})} placeholder="Filter by f_port. -1 for all f_port values." />
       </Field>
 
       <Field
