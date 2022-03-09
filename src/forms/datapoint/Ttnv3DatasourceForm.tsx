@@ -63,7 +63,7 @@ export const Ttnv3DatasourceForm: FC<Props> = ({ register, formState: { errors }
       </Field>
 
       <Field label="Port" invalid={!!errors?.port} error={errors?.port && errors?.port.message}>
-        <Input {...register('point', {})} placeholder="Value of f_Port, leave -1 for all ports" />
+        <Input {...register('port', {})} placeholder="Value of f_Port, leave -1 for all ports" />
       </Field>
 
       <Field
