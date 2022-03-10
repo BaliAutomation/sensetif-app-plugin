@@ -238,7 +238,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
               <Field label="k">
                 <Input
                   {...register('proc.k', {
-                    // valueAsNumber: true,
+                    valueAsNumber: true,
                   })}
                   type="number"
                   step="any"
@@ -252,7 +252,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
               <Field label="m">
                 <Input
                   {...register('proc.m', {
-                    // valueAsNumber: true,
+                    valueAsNumber: true,
                   })}
                   type="number"
                   step="any"
