@@ -1,3 +1,4 @@
+import { SelectableValue } from '@grafana/data';
 import { PollInterval, TimeToLive } from '../types';
 
 export const APP_TITLE = 'Sensetif';
@@ -5,7 +6,11 @@ export const APP_SUBTITLE = 'Visualizing Your Stuff';
 
 export const API_RESOURCES = '/api/plugins/sensetif-datasource/resources/';
 
-export const TimeToLivePeriods = {
+type TimeToLiveMapping = {
+  [key in TimeToLive]: string;
+};
+
+export const TimeToLivePeriods: TimeToLiveMapping = {
   a: '1 week',
   b: '1 month',
   c: '3 months',
@@ -19,7 +24,7 @@ export const TimeToLivePeriods = {
   k: 'forever',
 };
 
-export const AvailableTimeToLivePeriods = [
+export const AvailableTimeToLivePeriods: Array<SelectableValue<TimeToLive>> = [
   { label: '1 month', value: TimeToLive.b },
   { label: '3 months', value: TimeToLive.c },
   { label: '6 months', value: TimeToLive.d },
@@ -28,7 +33,11 @@ export const AvailableTimeToLivePeriods = [
   { label: '5 years', value: TimeToLive.i },
 ];
 
-export const PollIntervals = {
+type PollIntervalMapping = {
+  [key in PollInterval]: string;
+};
+
+export const PollIntervals: PollIntervalMapping = {
   one_minute: '1 minute',
   five_minutes: '5 minutes',
   ten_minutes: '10 minutes',
@@ -45,7 +54,7 @@ export const PollIntervals = {
   monthly: '1 month',
 };
 
-export const AvailablePollIntervals = [
+export const AvailablePollIntervals: Array<SelectableValue<PollInterval>> = [
   { label: '5 minutes', value: PollInterval.five_minutes },
   { label: '10 minutes', value: PollInterval.ten_minutes },
   { label: '15 minutes', value: PollInterval.fifteen_minutes },
