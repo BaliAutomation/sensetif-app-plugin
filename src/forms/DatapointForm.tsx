@@ -73,6 +73,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
       scalefunc: '',
     },
     timeToLive: AvailableTimeToLivePeriods[0].value,
+    pollinterval: AvailablePollIntervals[5].value,
     datasourcetype: DatasourceType.mqtt,
   };
 
@@ -181,7 +182,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                   }}
                   name="pollinterval"
                   control={control}
-                  defaultValue={AvailablePollIntervals[5]}
+                  defaultValue={AvailablePollIntervals[5].value}
                 />
               </Field>
             )}
