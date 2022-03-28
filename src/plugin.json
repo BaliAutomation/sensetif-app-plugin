@@ -47,6 +47,13 @@
       "path": "/a/sensetif-app?tab=plans",
       "role": "Admin",
       "addToNav": true
+    },
+    {
+      "type": "page",
+      "name": "Live Demo",
+      "path": "/a/sensetif-app?tab=live-demo",
+      "role": "Admin",
+      "addToNav": true
     }
   ],
   "dependencies": {

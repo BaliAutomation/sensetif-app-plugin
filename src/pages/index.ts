@@ -12,6 +12,7 @@ import { EditDatapoint } from './EditDatapoint';
 import { Payments } from './Payments';
 import { Succeeded } from './Succeeded';
 import { Cancelled } from './Cancelled';
+import { LiveDemo } from './LiveDemo';
 
 export type PageDefinition = {
   component: React.FC<AppRootProps>;
@@ -83,6 +84,13 @@ export const EditDatapointPage: PageDefinition = {
   text: ' Edit Datapoint',
 };
 
+export const LiveDemoPage: PageDefinition = {
+  component: LiveDemo,
+  icon: 'fa rocket',
+  id: 'live-demo',
+  text: ' Live Demo',
+};
+
 export const PlansPage: PageDefinition = {
   component: Plans,
   icon: 'fa fa-file-invoice-dollar',
@@ -127,3 +135,5 @@ pages[EditDatapointPage.id] = EditDatapointPage;
 pages[PlansPage.id] = PlansPage;
 pages[SucceededPage.id] = SucceededPage;
 pages[CancelledPage.id] = CancelledPage;
+
+pages[LiveDemoPage.id] = LiveDemoPage;
