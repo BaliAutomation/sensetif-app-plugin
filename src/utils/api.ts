@@ -10,31 +10,36 @@ import {
 } from 'types';
 import { API_RESOURCES } from './consts';
 
-const WAIT_AFTER_EXEC_MS = 100;
+const WAIT_AFTER_EXEC_MS = 200;
 
 const request = (path: string, method: string, body: string, waitTime = 0) => {
   logInfo('Request: ' + method + ' ' + path);
   let srv = getBackendSrv();
   let request: Promise<any>;
+  let url = API_RESOURCES + path;
   switch (method) {
     case 'GET':
-      request = srv.get(API_RESOURCES + path, body);
+      request = srv.get(url, body);
       break;
     case 'PUT':
-      request = srv.put(API_RESOURCES + path, body);
+      console.log("PUT " + url);
+      request = srv.put(url, body);
+      console.log("PUT " + url + " COMPLETED.");
       break;
     case 'POST':
-      request = srv.post(API_RESOURCES + path, body);
+      request = srv.post(url, body);
       break;
     case 'DELETE':
-      request = srv.delete(API_RESOURCES + path);
+      request = srv.delete(url);
       break;
   }
   return new Promise<any>((resolve, reject) => {
     request
       .then((r) =>
         setTimeout(() => {
+          console.log("Resolving...");
           resolve(r);
+          console.log("Resolved");
         }, waitTime)
       )
       .catch((err) => {
