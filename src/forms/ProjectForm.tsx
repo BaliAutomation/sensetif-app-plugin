@@ -71,7 +71,7 @@ export const ProjectForm: FC<Props> = ({ project, onSubmit, onCancel }) => {
                   }}
                   control={control}
                   name="country"
-                  defaultValue='Sweden'
+                  defaultValue="Sweden"
                 />
               </Field>
 
