@@ -20,16 +20,16 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
   useEffect(() => {
     setIsLoading(true);
     logInfo('Trying to fetch datapoints.');
-    Promise.all([loadSubsystem(projectName, subsystemName), loadDatapoints(projectName, subsystemName)])
-      .then(_ => setIsLoading(false));
+    Promise.all([loadSubsystem(projectName, subsystemName), loadDatapoints(projectName, subsystemName)]).then((_) =>
+      setIsLoading(false)
+    );
   }, [projectName, subsystemName]);
 
   const loadDatapoints = (projectName: string, subsystemName: string) =>
-    getDatapoints(projectName, subsystemName)
-      .then((datapoints) => {
-        logInfo('Trying to convert json.');
-        setDatapoints(datapoints);
-      });
+    getDatapoints(projectName, subsystemName).then((datapoints) => {
+      logInfo('Trying to convert json.');
+      setDatapoints(datapoints);
+    });
 
   const loadSubsystem = (projectName: string, subsystemName: string) =>
     getSubsystem(projectName, subsystemName).then((res: SubsystemSettings) => {
