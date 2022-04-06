@@ -12,6 +12,7 @@
     "keywords": [
       "panel",
       "template",
+      "iot",
       "sensetif"
     ],
     "logos": {
@@ -50,9 +51,9 @@
     },
     {
       "type": "page",
-      "name": "Live Demo",
+      "name": "Error Reporter",
       "path": "/a/sensetif-app?tab=live-demo",
-      "role": "Admin",
+      "role": "Viewer",
       "addToNav": true
     }
   ],

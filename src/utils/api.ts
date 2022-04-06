@@ -3,6 +3,7 @@ import {
   DatapointSettings,
   DatasourceType,
   Payment,
+  Limits,
   PlanSettings,
   PollInterval,
   ProjectSettings,
@@ -129,6 +130,8 @@ export const renameDatapoint = (
   };
   return request(projectName + '/' + subsystemName + '/' + oldName, 'POST', JSON.stringify(change), WAIT_AFTER_EXEC_MS);
 };
+
+export const getLimits = (): Promise<Limits> => request('_limits/current', 'GET', '', 0);
 
 export const getPlans = (): Promise<PlanSettings[]> => request('_plans', 'GET', '', 0);
 

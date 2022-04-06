@@ -1,6 +1,7 @@
 export interface SensetifAppSettings {
   customText?: string;
   customCheckbox?: boolean;
+  limits?: Limits;
 }
 
 export interface ProjectSettings {
@@ -192,10 +193,17 @@ export enum AuthenticationType {
 
 export interface GlobalSettings {}
 
+export interface Limits {
+  maxStorage: string;
+  maxDatapoints: string;
+  minPollInterval: string;
+}
+
 export interface PlanSettings {
   product: any;
   prices: any[];
   selected?: boolean;
+  permissions: string[];
 }
 
 export interface Payment {

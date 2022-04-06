@@ -3,7 +3,7 @@ import { AppRootProps, DataFrame, DataQueryResponse, Field, LiveChannelScope, Ve
 import { getGrafanaLiveSrv, config } from '@grafana/runtime';
 import { HorizontalGroup, Spinner } from '@grafana/ui';
 
-export const LiveDemo: FC<AppRootProps> = ({ query, path, meta }) => {
+export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   const [data, setData] = useState<DataQueryResponse>();
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export const LiveDemo: FC<AppRootProps> = ({ query, path, meta }) => {
       addr: {
         scope: LiveChannelScope.DataSource,
         namespace: uid,
-        path: 'sensetif-path-1',
+        path: '_errors',
       },
     });
 
@@ -33,8 +33,14 @@ export const LiveDemo: FC<AppRootProps> = ({ query, path, meta }) => {
   return (
     <>
       <HorizontalGroup>
+        {/*Time should be formatted according to Browser preference, not as the String being sent back*/}
         <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Time'), null, " '")}</pre>
+        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Source'), null, " '")}</pre>
+        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Key'), null, " '")}</pre>
         <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Value'), null, " '")}</pre>
+        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Message'), null, " '")}</pre>
+        {/*Exception needs to be hidden, accessible with a button maybe or an accordion expansion and is multi-line text */}
+        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Exception'), null, " '")}</pre>
       </HorizontalGroup>
     </>
   );

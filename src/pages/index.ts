@@ -12,7 +12,7 @@ import { EditDatapoint } from './EditDatapoint';
 import { Payments } from './Payments';
 import { Succeeded } from './Succeeded';
 import { Cancelled } from './Cancelled';
-import { LiveDemo } from './LiveDemo';
+import { NotificationsPage } from './NotificationsPage';
 
 export type PageDefinition = {
   component: React.FC<AppRootProps>;
@@ -85,7 +85,7 @@ export const EditDatapointPage: PageDefinition = {
 };
 
 export const LiveDemoPage: PageDefinition = {
-  component: LiveDemo,
+  component: NotificationsPage,
   icon: 'fa rocket',
   id: 'live-demo',
   text: ' Live Demo',
