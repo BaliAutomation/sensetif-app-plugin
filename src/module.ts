@@ -4,10 +4,24 @@ import { SensetifRootPage } from './SensetifRootPage';
 import { ConfigPageBody } from 'config/ConfigPage';
 import { getLimits } from './utils/api';
 
-class SensetifAppPlugin extends AppPlugin<SensetifAppSettings> {
-  init(meta: AppPluginMeta<SensetifAppSettings>) {
-    super.init(meta);
-    getLimits().then((limits) => {
+const appPlugin = new AppPlugin<SensetifAppSettings>();
+appPlugin.setRootPage(SensetifRootPage);
+appPlugin.addConfigPage({
+  title: 'Setup',
+  icon: 'list-ul',
+  body: ConfigPageBody,
+  id: 'setup',
+});
+
+const existingInitFn = appPlugin.init;
+appPlugin.init = (meta: AppPluginMeta<SensetifAppSettings>) => {
+  existingInitFn(meta);
+  console.log('Test point 1');
+  let promise = getLimits();
+  console.log('Test point 2');
+  if (meta !== undefined) {
+    promise.then((limits) => {
+      console.log('Test point 3');
       if (meta.jsonData === undefined) {
         meta.jsonData = {};
         meta.jsonData.limits = limits;
@@ -17,14 +31,5 @@ class SensetifAppPlugin extends AppPlugin<SensetifAppSettings> {
       }
     });
   }
-}
-
-let appPlugin = new SensetifAppPlugin();
-appPlugin.setRootPage(SensetifRootPage);
-appPlugin.addConfigPage({
-  title: 'Setup',
-  icon: 'list-ul',
-  body: ConfigPageBody,
-  id: 'setup',
-});
+};
 export const plugin = appPlugin;

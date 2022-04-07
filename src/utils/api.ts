@@ -23,9 +23,7 @@ const request = (path: string, method: string, body: string, waitTime = 0) => {
       request = srv.get(url, body);
       break;
     case 'PUT':
-      console.log('PUT ' + url);
       request = srv.put(url, body);
-      console.log('PUT ' + url + ' COMPLETED.');
       break;
     case 'POST':
       request = srv.post(url, body);
@@ -38,9 +36,7 @@ const request = (path: string, method: string, body: string, waitTime = 0) => {
     request
       .then((r) =>
         setTimeout(() => {
-          console.log('Resolving...');
           resolve(r);
-          console.log('Resolved');
         }, waitTime)
       )
       .catch((err) => {

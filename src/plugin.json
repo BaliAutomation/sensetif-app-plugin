@@ -52,7 +52,7 @@
     {
       "type": "page",
       "name": "Error Reporter",
-      "path": "/a/sensetif-app?tab=live-demo",
+      "path": "/a/sensetif-app?tab=error-reporter",
       "role": "Viewer",
       "addToNav": true
     }
