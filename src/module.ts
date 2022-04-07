@@ -17,17 +17,20 @@ const existingInitFn = appPlugin.init;
 appPlugin.init = (meta: AppPluginMeta<SensetifAppSettings>) => {
   existingInitFn(meta);
   console.log('Test point 1');
-  let promise = getLimits();
-  console.log('Test point 2');
   if (meta !== undefined) {
+    let promise = getLimits();
+    console.log('Test point 2');
     promise.then((limits) => {
       console.log('Test point 3');
       if (meta.jsonData === undefined) {
+        console.log('Test point 4');
         meta.jsonData = {};
-        meta.jsonData.limits = limits;
       }
-      if (meta.jsonData?.limits === undefined) {
+      console.log('Test point 5');
+      if (meta.jsonData.limits === undefined) {
+        console.log('Test point 6');
         meta.jsonData.limits = limits;
+        console.log('Test point 7');
       }
     });
   }
