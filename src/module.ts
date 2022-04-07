@@ -25,7 +25,8 @@ appPlugin.init = (meta: AppPluginMeta<SensetifAppSettings>) => {
       if (meta === undefined) {
         console.log('Test point 4: ', JSON.stringify(limits));
       }
-      if (meta.jsonData === undefined) {
+      console.log('Test point 10: ' + meta + ', ' + meta.jsonData + ', ' + (meta.jsonData === undefined));
+      if (meta.jsonData === undefined || meta.jsonData === null) {
         console.log('Test point 5: ' + meta + ', ' + meta.jsonData);
         meta.jsonData = {};
         console.log('Test point 6: ' + meta + ', ' + meta.jsonData);
