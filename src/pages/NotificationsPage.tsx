@@ -7,7 +7,8 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   const [data, setData] = useState<DataQueryResponse>();
 
   useEffect(() => {
-    const uid = config.datasources['Sensetif Datasource']?.uid;
+    console.log('Datasources: ' + JSON.stringify(config.datasources));
+    const uid = config.datasources['Sensetif']?.uid;
     if (!uid) {
       console.warn('sensetif datasource not found');
       return;
