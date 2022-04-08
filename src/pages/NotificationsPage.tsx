@@ -4,20 +4,16 @@ import { Alert, HorizontalGroup, Spinner } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
 
 export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
-  const sensetifDatasourceType = 'sensetif-datasource';
-
   const [foundDs, setFoundDs] = useState<boolean>();
   const [data, setData] = useState<DataQueryResponse>();
 
   useEffect(() => {
-    const sensetifDs = Object.values(config.datasources)?.find((d) => d.type === sensetifDatasourceType);
+    const sensetifDs = config.datasources['Sensetif'];
     if (!sensetifDs) {
       console.warn('sensetif datasource not found');
       return;
     }
-
     setFoundDs(true);
-
     const stream = getGrafanaLiveSrv().getDataStream({
       addr: {
         scope: LiveChannelScope.DataSource,
