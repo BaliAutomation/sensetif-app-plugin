@@ -18,7 +18,7 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
       addr: {
         scope: LiveChannelScope.DataSource,
         namespace: sensetifDs.uid,
-        path: '_errors',
+        path: '_notifications',
       },
     });
 
