@@ -1,6 +1,7 @@
-import { AppRootProps, DataFrame, DataQueryResponse, Field, LiveChannelScope, Vector } from '@grafana/data';
+import { AppRootProps, DataFrame, DataQueryResponse, getDataFrameRow, LiveChannelScope } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert, HorizontalGroup, Spinner } from '@grafana/ui';
+import { Alert, Spinner } from '@grafana/ui';
+import { Event as TimelineEvent, Timeline } from 'components/Timeline';
 import React, { FC, useEffect, useState } from 'react';
 
 export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
@@ -35,22 +36,35 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
     return <Spinner />;
   }
 
+  const events: TimelineEvent[] = [];
+  const df = data.data[0] as DataFrame;
+
+  for (let i = 0; i < df.length; i++) {
+    let row = getDataFrameRow(df, i);
+    console.log(row);
+
+    let event: TimelineEvent = {
+      time: new Date(row[0]),
+      subtitle: `source: ${row[1]}; key: ${row[2]}`,
+      title: row[4],
+      content: row[3],
+    };
+
+    if (row[5] && row[6]) {
+      event.details = (
+        <>
+          <p>{row[5]}</p>
+          <pre>{row[6]}</pre>
+        </>
+      );
+    }
+
+    events.push(event);
+  }
+
   return (
     <>
-      <HorizontalGroup>
-        {/*Time should be formatted according to Browser preference, not as the String being sent back*/}
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Time'), null, " '")}</pre>
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Source'), null, " '")}</pre>
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Key'), null, " '")}</pre>
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Value'), null, " '")}</pre>
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Message'), null, " '")}</pre>
-        {/*Exception needs to be hidden, accessible with a button maybe or an accordion expansion and is multi-line text */}
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Exception'), null, " '")}</pre>
-      </HorizontalGroup>
+      <Timeline events={events} reversed />
     </>
   );
 };
-
-function getLastField(fields: Array<Field<any, Vector<any>>>, name: string): Field<any, Vector<any>> | undefined {
-  return fields.filter((f) => f.name === name).pop();
-}
