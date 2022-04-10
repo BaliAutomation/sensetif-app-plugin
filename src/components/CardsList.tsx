@@ -1,5 +1,5 @@
+import { Container, HorizontalGroup, LoadingPlaceholder, VerticalGroup } from '@grafana/ui';
 import React, { useState } from 'react';
-import { HorizontalGroup, Container, VerticalGroup, LoadingPlaceholder } from '@grafana/ui';
 import { CardActions, DeleteCardModal } from './CardActions';
 
 interface Props<T> {

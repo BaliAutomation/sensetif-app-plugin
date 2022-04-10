@@ -27,7 +27,6 @@
     "@stripe/react-stripe-js": "^1.4.1",
     "@stripe/stripe-js": "^1.17.1",
     "@types/country-list": "^2.1.0",
-    "country-list": "^2.2.0",
-    "react-event-timeline": "^1.6.3"
+    "country-list": "^2.2.0"
   }
 }
