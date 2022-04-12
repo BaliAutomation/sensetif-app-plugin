@@ -80,6 +80,21 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
 
   const notifications = toNotifications(data.data[0]);
 
+  // I want a page to be something like this;
+  //
+  //                Date        Time       Source     Message       Key        Value
+  //   View:        [ ]         [x]         [x]         [x]         [x]         [x]
+  //   Filter:  [        ]  [        ]  [        ]  [        ]  [        ]  [        ]
+  //
+  //
+  //    Time    Source       Message                  Key                  Value
+  //  ---------------------------------------------------------------------------
+  //  11:05:03 | http_poll  | 404 - Not found      | https://...          |
+  //  11:07:29 | ttnv3_poll | Device not found     | ........             |
+  //  11:09:35 | ttnv3_poll | Invalid token        | and so on            |
+  //  11:15:04 | http_poll  | 401 - Not Authorized |                      |
+  //
+  //
   return (
     <>
       <div>
