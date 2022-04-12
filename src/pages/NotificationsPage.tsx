@@ -1,7 +1,53 @@
-import { AppRootProps, DataFrame, DataQueryResponse, Field, LiveChannelScope, Vector } from '@grafana/data';
+import { AppRootProps, DataFrame, DataQueryResponse, getDataFrameRow, LiveChannelScope } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert, HorizontalGroup, Spinner } from '@grafana/ui';
+import { Alert, Spinner } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
+
+interface Notification {
+  time: string;
+  source: string;
+  key: string;
+  value: string;
+  message: string;
+  exception?: {
+    message: string;
+    stackTrace: string;
+  };
+}
+
+const toNotifications = (data: DataFrame): Notification[] => {
+  const notifications: Notification[] = [];
+
+  for (let i = 0; i < data.length; i++) {
+    let row = getDataFrameRow(data, i);
+    console.log(row);
+
+    let notification: Notification = {
+      time: row[0],
+      source: row[1],
+      key: row[2],
+      value: row[3],
+      message: row[4],
+    };
+
+    const exceptionMessage = row[5];
+    const exceptionStackTrace = row[6];
+
+    if (exceptionMessage || exceptionStackTrace) {
+      notification = {
+        ...notification,
+        exception: {
+          message: exceptionMessage,
+          stackTrace: exceptionStackTrace,
+        },
+      };
+    }
+
+    notifications.push(notification);
+  }
+
+  return notifications;
+};
 
 export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   const [foundDs, setFoundDs] = useState<boolean>();
@@ -35,22 +81,40 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
     return <Spinner />;
   }
 
+  const notifications = toNotifications(data.data[0]);
+
   return (
     <>
-      <HorizontalGroup>
-        {/*Time should be formatted according to Browser preference, not as the String being sent back*/}
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Time'), null, " '")}</pre>
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Source'), null, " '")}</pre>
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Key'), null, " '")}</pre>
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Value'), null, " '")}</pre>
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Message'), null, " '")}</pre>
-        {/*Exception needs to be hidden, accessible with a button maybe or an accordion expansion and is multi-line text */}
-        <pre>{JSON.stringify(getLastField((data.data[0] as DataFrame).fields, 'Exception'), null, " '")}</pre>
-      </HorizontalGroup>
+      <div>
+        <section className="card-section card-list-layout-list">
+          <ol className="card-list">
+            {notifications.map((val, idx) => {
+              return (
+                <li className="card-item-wrapper" key={idx} aria-label="check-card">
+                  <div className="card-item">
+                    <div>Key: {val.key}</div>
+                    <div>Source: {val.source}</div>
+                    <div>Message: {val.message}</div>
+                    <div>Value: {val.value}</div>
+
+                    {val.exception && (
+                      <div style={{ marginTop: '5px' }}>
+                        <details>
+                          <summary>show exception details</summary>
+                          <Alert severity="warning" title="exception">
+                            <span>{val.exception?.message}</span>
+                            <pre>{val.exception?.stackTrace}</pre>
+                          </Alert>
+                        </details>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      </div>
     </>
   );
 };
-
-function getLastField(fields: Array<Field<any, Vector<any>>>, name: string): Field<any, Vector<any>> | undefined {
-  return fields.filter((f) => f.name === name).pop();
-}
