@@ -1,50 +1,51 @@
-import { AppRootProps, DataFrame, DataQueryResponse, getDataFrameRow, LiveChannelScope } from '@grafana/data';
+// import { AppRootProps, DataFrame, DataQueryResponse, getDataFrameRow, LiveChannelScope } from '@grafana/data';
+import { AppRootProps, DataQueryResponse, LiveChannelScope } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
 import { Alert, SeriesTable } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
 
-interface Notification {
-  time: number;
-  severity: string;
-  source: string;
-  key: string;
-  value: string;
-  message: string;
-  exception?: {
-    message: string;
-    stackTrace: string;
-  };
-}
+// interface Notification {
+//   time: number;
+//   severity: string;
+//   source: string;
+//   key: string;
+//   value: string;
+//   message: string;
+//   exception?: {
+//     message: string;
+//     stackTrace: string;
+//   };
+// }
 
-const toNotifications = (data: DataFrame): Notification[] => {
-  const notifications: Notification[] = [];
-
-  for (let i = 0; i < data.length; i++) {
-    let row = getDataFrameRow(data, i);
-    console.log(row);
-    let notification: Notification = {
-      time: row[0],
-      severity: row[1],
-      source: row[2],
-      key: row[3],
-      value: row[4],
-      message: row[5],
-    };
-    const exceptionMessage = row[6];
-    const exceptionStackTrace = row[7];
-    if (exceptionMessage || exceptionStackTrace) {
-      notification = {
-        ...notification,
-        exception: {
-          message: exceptionMessage,
-          stackTrace: exceptionStackTrace,
-        },
-      };
-    }
-    notifications.push(notification);
-  }
-  return notifications;
-};
+// const toNotifications = (data: DataFrame): Notification[] => {
+//   const notifications: Notification[] = [];
+//
+//   for (let i = 0; i < data.length; i++) {
+//     let row = getDataFrameRow(data, i);
+//     console.log(row);
+//     let notification: Notification = {
+//       time: row[0],
+//       severity: row[1],
+//       source: row[2],
+//       key: row[3],
+//       value: row[4],
+//       message: row[5],
+//     };
+//     const exceptionMessage = row[6];
+//     const exceptionStackTrace = row[7];
+//     if (exceptionMessage || exceptionStackTrace) {
+//       notification = {
+//         ...notification,
+//         exception: {
+//           message: exceptionMessage,
+//           stackTrace: exceptionStackTrace,
+//         },
+//       };
+//     }
+//     notifications.push(notification);
+//   }
+//   return notifications;
+// };
 
 export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   const [foundDs, setFoundDs] = useState<boolean>();
@@ -78,11 +79,11 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
     return <div>No notifications</div>;
   }
 
-  const notifications = toNotifications(data.data[0]);
+  // const notifications = toNotifications(data.data[0]);
 
   return (
     <>
-      <SeriesTable series={notifications} />
+      <SeriesTable series={data.data} />
       {/*<div>*/}
       {/*  <section className="card-section card-list-layout-list">*/}
       {/*    <ol className="card-list">*/}
