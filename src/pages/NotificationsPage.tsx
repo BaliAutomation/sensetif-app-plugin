@@ -1,7 +1,7 @@
 // import { AppRootProps, DataFrame, DataQueryResponse, getDataFrameRow, LiveChannelScope } from '@grafana/data';
 import { AppRootProps, DataQueryResponse, LiveChannelScope } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert, SeriesTable } from '@grafana/ui';
+import { Alert, SeriesTable, SeriesTableRow } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
 
 // interface Notification {
@@ -83,7 +83,19 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
 
   return (
     <>
-      <SeriesTable series={data.data} />
+      <SeriesTable series={data.data} >
+        {data?.data.map((s, i) => {
+          return (
+            <SeriesTableRow
+              isActive={s.isActive}
+              label={s.label}
+              color={s.color}
+              value={s.value}
+              key={`${s.label}-${i}`}
+            />
+          );
+        })}
+      </SeriesTable>
       {/*<div>*/}
       {/*  <section className="card-section card-list-layout-list">*/}
       {/*    <ol className="card-list">*/}
