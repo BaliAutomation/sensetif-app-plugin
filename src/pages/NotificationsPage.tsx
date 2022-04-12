@@ -1,10 +1,11 @@
 import { AppRootProps, DataFrame, DataQueryResponse, getDataFrameRow, LiveChannelScope } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert, Spinner } from '@grafana/ui';
+import { Alert } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
 
 interface Notification {
   time: string;
+  severity: string;
   source: string;
   key: string;
   value: string;
@@ -21,18 +22,16 @@ const toNotifications = (data: DataFrame): Notification[] => {
   for (let i = 0; i < data.length; i++) {
     let row = getDataFrameRow(data, i);
     console.log(row);
-
     let notification: Notification = {
       time: row[0],
-      source: row[1],
-      key: row[2],
-      value: row[3],
-      message: row[4],
+      severity: row[1],
+      source: row[2],
+      key: row[3],
+      value: row[4],
+      message: row[5],
     };
-
-    const exceptionMessage = row[5];
-    const exceptionStackTrace = row[6];
-
+    const exceptionMessage = row[6];
+    const exceptionStackTrace = row[7];
     if (exceptionMessage || exceptionStackTrace) {
       notification = {
         ...notification,
@@ -42,10 +41,8 @@ const toNotifications = (data: DataFrame): Notification[] => {
         },
       };
     }
-
     notifications.push(notification);
   }
-
   return notifications;
 };
 
@@ -78,7 +75,7 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   }
 
   if (!data?.data?.[0]) {
-    return <Spinner />;
+    return <div>No notifications</div>;
   }
 
   const notifications = toNotifications(data.data[0]);
@@ -93,6 +90,7 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
                 <li className="card-item-wrapper" key={idx} aria-label="check-card">
                   <div className="card-item">
                     <div>Key: {val.key}</div>
+                    <div>Serverity: {val.severity}</div>
                     <div>Source: {val.source}</div>
                     <div>Message: {val.message}</div>
                     <div>Value: {val.value}</div>
