@@ -82,9 +82,7 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
 
   return (
     <>
-      <SeriesTable series={notifications}>
-
-      </SeriesTable>
+      <SeriesTable series={notifications} />
       {/*<div>*/}
       {/*  <section className="card-section card-list-layout-list">*/}
       {/*    <ol className="card-list">*/}
