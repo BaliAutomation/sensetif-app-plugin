@@ -1,10 +1,10 @@
 import { AppRootProps, DataFrame, DataQueryResponse, getDataFrameRow, LiveChannelScope } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert } from '@grafana/ui';
+import { Alert, SeriesTable } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
 
 interface Notification {
-  time: string;
+  time: number;
   severity: string;
   source: string;
   key: string;
@@ -82,37 +82,40 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
 
   return (
     <>
-      <div>
-        <section className="card-section card-list-layout-list">
-          <ol className="card-list">
-            {notifications.map((val, idx) => {
-              return (
-                <li className="card-item-wrapper" key={idx} aria-label="check-card">
-                  <div className="card-item">
-                    <div>Key: {val.key}</div>
-                    <div>Serverity: {val.severity}</div>
-                    <div>Source: {val.source}</div>
-                    <div>Message: {val.message}</div>
-                    <div>Value: {val.value}</div>
+      <SeriesTable series={notifications}>
 
-                    {val.exception && (
-                      <div style={{ marginTop: '5px' }}>
-                        <details>
-                          <summary>show exception details</summary>
-                          <Alert severity="warning" title="exception">
-                            <span>{val.exception?.message}</span>
-                            <pre>{val.exception?.stackTrace}</pre>
-                          </Alert>
-                        </details>
-                      </div>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
-      </div>
+      </SeriesTable>
+      {/*<div>*/}
+      {/*  <section className="card-section card-list-layout-list">*/}
+      {/*    <ol className="card-list">*/}
+      {/*      {notifications.map((val, idx) => {*/}
+      {/*        return (*/}
+      {/*          <li className="card-item-wrapper" key={idx} aria-label="check-card">*/}
+      {/*            <div className="card-item">*/}
+      {/*              <div>Key: {val.key}</div>*/}
+      {/*              <div>Severity: {val.severity}</div>*/}
+      {/*              <div>Source: {val.source}</div>*/}
+      {/*              <div>Message: {val.message}</div>*/}
+      {/*              <div>Value: {val.value}</div>*/}
+
+      {/*              {val.exception && (*/}
+      {/*                <div style={{ marginTop: '5px' }}>*/}
+      {/*                  <details>*/}
+      {/*                    <summary>show exception details</summary>*/}
+      {/*                    <Alert severity="warning" title="exception">*/}
+      {/*                      <span>{val.exception?.message}</span>*/}
+      {/*                      <pre>{val.exception?.stackTrace}</pre>*/}
+      {/*                    </Alert>*/}
+      {/*                  </details>*/}
+      {/*                </div>*/}
+      {/*              )}*/}
+      {/*            </div>*/}
+      {/*          </li>*/}
+      {/*        );*/}
+      {/*      })}*/}
+      {/*    </ol>*/}
+      {/*  </section>*/}
+      {/*</div>*/}
     </>
   );
 };
