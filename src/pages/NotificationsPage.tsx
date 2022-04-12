@@ -83,7 +83,7 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
 
   return (
     <>
-      <SeriesTable series={data.data} >
+      <SeriesTable series={data.data}>
         {data?.data.map((s, i) => {
           return (
             <SeriesTableRow
