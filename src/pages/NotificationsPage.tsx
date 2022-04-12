@@ -82,10 +82,11 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
 
   // I want a page to be something like this;
   //
-  //                Date        Time       Source     Message       Key        Value
-  //   View:        [ ]         [x]         [x]         [x]         [x]         [x]
-  //   Filter:  [        ]  [        ]  [        ]  [        ]  [        ]  [        ]
+  //                Date        Time       Source     Message       Key        Value      Exception
+  //   View:        [ ]         [x]         [x]         [x]         [x]         [ ]         [ ]            <--  Shown are the default fields to be shown.
+  //   Filter:  [        ]  [        ]  [        ]  [        ]  [        ]  [        ]  [        ]         <--- text field for filter expression. Let's only support plain text first. And it means, "has substring in field". Later do "startsWith", "endsWith" and possible "RegExp"
   //
+  //   Severity: [x] Info   [x] Error
   //
   //    Time    Source       Message                  Key                  Value
   //  ---------------------------------------------------------------------------
