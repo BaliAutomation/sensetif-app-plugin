@@ -51,8 +51,8 @@
     },
     {
       "type": "page",
-      "name": "Error Reporter",
-      "path": "/a/sensetif-app?tab=error-reporter",
+      "name": "Notifications",
+      "path": "/a/sensetif-app?tab=notifications",
       "role": "Viewer",
       "addToNav": true
     }

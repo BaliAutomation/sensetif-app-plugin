@@ -87,8 +87,8 @@ export const EditDatapointPage: PageDefinition = {
 export const LiveDemoPage: PageDefinition = {
   component: NotificationsPage,
   icon: 'fa rocket',
-  id: 'error-reporter',
-  text: ' Error Reporter',
+  id: 'notifications',
+  text: ' Notifications',
 };
 
 export const PlansPage: PageDefinition = {
