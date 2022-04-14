@@ -1,18 +1,18 @@
 import { AppRootProps } from '@grafana/data';
-import { Projects } from './Projects';
-import { Subsystems } from './Subsystems';
-import { Plans } from './Plans';
-import { EditProject } from './EditProject';
+import { AddDatapoint } from './AddDatapoint';
 import { AddProject } from './AddProject';
 import { AddSubsystem } from './AddSubsystem';
-import { EditSubsystem } from './EditSubsystem';
-import { Datapoints } from './Datapoints';
-import { AddDatapoint } from './AddDatapoint';
-import { EditDatapoint } from './EditDatapoint';
-import { Payments } from './Payments';
-import { Succeeded } from './Succeeded';
 import { Cancelled } from './Cancelled';
+import { Datapoints } from './Datapoints';
+import { EditDatapoint } from './EditDatapoint';
+import { EditProject } from './EditProject';
+import { EditSubsystem } from './EditSubsystem';
 import { NotificationsPage } from './NotificationsPage';
+import { Payments } from './Payments';
+import { Plans } from './Plans';
+import { Projects } from './Projects';
+import { Subsystems } from './Subsystems';
+import { Succeeded } from './Succeeded';
 
 export type PageDefinition = {
   component: React.FC<AppRootProps>;

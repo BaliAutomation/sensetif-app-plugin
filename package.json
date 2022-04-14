@@ -27,6 +27,8 @@
     "@stripe/react-stripe-js": "^1.4.1",
     "@stripe/stripe-js": "^1.17.1",
     "@types/country-list": "^2.1.0",
-    "country-list": "^2.2.0"
+    "@types/react-virtualized-auto-sizer": "^1.0.1",
+    "country-list": "^2.2.0",
+    "react-virtualized-auto-sizer": "^1.0.6"
   }
 }
