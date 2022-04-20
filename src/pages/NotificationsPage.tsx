@@ -59,7 +59,7 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <h1>Notifications</h1>
-      <AutoSizer style={{ width: '100%', height: '50%' }}>
+      <AutoSizer style={{ width: '100%', height: '500px' }}>
         {({ width, height }) => {
           return <Table width={width} height={height} data={dataFrame[0]} />;
         }}
