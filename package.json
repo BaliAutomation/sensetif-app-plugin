@@ -13,10 +13,12 @@
   "author": "Grafana Labs",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@grafana/data": "^8.4.3",
-    "@grafana/runtime": "^8.4.3",
-    "@grafana/toolkit": "^8.4.3",
-    "@grafana/ui": "^8.4.3",
+    "@grafana/data": "8.5.0",
+    "@grafana/runtime": "8.5.0",
+    "@grafana/toolkit": "8.5.0",
+    "@grafana/ui": "8.5.0",
+    "@types/react-table": "^7.7.11",
+    "@types/react-window": "^1.8.5",
     "react-hook-form": "7.5.3"
   },
   "engines": {
@@ -29,6 +31,8 @@
     "@types/country-list": "^2.1.0",
     "@types/react-virtualized-auto-sizer": "^1.0.1",
     "country-list": "^2.2.0",
-    "react-virtualized-auto-sizer": "^1.0.6"
+    "react-table": "^7.7.0",
+    "react-virtualized-auto-sizer": "^1.0.6",
+    "react-window": "^1.8.7"
   }
 }

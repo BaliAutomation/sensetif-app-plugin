@@ -1,19 +1,23 @@
 import {
-  ApplyFieldOverrideOptions,
-  applyFieldOverrides,
   AppRootProps,
+  DataFrame,
   DataQueryResponse,
+  dateTimeParse,
+  getDataFrameRow,
   LiveChannelScope,
 } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert, Table, useTheme2 } from '@grafana/ui';
+import { Alert } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { Table as CustomTable } from '../components/table/Table';
 
 export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   const [foundDs, setFoundDs] = useState<boolean>();
   const [data, setData] = useState<DataQueryResponse>();
 
+  const [notifications, setNotifications] = useState<Notification[]>();
+
+  //  subscribe to live stream
   useEffect(() => {
     const sensetifDs = config.datasources['Sensetif'];
     if (!sensetifDs) {
@@ -32,38 +36,56 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
     stream.subscribe(setData);
   }, []);
 
-  const theme = useTheme2();
+  // convert dataframe to plain objects array (displayable by table)
+  useEffect(() => {
+    if (!data?.data?.[0]) {
+      return;
+    }
 
-  console.log(data);
+    const notifications = toNotifications(data.data[0]);
+    setNotifications(notifications);
+  }, [data]);
 
   if (!foundDs) {
     return <Alert severity="warning" title="Sensetif datasource not found" />;
   }
 
-  if (!data?.data?.[0]) {
+  if (!notifications?.length) {
     return <div>No notifications</div>;
   }
-
-  let cfg: ApplyFieldOverrideOptions = {
-    data: data.data,
-    theme: theme!,
-    fieldConfig: {
-      defaults: {},
-      overrides: [],
-    },
-    replaceVariables: (value: string) => value,
-  };
-
-  let dataFrame = applyFieldOverrides(cfg);
-
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <h1>Notifications</h1>
-      <AutoSizer style={{ width: '100%', height: '50%' }}>
-        {({ width, height }) => {
-          return <Table width={width} height={height} data={dataFrame[0]} />;
-        }}
-      </AutoSizer>
-    </div>
+    <>
+      <CustomTable<Notification> frame={notifications} />
+    </>
   );
+};
+
+interface Notification {
+  time: string;
+  source: string;
+  key: string;
+  value: string;
+  message: string;
+  exceptionMessage?: string;
+  exceptionStackTrace?: string;
+}
+
+const toNotifications = (data: DataFrame): Notification[] => {
+  const notifications: Notification[] = [];
+
+  for (let i = 0; i < data.length; i++) {
+    let row = getDataFrameRow(data, i);
+
+    notifications.push({
+      time: dateTimeParse(row[0]).toString(),
+      source: row[1],
+      key: row[2],
+      value: row[3],
+      message: row[4],
+      exceptionMessage: row[5],
+      exceptionStackTrace: row[6],
+    });
+  }
+
+  return notifications;
 };
