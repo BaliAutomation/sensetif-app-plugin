@@ -55,7 +55,7 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   }
   return (
     <>
-      <CustomTable<Notification> frame={notifications} />
+      <CustomTable frame={notifications} hiddenColumns={['value', 'exceptionMessage', 'exceptionStackTrace']} />
     </>
   );
 };
