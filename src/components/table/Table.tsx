@@ -7,7 +7,7 @@ import {
   TableToggleHideAllColumnProps,
   useFilters,
   useSortBy,
-  useTable
+  useTable,
 } from 'react-table';
 import { HeaderRow } from './HeaderRow';
 import { getTableStyles } from './styles';
