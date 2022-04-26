@@ -1,24 +1,14 @@
-import { useStyles2 } from '@grafana/ui';
-import React, { forwardRef, useEffect, useMemo } from 'react';
-import {
-  Cell,
-  Column,
-  TableOptions,
-  TableToggleHideAllColumnProps,
-  useFilters,
-  useSortBy,
-  useTable,
-} from 'react-table';
+import { FilterPill, HorizontalGroup, useStyles2 } from '@grafana/ui';
+import React, { useMemo } from 'react';
+import { Cell, Column, TableOptions, useFilters, useSortBy, useTable } from 'react-table';
 import { HeaderRow } from './HeaderRow';
 import { getTableStyles } from './styles';
 
 interface Props<T> {
   frame: T[];
-  hiddenColumns: Array<keyof T>;
+  hiddenColumns?: Array<keyof T>;
 }
 export const Table = <T extends Object>({ frame, hiddenColumns }: Props<T>) => {
-  console.log(hiddenColumns);
-
   const tableStyles = useStyles2(getTableStyles);
 
   const memoizedData = useMemo(() => {
@@ -60,7 +50,7 @@ export const Table = <T extends Object>({ frame, hiddenColumns }: Props<T>) => {
       data: memoizedData,
       autoResetFilters: false,
       initialState: {
-        hiddenColumns: hiddenColumns.map((k) => k.toString()),
+        hiddenColumns: hiddenColumns?.map((k) => k.toString()),
       },
     }),
     [memoizedColumns, memoizedData, hiddenColumns]
@@ -68,8 +58,16 @@ export const Table = <T extends Object>({ frame, hiddenColumns }: Props<T>) => {
 
   const tableInstance = useTable({ ...options }, useFilters, useSortBy);
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, getToggleHideAllColumnsProps, allColumns } =
-    tableInstance;
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    // getToggleHideAllColumnsProps,
+    allColumns,
+    visibleColumns,
+  } = tableInstance;
 
   const TableCell = ({ cell, styles }: { cell: Cell<any>; styles: any }) => {
     const cellProps = cell.getCellProps();
@@ -87,17 +85,35 @@ export const Table = <T extends Object>({ frame, hiddenColumns }: Props<T>) => {
   return (
     <>
       <div>
-        <div>
-          <IndeterminateCheckbox {...getToggleHideAllColumnsProps()} /> Toggle All
-        </div>
-        {allColumns.map((column) => (
-          <div key={column.id}>
-            <label>
-              <input type="checkbox" {...column.getToggleHiddenProps()} /> {column.Header}
-            </label>
-          </div>
-        ))}
-        <br />
+        <HorizontalGroup width="100%">
+          <FilterPill
+            selected={allColumns.length === visibleColumns.length}
+            onClick={() => {
+              if (visibleColumns.length === 0 || visibleColumns.length === allColumns.length) {
+                allColumns.forEach((c) => c.toggleHidden());
+              } else {
+                allColumns.forEach((c) => c.toggleHidden(false));
+              }
+            }}
+            label={'Toggle All'}
+          />
+          {allColumns.map((column) => {
+            // let props = column.getToggleHiddenProps();
+            // console.log(props);
+            return (
+              <div key={column.id}>
+                <label>
+                  <FilterPill
+                    // {...props}
+                    selected={column.isVisible}
+                    onClick={() => column.toggleHidden()}
+                    label={column.Header!.toString()}
+                  />
+                </label>
+              </div>
+            );
+          })}
+        </HorizontalGroup>
       </div>
       <table {...tableProps} style={{ ...tableProps.style, width: '100%' }}>
         <HeaderRow headerGroups={headerGroups} />
@@ -134,19 +150,3 @@ const CellComponent = (props: any) => {
     </div>
   );
 };
-
-const IndeterminateCheckbox = forwardRef<any, TableToggleHideAllColumnProps>(
-  ({ indeterminate, ...rest }: TableToggleHideAllColumnProps, ref) => {
-    const defaultRef = React.useRef();
-    const resolvedRef = ref || defaultRef;
-
-    useEffect(() => {
-      //@ts-ignore
-      resolvedRef.current.indeterminate = indeterminate;
-    }, [resolvedRef, indeterminate]);
-
-    return <input type="checkbox" ref={resolvedRef} {...rest} />;
-  }
-);
-
-IndeterminateCheckbox.displayName = 'IndeterminateCheckbox';
