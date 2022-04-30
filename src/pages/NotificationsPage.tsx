@@ -51,6 +51,15 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
           exceptionMessage: n.exception?.message,
           exceptionStacktrace: n.exception?.stacktrace,
         }))}
+        columns={[
+          { id: 'time', displayValue: 'Time' },
+          { id: 'source', displayValue: 'Source' },
+          { id: 'key', displayValue: 'Key' },
+          { id: 'value', displayValue: 'Value' },
+          { id: 'message', displayValue: 'Message' },
+          { id: 'exceptionMessage', displayValue: 'Exception Message' },
+          { id: 'exceptionStacktrace', displayValue: 'Exception Stacktrace' },
+        ]}
         hiddenColumns={['value', 'exceptionMessage', 'exceptionStacktrace']}
       />
     </>

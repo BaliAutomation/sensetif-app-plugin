@@ -6,9 +6,13 @@ import { getTableStyles } from './styles';
 
 interface Props<T> {
   frame: T[];
+  columns: Array<{
+    id: keyof T;
+    displayValue: string;
+  }>;
   hiddenColumns?: Array<keyof T>;
 }
-export const Table = <T extends Object>({ frame, hiddenColumns }: Props<T>) => {
+export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props<T>) => {
   const tableStyles = useStyles2(getTableStyles);
 
   const memoizedData = useMemo(() => {
@@ -20,29 +24,20 @@ export const Table = <T extends Object>({ frame, hiddenColumns }: Props<T>) => {
   }, [frame]);
 
   const memoizedColumns: ReadonlyArray<Column<any>> = useMemo(() => {
-    const cols: Array<Column<any>> = [];
+    return columns.map(
+      (c) =>
+        ({
+          // id: idx.toString(),
+          id: c.id,
+          Header: c.displayValue,
+          accessor: (_: any, i: number) => {
+            return frame[i][c.id];
+          },
 
-    let propNames: { [key: string]: boolean } = {};
-    frame.forEach((f, fIdx) => {
-      Object.keys(f).forEach((key) => {
-        propNames[key] = true;
-      });
-    });
-
-    return Object.keys(propNames).map((name, idx) => ({
-      // id: idx.toString(),
-      id: name,
-      Header: name,
-      accessor: (_: any, i: number) => {
-        //@ts-ignore
-        return frame[i][name];
-      },
-
-      Cell: CellComponent,
-    }));
-
-    return cols;
-  }, [frame]);
+          Cell: CellComponent,
+        } as Column<any>)
+    );
+  }, [frame, columns]);
 
   const options: TableOptions<any> = useMemo(
     () => ({
