@@ -1,11 +1,4 @@
-import {
-  AppRootProps,
-  DataFrame,
-  DataQueryResponse,
-  dateTimeParse,
-  getDataFrameRow,
-  LiveChannelScope,
-} from '@grafana/data';
+import { AppRootProps, dateTimeParse, LiveChannelEventType, LiveChannelScope } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
 import { Alert } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
@@ -13,9 +6,7 @@ import { Table as CustomTable } from '../components/table/Table';
 
 export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
   const [foundDs, setFoundDs] = useState<boolean>();
-  const [data, setData] = useState<DataQueryResponse>();
-
-  const [notifications, setNotifications] = useState<Notification[]>();
+  const [data, setData] = useState<Notification[]>([]);
 
   //  subscribe to live stream
   useEffect(() => {
@@ -25,37 +16,43 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
       return;
     }
     setFoundDs(true);
-    const stream = getGrafanaLiveSrv().getDataStream({
-      addr: {
-        scope: LiveChannelScope.DataSource,
-        namespace: sensetifDs.uid,
-        path: '_notifications',
-      },
+    const stream = getGrafanaLiveSrv().getStream<Notification>({
+      scope: LiveChannelScope.DataSource,
+      namespace: sensetifDs.uid,
+      path: '_notifications',
     });
 
-    stream.subscribe(setData);
-  }, []);
-
-  // convert dataframe to plain objects array (displayable by table)
-  useEffect(() => {
-    if (!data?.data?.[0]) {
-      return;
-    }
-
-    const notifications = toNotifications(data.data[0]);
-    setNotifications(notifications);
-  }, [data]);
+    stream.subscribe((event) => {
+      if (event.type === LiveChannelEventType.Message) {
+        setData([...data!, event.message]);
+      }
+    });
+  }, [setFoundDs, data]);
 
   if (!foundDs) {
     return <Alert severity="warning" title="Sensetif datasource not found" />;
   }
 
-  if (!notifications?.length) {
+  if (!data?.length) {
     return <div>No notifications</div>;
   }
+
+  // console.log(data);
+
   return (
     <>
-      <CustomTable frame={notifications} hiddenColumns={['value', 'exceptionMessage', 'exceptionStackTrace']} />
+      <CustomTable<TableNotification>
+        frame={data.map((n) => ({
+          time: dateTimeParse(n.time).toString(),
+          source: n.source,
+          key: n.key,
+          value: n.value,
+          message: n.message,
+          exceptionMessage: n.exception?.message,
+          exceptionStacktrace: n.exception?.stacktrace,
+        }))}
+        hiddenColumns={['value', 'exceptionMessage', 'exceptionStacktrace']}
+      />
     </>
   );
 };
@@ -66,26 +63,18 @@ interface Notification {
   key: string;
   value: string;
   message: string;
-  exceptionMessage?: string;
-  exceptionStackTrace?: string;
+  exception?: {
+    message: string;
+    stacktrace: string;
+  };
 }
 
-const toNotifications = (data: DataFrame): Notification[] => {
-  const notifications: Notification[] = [];
-
-  for (let i = 0; i < data.length; i++) {
-    let row = getDataFrameRow(data, i);
-
-    notifications.push({
-      time: dateTimeParse(row[0]).toString(),
-      source: row[1],
-      key: row[2],
-      value: row[3],
-      message: row[4],
-      exceptionMessage: row[5],
-      exceptionStackTrace: row[6],
-    });
-  }
-
-  return notifications;
-};
+interface TableNotification {
+  time: string;
+  source: string;
+  key: string;
+  value: string;
+  message: string;
+  exceptionMessage?: string;
+  exceptionStacktrace?: string;
+}

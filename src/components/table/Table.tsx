@@ -49,6 +49,7 @@ export const Table = <T extends Object>({ frame, hiddenColumns }: Props<T>) => {
       columns: memoizedColumns,
       data: memoizedData,
       autoResetFilters: false,
+      autoResetHiddenColumns: false,
       initialState: {
         hiddenColumns: hiddenColumns?.map((k) => k.toString()),
       },
