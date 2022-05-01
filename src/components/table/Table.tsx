@@ -1,6 +1,6 @@
-import { FilterPill, HorizontalGroup, useStyles2 } from '@grafana/ui';
+import { FilterPill, HorizontalGroup, Pagination, useStyles2 } from '@grafana/ui';
 import React, { useMemo } from 'react';
-import { Cell, Column, TableOptions, useFilters, useSortBy, useTable } from 'react-table';
+import { Cell, Column, TableOptions, useFilters, usePagination, useSortBy, useTable } from 'react-table';
 import { HeaderRow } from './HeaderRow';
 import { getTableStyles } from './styles';
 
@@ -46,21 +46,35 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props
       autoResetFilters: false,
       autoResetHiddenColumns: false,
       initialState: {
+        pageSize: 50,
         hiddenColumns: hiddenColumns?.map((k) => k.toString()),
       },
     }),
     [memoizedColumns, memoizedData, hiddenColumns]
   );
 
-  const tableInstance = useTable({ ...options }, useFilters, useSortBy);
+  const tableInstance = useTable({ ...options }, useFilters, useSortBy, usePagination);
 
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    rows,
+    // rows,
     prepareRow,
     // getToggleHideAllColumnsProps,
+
+    //@ts-ignore
+    page, // Instead of using 'rows', we'll use page,
+    // which has only the rows for the active page
+
+    //@ts-ignore
+    pageCount,
+    //@ts-ignore
+    gotoPage,
+
+    //@ts-ignore
+    state: { pageIndex, pageSize },
+
     allColumns,
     visibleColumns,
   } = tableInstance;
@@ -94,13 +108,10 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props
             label={'Toggle All'}
           />
           {allColumns.map((column) => {
-            // let props = column.getToggleHiddenProps();
-            // console.log(props);
             return (
               <div key={column.id}>
                 <label>
                   <FilterPill
-                    // {...props}
                     selected={column.isVisible}
                     onClick={() => column.toggleHidden()}
                     label={column.Header!.toString()}
@@ -116,7 +127,8 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props
         <tbody {...getTableBodyProps()}>
           {
             // Loop over the table rows
-            rows.map((row, index) => {
+            //@ts-ignore
+            page.map((row, index) => {
               // Prepare the row for display
               prepareRow(row);
               return (
@@ -124,6 +136,7 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props
                 <tr {...row.getRowProps()} key={index}>
                   {
                     // Loop over the rows cells
+                    //@ts-ignore
                     row.cells.map((cell, index) => {
                       // Apply the cell props
                       return <TableCell cell={cell} key={index} styles={tableStyles} />;
@@ -135,6 +148,12 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props
           }
         </tbody>
       </table>
+      <Pagination
+        currentPage={pageIndex + 1}
+        numberOfPages={pageCount}
+        onNavigate={(page) => gotoPage(page - 1)}
+        hideWhenSinglePage
+      />
     </>
   );
 };
