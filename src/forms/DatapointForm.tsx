@@ -187,6 +187,30 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
               </Field>
             )}
           </HorizontalGroup>
+
+          <HorizontalGroup>
+            <Field
+              label="Minimum Value"
+              invalid={!!errors.proc && !!errors.proc.min}
+              error={errors.proc ? errors.proc.min && errors.proc.min.message : undefined}
+            >
+              <Input
+                {...register('proc.min')}
+                placeholder="Leave blank for no limit"
+              />
+            </Field>
+            <Field
+              label="Maximum Value"
+              invalid={!!errors.proc && !!errors.proc.max}
+              error={errors.proc ? errors.proc.max && errors.proc.max.message : undefined}
+            >
+              <Input
+                {...register('proc.max')}
+                placeholder="Leave blank for no limit"
+              />
+            </Field>
+          </HorizontalGroup>
+
           <HorizontalGroup>
             <Field
               label="Unit"
