@@ -55,6 +55,12 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
     <>
       <CustomTable<TableNotification>
         frame={data.map((n) => {
+          let valueData: string;
+          try {
+            valueData = Buffer.from(n.value, 'base64').toString();
+          } catch (e) {
+            valueData = n.value;
+          }
           let dt = new Date(n.time);
           return {
             severity: severities[n.severity],
@@ -62,7 +68,7 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
             time: dt.toLocaleTimeString(),
             source: n.source,
             key: n.key,
-            value: Buffer.from(n.value, 'base64').toString(),
+            value: valueData,
             message: n.message,
             exceptionMessage: n.exception?.message,
             exceptionStacktrace: n.exception?.stacktrace,
