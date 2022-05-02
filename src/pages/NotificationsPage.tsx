@@ -1,4 +1,4 @@
-import { AppRootProps, dateTimeParse, LiveChannelAddress, LiveChannelEventType, LiveChannelScope } from '@grafana/data';
+import { AppRootProps, LiveChannelAddress, LiveChannelEventType, LiveChannelScope } from '@grafana/data';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
 import { Alert } from '@grafana/ui';
 import React, { FC, useEffect, useState } from 'react';
@@ -22,6 +22,13 @@ export const NotificationsPage: FC<AppRootProps> = ({ query, path, meta }) => {
     />
   );
 };
+//TODO: Later we should change this to Icons instead.
+const severities: { [index: string]: string } = {
+  urgent: 'U',
+  error: 'E',
+  warning: 'W',
+  informative: 'I',
+};
 
 const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
   const [data, setData] = useState<Notification[]>([]);
@@ -43,19 +50,27 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
   if (!data?.length) {
     return <div>No notifications</div>;
   }
+
   return (
     <>
       <CustomTable<TableNotification>
-        frame={data.map((n) => ({
-          time: dateTimeParse(n.time).toString(),
-          source: n.source,
-          key: n.key,
-          value: Buffer.from(n.value, 'base64').toString(),
-          message: n.message,
-          exceptionMessage: n.exception?.message,
-          exceptionStacktrace: n.exception?.stacktrace,
-        }))}
+        frame={data.map((n) => {
+          let dt = new Date(n.time);
+          return {
+            severity: severities[n.severity],
+            date: dt.toLocaleDateString(),
+            time: dt.toLocaleTimeString(),
+            source: n.source,
+            key: n.key,
+            value: Buffer.from(n.value, 'base64').toString(),
+            message: n.message,
+            exceptionMessage: n.exception?.message,
+            exceptionStacktrace: n.exception?.stacktrace,
+          };
+        })}
         columns={[
+          { id: 'severity', displayValue: '' },
+          { id: 'date', displayValue: 'Date' },
           { id: 'time', displayValue: 'Time' },
           { id: 'source', displayValue: 'Source' },
           { id: 'key', displayValue: 'Key' },
@@ -64,7 +79,7 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
           { id: 'exceptionMessage', displayValue: 'Exception Message' },
           { id: 'exceptionStacktrace', displayValue: 'Exception Stacktrace' },
         ]}
-        hiddenColumns={['value', 'exceptionMessage', 'exceptionStacktrace']}
+        hiddenColumns={['date', 'value', 'exceptionMessage', 'exceptionStacktrace']}
       />
     </>
   );
@@ -72,6 +87,7 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
 
 interface Notification {
   time: string;
+  severity: string;
   source: string;
   key: string;
   value: string;
@@ -83,6 +99,8 @@ interface Notification {
 }
 
 interface TableNotification {
+  severity: string;
+  date: string;
   time: string;
   source: string;
   key: string;
