@@ -47,14 +47,10 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
     });
   }, [addr, setData]);
 
-  if (!data?.length) {
-    return <div>No notifications</div>;
-  }
-
   return (
     <>
       <CustomTable<TableNotification>
-        frame={data.map((n) => {
+        frame={data.sort(compareTime).map((n) => {
           let valueData: string;
           try {
             valueData = Buffer.from(n.value, 'base64').toString();
@@ -90,6 +86,19 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
     </>
   );
 };
+
+function compareTime(a: Notification, b: Notification): number {
+  const aTime = new Date(a.time);
+  const bTime = new Date(b.time);
+  if (aTime === bTime) {
+    return 0;
+  }
+  if (aTime.getTime() - bTime.getTime() < 0) {
+    return 1;
+  }
+  return -1;
+}
+
 
 interface Notification {
   time: string;
