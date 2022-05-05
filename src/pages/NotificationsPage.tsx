@@ -99,7 +99,6 @@ function compareTime(a: Notification, b: Notification): number {
   return -1;
 }
 
-
 interface Notification {
   time: string;
   severity: string;
