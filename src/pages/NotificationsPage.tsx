@@ -51,7 +51,7 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
   return (
     <>
       <CustomTable<TableNotification>
-        frame={data.sort(compareTime).map((n) => {
+        frame={data.map((n) => {
           let valueData: string;
           try {
             valueData = Buffer.from(n.value, 'base64').toString();
@@ -88,6 +88,7 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
   );
 };
 
+/*
 function compareTime(a: Notification, b: Notification): number {
   const aTime = new Date(a.time);
   const bTime = new Date(b.time);
@@ -99,6 +100,7 @@ function compareTime(a: Notification, b: Notification): number {
   }
   return -1;
 }
+*/
 
 interface Notification {
   time: string;
