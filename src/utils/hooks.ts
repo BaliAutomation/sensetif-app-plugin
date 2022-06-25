@@ -1,24 +1,47 @@
 import { useMemo } from 'react';
-import { pages, ProjectsPage } from 'pages';
+import { AppRootProps, NavModelItem } from '@grafana/data';
+import { PageDefinition, PageID } from 'pages';
 import { APP_SUBTITLE, APP_TITLE } from './consts';
-import { AppPluginMeta, NavModelItem } from '@grafana/data';
 
 type Args = {
-  meta: AppPluginMeta;
+  meta: AppRootProps['meta'];
+  pages: PageDefinition[];
   path: string;
   tab: string;
 };
 
-export function useNavModel({ meta, path, tab }: Args) {
+export function useNavModel({ meta, pages, path, tab }: Args) {
   return useMemo(() => {
-    const node: NavModelItem = {
-      text: pages[tab].text,
+    const tabs: NavModelItem[] = [];
+
+    const projectsPage: PageID = 'projects';
+
+    pages.forEach(({ text, icon, id }) => {
+      tabs.push({
+        text,
+        icon,
+        id,
+        url: `${path}?tab=${id}`,
+      });
+
+      if (tab === id) {
+        tabs[tabs.length - 1].active = true;
+      }
+    });
+
+    // Fallback if current `tab` doesn't match any page
+    if (!tabs.some(({ active }) => active)) {
+      tabs[0].active = true;
+    }
+
+    const node = {
+      text: APP_TITLE,
       img: meta.info.logos.large,
       subTitle: APP_SUBTITLE,
       breadcrumbs: [
         {
           title: APP_TITLE,
-          url: `/a/${meta.id}/?tab=${ProjectsPage.id}`,
+          url: `/a/${meta.id}/?tab=${projectsPage}`,
         },
       ],
       url: path,
@@ -28,5 +51,5 @@ export function useNavModel({ meta, path, tab }: Args) {
       node,
       main: node,
     };
-  }, [meta.info.logos.large, meta.id, path, tab]);
+  }, [meta.info.logos.large, meta.id, pages, path, tab]);
 }
