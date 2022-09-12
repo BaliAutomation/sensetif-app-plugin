@@ -2,8 +2,8 @@ import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { ProjectSettings, SubsystemSettings } from 'types';
 import { Alert, Icon } from '@grafana/ui';
-import { goToAddSubsystem, goToDatapoints, goToEditSubsystem, goToProjects } from 'utils/navigation';
-import { deleteSubsystem, getProject, getSubsystems } from 'utils/api';
+import { goToAddSubsystem, goToDatapoints, goToEditSubsystem, goToProjects } from 'navigation';
+import { deleteSubsystem, getProject, getSubsystems } from 'api';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
 

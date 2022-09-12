@@ -34,3 +34,16 @@ export const goToEditDatapoint = (projectName: string, subsystemName: string, da
   goTo('edit_datapoint', { project: projectName, subsystem: subsystemName, datapoint: datapointName });
 
 export const goToPlans = () => goTo('plans');
+
+export const goToResources = (projectName: string) => goTo('resources', { project: projectName });
+export const goToAddThingsNetworkApplication = (projectName: string) =>
+  goTo('new_thingsnetwork_application', { project: projectName });
+export const goToAddMqttClient = (projectName: string) => goTo('new_mqtt_client', { project: projectName });
+export const goToAddWebResource = (projectName: string) => goTo('new_web_resource', { project: projectName });
+
+export const goToEditThingsNetworkApplication = (projectName: string, resourceName: string) =>
+  goTo('edit_thingsnetwork_application', { project: projectName, resource: resourceName });
+export const goToEditMqttClient = (projectName: string, resourceName: string) =>
+  goTo('edit_mqtt_client', { project: projectName, resource: resourceName });
+export const goToEditWebResource = (projectName: string, resourceName: string) =>
+  goTo('edit_web_resource', { project: projectName, resource: resourceName });

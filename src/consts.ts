@@ -1,5 +1,7 @@
 import { SelectableValue } from '@grafana/data';
-import { PollInterval, TimeToLive } from '../types';
+import { MqttConnectionType, PollInterval, TimeToLive } from './types';
+
+export const TEST_MODE = false;
 
 export const APP_TITLE = 'Sensetif';
 export const APP_SUBTITLE = 'Visualizing Your Stuff';
@@ -68,4 +70,16 @@ export const AvailablePollIntervals: Array<SelectableValue<PollInterval>> = [
   { label: '24 hours', value: PollInterval.one_day },
   { label: '1 week', value: PollInterval.weekly },
   { label: '1 month', value: PollInterval.monthly },
+];
+
+export const AvailableMqttConnectionTypes: Array<SelectableValue<MqttConnectionType>> = [
+  { label: 'TCP', value: MqttConnectionType.tcp },
+  { label: 'TLS', value: MqttConnectionType.tls },
+  // TODO: We need to figure out what the ones below are, and whether we can support them.
+  // { label: '6 months', value: MqttConnectionType.mqtt },
+  // { label: '6 months', value: MqttConnectionType.mqtts },
+  // { label: '1 year', value: MqttConnectionType.ws },
+  // { label: '3 years', value: MqttConnectionType.wss },
+  // { label: '5 years', value: MqttConnectionType.wxs },
+  // { label: '5 years', value: MqttConnectionType.alis },
 ];

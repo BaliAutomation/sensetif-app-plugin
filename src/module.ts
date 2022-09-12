@@ -2,7 +2,7 @@ import { AppPlugin, AppPluginMeta } from '@grafana/data';
 import { SensetifAppSettings } from './types';
 import { SensetifRootPage } from './SensetifRootPage';
 import { ConfigPageBody } from 'config/ConfigPage';
-import { getLimits } from './utils/api';
+import { getLimits } from './api';
 
 const appPlugin = new AppPlugin<SensetifAppSettings>();
 appPlugin.setRootPage(SensetifRootPage);

@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 import { AppRootProps } from '@grafana/data';
-import { cancelled } from 'utils/api';
+import { cancelled } from 'api';
 import { PageHeader } from 'components/PageTitle';
-import { goToPlans } from '../utils/navigation';
+import { goToPlans } from '../navigation';
 
 export const Cancelled: FC<AppRootProps> = ({ query }) => {
   const sessionId: string = query['session_id'];

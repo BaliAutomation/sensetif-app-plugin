@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { AppRootProps } from '@grafana/data';
-import { useNavModel } from 'utils/hooks';
+import { useNavModel } from 'hooks';
 import { pages } from 'pages';
 
 export const SensetifRootPage = React.memo(function RootPage(props: AppRootProps) {

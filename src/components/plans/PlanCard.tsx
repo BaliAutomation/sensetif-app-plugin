@@ -1,7 +1,7 @@
 import { HorizontalGroup, VerticalGroup, Button, Badge } from '@grafana/ui';
 import React from 'react';
-import { PollIntervals, TimeToLivePeriods } from 'utils/consts';
-import { checkout } from '../../utils/api';
+import { PollIntervals, TimeToLivePeriods } from 'consts';
+import { checkout } from '../../api';
 
 interface Props {
   plan: {

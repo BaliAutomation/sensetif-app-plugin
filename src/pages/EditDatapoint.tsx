@@ -2,8 +2,8 @@ import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { DatapointSettings, DatasourceType, Ttnv3Datasource } from 'types';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
-import { getDatapoint, upsertDatapoint } from 'utils/api';
-import { goToDatapoints } from 'utils/navigation';
+import { getDatapoint, upsertDatapoint } from 'api';
+import { goToDatapoints } from 'navigation';
 import { DatapointForm } from 'forms/DatapointForm';
 import { logError } from '@grafana/runtime';
 

@@ -3,8 +3,8 @@ import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
 import { Alert, Icon } from '@grafana/ui';
 import { ProjectSettings } from '../types';
-import { goToAddProject, goToEditProject, goToSubsystems } from 'utils/navigation';
-import { deleteProject, getProjects } from 'utils/api';
+import { goToAddProject, goToEditProject, goToSubsystems } from 'navigation';
+import { deleteProject, getProjects } from 'api';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
 

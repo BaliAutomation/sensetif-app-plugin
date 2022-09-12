@@ -3,8 +3,8 @@ import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
 import { Alert, Icon } from '@grafana/ui';
 import { Payment } from '../types';
-import { goToAddProject } from 'utils/navigation';
-import { getPayments } from 'utils/api';
+import { goToAddProject } from 'navigation';
+import { getPayments } from 'api';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
 

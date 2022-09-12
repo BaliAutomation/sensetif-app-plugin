@@ -1,3 +1,5 @@
+import { FieldValues } from 'react-hook-form';
+
 export interface SensetifAppSettings {
   customText?: string;
   customCheckbox?: boolean;
@@ -41,7 +43,7 @@ export interface Processing {
   scalefunc: string;
 }
 
-export interface DatapointSettings {
+export interface DatapointSettings extends FieldValues {
   project: string;
   subsystem: string;
   name: string; // validate regexp:[a-z][A-Za-z0-9_.]*
@@ -64,19 +66,35 @@ export interface Ttnv3Datasource {
   webhook: boolean;
 }
 
-export interface WebDatasource {
-  url: string; // validate URL, incl anchor and query arguments, but disallow user:pwd@
-
-  // Authentication is going to need a lot in the future, but for now user/pass is fine
-  authenticationType: AuthenticationType;
-  // If authenticationType===basic, then auth contains [user]":"[password]
-  auth?: string;
-
-  format: OriginDocumentFormat;
-  valueExpression: string; // if format==xml, then xpath. if format==json, then jsonpath. If there is library available for validation, do that. If not, put in a function and we figure that out later.
-
+export interface TimestampSelection {
   timestampType: TimestampType;
   timestampExpression: string; // if format==xml, then xpath. if format==json, then jsonpath.
+}
+
+export interface Authentication {
+  authenticationType: AuthenticationType;
+}
+
+export interface NoAuthentication extends Authentication {}
+
+export interface UserPassAuthentication extends Authentication {
+  username: string;
+  password: string;
+}
+
+export interface TokenBearerAuthentication extends Authentication {
+  token: string;
+}
+
+export interface WebDatasource {
+  url: string; // validate URL, incl anchor and query arguments, but disallow user:pwd@
+  auth: Authentication;
+
+  format: OriginDocumentFormat;
+  // if format==xml, then xpath.
+  // if format==json, then jsonpath.
+  valueExpression?: string;
+  timestampSelection: TimestampSelection;
 }
 
 export interface MqttDatasource {
@@ -212,4 +230,44 @@ export interface Payment {
   currency: string;
   description: string;
   invoicelink: string;
+}
+
+export interface ResourceSettings {
+  name: string; // validate regexp:[a-z][A-Za-z0-9]*
+  type: DatasourceType;
+}
+
+export interface ThingsNetworkApplicationSettings extends ResourceSettings {
+  zone: string;
+  application: string;
+  authorizationKey: string;
+}
+
+export enum MqttConnectionType {
+  mqtt,
+  mqtts,
+  tcp,
+  tls,
+  ws,
+  wss,
+  wxs,
+  alis,
+}
+
+export interface MqttClientSettings extends ResourceSettings {
+  host: string;
+  port: number;
+  connection: MqttConnectionType;
+}
+
+export enum DocType {
+  json,
+  xml,
+}
+
+export interface WebResourceSettings extends ResourceSettings {
+  url: string;
+  authentication: Authentication;
+  format: OriginDocumentFormat;
+  timestampSelection: TimestampSelection;
 }

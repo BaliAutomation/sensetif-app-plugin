@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
 import { Alert, Icon } from '@grafana/ui';
-import { getPlans } from 'utils/api';
+import { getPlans } from 'api';
 import { PlansList } from '../components/PlansList';
 import { PlanSettings } from '../types';
 

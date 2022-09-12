@@ -12,6 +12,13 @@ import { Plans } from './Plans';
 import { Projects } from './Projects';
 import { Subsystems } from './Subsystems';
 import { Succeeded } from './Succeeded';
+import { ResourcesPage } from './Resources';
+import { AddWebResource } from './AddWebResource';
+import { EditWebResource } from './EditWebResource';
+import { AddThingsNetworkApplication } from './AddThingsNetworkApplication';
+import { EditThingsNetworkApplication } from './EditThingsNetworkApplication';
+import { EditMqttClient } from './EditMqttResource';
+import { AddMqttClient } from './AddMqttResource';
 
 export type PageID =
   | 'projects'
@@ -24,6 +31,13 @@ export type PageID =
   | 'new_datapoint'
   | 'edit_datapoint'
   | 'notifications'
+  | 'resources'
+  | 'new_web_resource'
+  | 'edit_web_resource'
+  | 'new_thingsnetwork_application'
+  | 'edit_thingsnetwork_application'
+  | 'new_mqtt_client'
+  | 'edit_mqtt_client'
   | 'plans'
   // | 'payments'
   | 'succeeded'
@@ -105,6 +119,55 @@ export const pages: PageDefinition[] = [
     icon: 'fa rocket',
     id: 'notifications',
     text: ' Notifications',
+  },
+
+  {
+    component: ResourcesPage,
+    icon: 'fa helmet-battle',
+    id: 'resources',
+    text: ' Resources',
+  },
+
+  {
+    component: AddWebResource,
+    icon: 'fa spider-web',
+    id: 'new_web_resource',
+    text: ' Web Resource',
+  },
+
+  {
+    component: EditWebResource,
+    icon: 'fa spider-web',
+    id: 'edit_web_resource',
+    text: ' Web Resource',
+  },
+
+  {
+    component: AddThingsNetworkApplication,
+    icon: 'fa cloud',
+    id: 'new_thingsnetwork_application',
+    text: ' Things Network',
+  },
+
+  {
+    component: EditThingsNetworkApplication,
+    icon: 'fa cloud',
+    id: 'edit_thingsnetwork_application',
+    text: ' Things Network',
+  },
+
+  {
+    component: AddMqttClient,
+    icon: 'fa signal-stream',
+    id: 'new_mqtt_client',
+    text: ' MQTT Client',
+  },
+
+  {
+    component: EditMqttClient,
+    icon: 'fa signal-stream',
+    id: 'edit_mqtt_client',
+    text: ' MQTT Client',
   },
 
   {

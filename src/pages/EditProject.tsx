@@ -3,8 +3,8 @@ import { AppRootProps } from '@grafana/data';
 import { ProjectForm } from 'forms/ProjectForm';
 import { ProjectSettings } from 'types';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
-import { getProject, upsertProject } from 'utils/api';
-import { goToProjects } from 'utils/navigation';
+import { getProject, upsertProject } from 'api';
+import { goToProjects } from 'navigation';
 import { logError } from '@grafana/runtime';
 
 export const EditProject: FC<AppRootProps> = ({ query }) => {

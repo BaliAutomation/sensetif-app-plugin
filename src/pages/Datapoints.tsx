@@ -4,8 +4,8 @@ import { logInfo } from '@grafana/runtime';
 import { Alert, Icon } from '@grafana/ui';
 
 import { DatapointSettings, SubsystemSettings } from '../types';
-import { deleteDatapoint, getDatapoints, getSubsystem } from 'utils/api';
-import { goToAddDatapoint, goToEditDatapoint, goToSubsystems } from 'utils/navigation';
+import { deleteDatapoint, getDatapoints, getSubsystem } from 'api';
+import { goToAddDatapoint, goToEditDatapoint, goToSubsystems } from 'navigation';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
 

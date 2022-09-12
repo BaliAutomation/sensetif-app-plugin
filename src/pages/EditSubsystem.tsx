@@ -2,8 +2,8 @@ import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { SubsystemSettings } from 'types';
 import { Alert, LoadingPlaceholder } from '@grafana/ui';
-import { getSubsystem, upsertSubsystem } from 'utils/api';
-import { goToSubsystems } from 'utils/navigation';
+import { getSubsystem, upsertSubsystem } from 'api';
+import { goToSubsystems } from 'navigation';
 import { SubsystemForm } from 'forms/SubsystemForm';
 import { logError } from '@grafana/runtime';
 

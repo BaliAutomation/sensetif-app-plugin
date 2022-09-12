@@ -8,13 +8,45 @@ import {
   PollInterval,
   ProjectSettings,
   SubsystemSettings,
+  ResourceSettings,
 } from 'types';
-import { API_RESOURCES } from './consts';
+import { API_RESOURCES, TEST_MODE } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 200;
 
+const testRequest = (path: string, method: string, body: string) => {
+  return new Promise<any>((resolve, reject) => {
+    switch (method) {
+      case 'GET':
+        localStorage.getItem('SENSETIF.' + path);
+        break;
+      case 'PUT':
+        localStorage.setItem('SENSETIF.' + path, body);
+        break;
+      case 'DELETE':
+        localStorage.removeItem('SENSETIF.' + path);
+        break;
+      case 'POST':
+        break;
+    }
+  });
+};
+
 const request = (path: string, method: string, body: string, waitTime = 0) => {
   logInfo('Request: ' + method + ' ' + path);
+  if (TEST_MODE) {
+    return new Promise<any>((resolve, reject) => {
+      testRequest(path, method, body)
+        .then((r) =>
+          setTimeout(() => {
+            resolve(r);
+          }, waitTime)
+        )
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
   let srv = getBackendSrv();
   let request: Promise<any>;
   let url = API_RESOURCES + path;
@@ -141,3 +173,15 @@ export const confirmation = (sessionId: string): Promise<string> =>
 
 export const cancelled = (sessionId: string): Promise<string> =>
   request('_checkout/cancelled', 'POST', '{ "id": "' + sessionId + '"}', 500);
+
+export const getResources = (projectName: string): Promise<ResourceSettings[]> =>
+  request(projectName + '/_resources', 'GET', '', 0);
+
+export const getResource = (projectName: string, resourceName: string): Promise<ResourceSettings> =>
+  request(projectName + '/_resources/' + resourceName, 'GET', '', 0);
+
+export const upsertResource = (projectName: string, resource: ResourceSettings) =>
+  request(projectName + '/_resources/' + resource.name, 'PUT', JSON.stringify(resource), WAIT_AFTER_EXEC_MS);
+
+export const deleteResource = (projectName: string, resourceName: string) =>
+  request(projectName + '/_resources/' + resourceName, 'DELETE', '', WAIT_AFTER_EXEC_MS);

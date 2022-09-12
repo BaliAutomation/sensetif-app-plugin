@@ -21,7 +21,7 @@ import {
 } from '@grafana/ui';
 import { css } from '@emotion/css';
 import { DATAPOINT_PATTERN_NAME } from './common';
-import { AvailablePollIntervals, AvailableTimeToLivePeriods } from '../utils/consts';
+import { AvailablePollIntervals, AvailableTimeToLivePeriods } from '../consts';
 import { MqttDatasourceForm, defaultValues as defaultMqqt } from './datapoint/MqttDatasourceForm';
 import { WebDatasourceForm, defaultValues as defaultWeb } from './datapoint/WebDatasourceForm';
 import { Ttnv3DatasourceForm, defaultValues as defaultTtnv3 } from './datapoint/Ttnv3DatasourceForm';
@@ -74,7 +74,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
     },
     timeToLive: AvailableTimeToLivePeriods[0].value,
     pollinterval: AvailablePollIntervals[5].value,
-    datasourcetype: DatasourceType.mqtt,
+    datasourcetype: DatasourceType.ttnv3,
   };
 
   const {

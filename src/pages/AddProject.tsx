@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { ProjectForm } from 'forms/ProjectForm';
-import { upsertProject } from '../utils/api';
-import { goToProjects } from '../utils/navigation';
+import { upsertProject } from '../api';
+import { goToProjects } from '../navigation';
 
 interface Props {}
 export const AddProject: FC<Props> = () => {
