@@ -8,6 +8,7 @@ import {
   PollInterval,
   ProjectSettings,
   SubsystemSettings,
+  ResourceSettings,
 } from 'types';
 import { API_RESOURCES } from './consts';
 
@@ -141,3 +142,10 @@ export const confirmation = (sessionId: string): Promise<string> =>
 
 export const cancelled = (sessionId: string): Promise<string> =>
   request('_checkout/cancelled', 'POST', '{ "id": "' + sessionId + '"}', 500);
+
+// The Things Network
+export const getResource = (projectName: string, resourceName: string): Promise<ResourceSettings> =>
+  request(projectName + '/_resources/' + resourceName, 'GET', '', 0);
+
+export const upsertResource = (projectName: string, resource: ResourceSettings) =>
+  request(projectName + '/_resources/' + resource.name, 'PUT', JSON.stringify(resource), WAIT_AFTER_EXEC_MS);

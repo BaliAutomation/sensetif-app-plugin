@@ -34,3 +34,5 @@ export const goToEditDatapoint = (projectName: string, subsystemName: string, da
   goTo('edit_datapoint', { project: projectName, subsystem: subsystemName, datapoint: datapointName });
 
 export const goToPlans = () => goTo('plans');
+
+export const goToResources = (projectName: string) => goTo('resources', { project: projectName });

@@ -1,7 +1,8 @@
 export interface SensetifAppSettings {
-  customText?: string;
-  customCheckbox?: boolean;
   limits?: Limits;
+
+  ttnApiKey?: string;
+  isTtnApiKeySet?: boolean;
 }
 
 export interface ProjectSettings {
@@ -212,4 +213,16 @@ export interface Payment {
   currency: string;
   description: string;
   invoicelink: string;
+}
+
+// The Things Network
+export interface ResourceSettings {
+  name: string; // validate regexp:[a-z][A-Za-z0-9]*
+  type: DatasourceType;
+}
+export interface ThingsNetworkApplicationSettings extends ResourceSettings {
+  zone: string;
+  pollinterval: PollInterval;
+  application: string;
+  authorizationKey: string;
 }
