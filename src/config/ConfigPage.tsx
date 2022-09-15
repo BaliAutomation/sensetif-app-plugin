@@ -58,7 +58,7 @@ export const ConfigPageBody = ({ plugin }: Props) => {
             secureJsonData: state.isTtnApiKeySet
               ? undefined
               : {
-                  apiKey: state.ttnApiKey,
+                  ttnApiKey: state.ttnApiKey,
                 },
           })
         }

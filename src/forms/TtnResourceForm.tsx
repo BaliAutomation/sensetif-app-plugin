@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ThingsNetworkApplicationSettings } from '../types';
 import { Button, Field, Form, HorizontalGroup, Input, Select, InputControl, RadioButtonGroup } from '@grafana/ui';
@@ -10,7 +10,7 @@ interface Props {
   onCancel: () => void;
 }
 
-export const TtnResourceForm: FC<Props> = ({ ttn, onSubmit, onCancel }) => {
+export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   let ttnForm = useForm<ThingsNetworkApplicationSettings>({});
   return (
     <Form<ThingsNetworkApplicationSettings>
@@ -40,10 +40,15 @@ interface TtnProps extends UseFormReturn<ThingsNetworkApplicationSettings> {
   ttn?: ThingsNetworkApplicationSettings;
 }
 
-const TtnResource: FC<TtnProps> = ({ control, watch, formState: { errors } }) => {
+const TtnResource = ({ control, watch, formState: { errors } }: TtnProps) => {
   const zone = watch('zone');
   const application = watch('application');
   const authorizationKey = watch('authorizationKey');
+
+  type State = {
+    devices?: any[];
+  };
+  const [state, setState] = useState<State>();
 
   return (
     <>
@@ -114,17 +119,33 @@ const TtnResource: FC<TtnProps> = ({ control, watch, formState: { errors } }) =>
       </Field>
 
       {/* Fetch Devices */}
-      <Button type="button" variant={'secondary'} onClick={() => fetchDevices(zone, application)}>
+      <Button
+        type="button"
+        variant={'secondary'}
+        onClick={async () => {
+          const devices = await fetchDevices(zone, application);
+          setState({
+            devices: devices,
+          });
+        }}
+      >
         {'Fetch devices'}
       </Button>
+
+      <br></br>
+      <h1>devices::</h1>
+      <pre>{JSON.stringify(state, null, ' ')}</pre>
     </>
   );
 };
 
 const fetchDevices = async (zone: string, app_id: string) => {
-  const baseURL = '/eu1_thethings';
+  const baseURL = '/api/plugin-proxy/sensetif-app/eu1_thethings';
 
-  const devicesResponse = await fetch(`${baseURL}/api/v3/applications/${app_id}/devices`);
+  const devicesResponse = await fetch(`${baseURL}/api/v3/applications/${app_id}/devices`).then((r) => r.json());
 
-  console.log(devicesResponse.json());
+  console.log('fetched devices:');
+  console.log(devicesResponse);
+
+  return devicesResponse['end_devices'];
 };

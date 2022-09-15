@@ -64,10 +64,8 @@
   },
   "routes": [
     {
-      "path": "eu1_thethings",
-      "url": "https://eu1.cloud.thethings.network",
-      "reqSignedIn": false,
-      "reqRole": "viewer",
+      "path": "https/*",
+      "url": "https://{{ .SecureJsonData.ttnApiKey }}",
       "method": "GET",
       "headers": [
         {
@@ -77,7 +75,18 @@
       ]
     },
     {
-      "path": "nam_thethings",
+      "path": "eu1_thethings/*",
+      "url": "https://eu1.cloud.thethings.network",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Bearer {{ .SecureJsonData.ttnApiKey }}"
+        }
+      ]
+    },
+    {
+      "path": "nam_thethings/*",
       "url": "https://nam.cloud.thethings.network",
       "method": "GET",
       "headers": [
@@ -88,7 +97,7 @@
       ]
     },
     {
-      "path": "au1_thethings",
+      "path": "au1_thethings/*",
       "url": "https://au1.cloud.thethings.network",
       "method": "GET",
       "headers": [
