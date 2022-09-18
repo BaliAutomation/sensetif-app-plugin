@@ -61,51 +61,5 @@
     "grafanaDependency": ">=8.0.0",
     "grafanaVersion": "8.0.0",
     "plugins": []
-  },
-  "routes": [
-    {
-      "path": "https/*",
-      "url": "https://{{ .SecureJsonData.ttnApiKey }}",
-      "method": "GET",
-      "headers": [
-        {
-          "name": "Authorization",
-          "content": "Bearer {{ .SecureJsonData.ttnApiKey }}"
-        }
-      ]
-    },
-    {
-      "path": "eu1_thethings/*",
-      "url": "https://eu1.cloud.thethings.network",
-      "method": "GET",
-      "headers": [
-        {
-          "name": "Authorization",
-          "content": "Bearer {{ .SecureJsonData.ttnApiKey }}"
-        }
-      ]
-    },
-    {
-      "path": "nam_thethings/*",
-      "url": "https://nam.cloud.thethings.network",
-      "method": "GET",
-      "headers": [
-        {
-          "name": "Authorization",
-          "content": "Bearer {{ .SecureJsonData.ttnApiKey }}"
-        }
-      ]
-    },
-    {
-      "path": "au1_thethings/*",
-      "url": "https://au1.cloud.thethings.network",
-      "method": "GET",
-      "headers": [
-        {
-          "name": "Authorization",
-          "content": "Bearer {{ .SecureJsonData.ttnApiKey }}"
-        }
-      ]
-    }
-  ]
+  }
 }

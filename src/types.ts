@@ -3,6 +3,11 @@ export interface SensetifAppSettings {
 
   ttnApiKey?: string;
   isTtnApiKeySet?: boolean;
+
+  ttnHosts?: Array<{
+    host: string;
+    key: string;
+  }>;
 }
 
 export interface ProjectSettings {

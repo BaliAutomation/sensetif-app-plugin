@@ -2,7 +2,9 @@ import { AppPlugin, AppPluginMeta } from '@grafana/data';
 import { SensetifAppSettings } from './types';
 import { SensetifRootPage } from './SensetifRootPage';
 import { ConfigPageBody } from 'config/ConfigPage';
+import { SetupTtn } from 'config/SetupTtn';
 import { getLimits } from './utils/api';
+import { IconName } from '@grafana/ui';
 
 const appPlugin = new AppPlugin<SensetifAppSettings>();
 appPlugin.setRootPage(SensetifRootPage);
@@ -11,6 +13,12 @@ appPlugin.addConfigPage({
   icon: 'list-ul',
   body: ConfigPageBody,
   id: 'setup',
+});
+appPlugin.addConfigPage({
+  title: 'Setup TTN hosts',
+  icon: 'apps' as IconName,
+  body: SetupTtn,
+  id: 'setup-ttn',
 });
 
 const existingInitFn = appPlugin.init;
