@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ThingsNetworkApplicationSettings } from '../types';
 import {
@@ -10,12 +10,12 @@ import {
   Select,
   InputControl,
   RadioButtonGroup,
-  VerticalGroup,
-  Card,
-  useStyles2,
+  Icon,
+  Checkbox,
+  TagList,
 } from '@grafana/ui';
 import { AvailablePollIntervals } from 'utils/consts';
-import { GrafanaTheme2 } from '@grafana/data';
+import { Table } from 'components/table/Table';
 import { css } from '@emotion/css';
 
 interface Props {
@@ -26,29 +26,25 @@ interface Props {
 
 type state = {
   devices: ttnDevice[];
+
   zone?: string;
   app?: string;
   token?: string;
-  selected_device_id?: string;
-  selected_device_messages?: msgResult[];
-};
 
-const getStyles = (theme: GrafanaTheme2) => ({
-  container: css`
-    max-width: ${theme.breakpoints.values.sm}px;
-  `,
-});
+  selected?: {
+    device: ttnDevice;
+    msg: msgResult;
+  };
+};
 
 export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   let ttnForm = useForm<ThingsNetworkApplicationSettings>({});
 
-  const styles = useStyles2(getStyles);
-  let [state, setState] = useState<state>({
-    devices: [],
-  });
+  let [state, setState] = useState<state>({ devices: [] });
+  let [payloads, setPayloads] = useState<tableData>({});
 
   return (
-    <VerticalGroup>
+    <>
       <Form<ThingsNetworkApplicationSettings>
         onSubmit={onSubmit}
         maxWidth={1024}
@@ -62,8 +58,10 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
               <TtnResource
                 ttn={ttn}
                 {...ttnForm}
-                onFetched={async (token, app, zone, devices) => {
+                onSubmit={async (token, app, zone) => {
+                  const devices = await fetchDevices(token, zone, app);
                   setState({
+                    ...state,
                     token: token,
                     app: app,
                     zone: zone,
@@ -76,37 +74,246 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
         }}
       </Form>
 
-      {/* devices */}
-      <>
-        <HorizontalGroup>
-          {state.devices?.map((d) => (
-            <Card
-              isSelected={d.ids.device_id === state.selected_device_id}
-              className={styles.container}
-              key={d.ids.device_id}
-              onClick={async () => {
-                console.log(`clicked: ${d}`);
-                const messages = await fetchUplinkMessage(state.token!, state!.zone!, state!.app!, d.ids.device_id);
+      {state.devices.length !== 0 && (
+        <DevicesList
+          zone={state.zone!}
+          app={state.app!}
+          token={state.token!}
+          devices={state.devices}
+          onPayloadLoaded={(devicesPayloads) => {
+            setPayloads(devicesPayloads);
+          }}
+          onSelect={(device, msg) => {
+            console.log(`onSelect callback`, device, msg);
+            setState({
+              ...state,
+              selected: {
+                device: device,
+                msg: msg,
+              },
+            });
+          }}
+        />
+      )}
+
+      {state.selected && (
+        <>
+          <TemplateCreator
+            selectedDeviceId={state.selected.device.ids.device_id}
+            selectedPayload={state.selected?.msg?.uplink_message?.decoded_payload}
+            devicesPayloads={payloads}
+          />
+          {/* matching devices */}
+        </>
+      )}
+    </>
+  );
+};
+
+const TemplateCreator = ({
+  selectedDeviceId,
+  selectedPayload,
+  devicesPayloads,
+}: {
+  selectedDeviceId: string;
+  selectedPayload: any;
+  devicesPayloads: tableData;
+}) => {
+  type structure = {
+    [name: string]: {
+      supported: boolean;
+      type: string;
+      value: any;
+      checked: boolean;
+    };
+  };
+
+  let [state, setState] = useState<structure>({});
+
+  useEffect(() => {
+    if (!selectedPayload) {
+      setState({});
+      return;
+    }
+    let result: structure = {};
+
+    Object.entries(selectedPayload).forEach((el) => {
+      const [name, value] = el;
+      const valueType = typeof value;
+
+      result[name] = {
+        checked: false,
+        value: value,
+        type: valueType,
+        supported: valueType !== 'object',
+      };
+    });
+
+    setState(result);
+  }, [selectedPayload]);
+
+  console.log('template created: dev payloads', devicesPayloads);
+  return (
+    <>
+      <h3>{`payload from device: ${selectedDeviceId}:`}</h3>
+      <pre>{JSON.stringify(selectedPayload)}</pre>
+
+      {/* select fields */}
+      <ul>
+        {Object.entries(state).map(([name, v]) => (
+          <li key={name}>
+            <Checkbox
+              label={`${name} ${v.supported ? '' : ' - objects are not supported'}`}
+              value={v.checked}
+              onChange={() => {
                 setState({
                   ...state,
-                  selected_device_id: d.ids.device_id,
-                  selected_device_messages: messages!,
+                  [name]: {
+                    ...state[name],
+                    checked: !state[name].checked,
+                  },
                 });
               }}
-            >
-              <Card.Description>{d.ids.application_ids.application_id}</Card.Description>
-              <Card.Heading>{d.ids.device_id}</Card.Heading>
-            </Card>
-          ))}
-        </HorizontalGroup>
-      </>
+              disabled={!v.supported}
+            />
+          </li>
+        ))}
+      </ul>
 
-      {/* messages       */}
-      <h1>{state.selected_device_id} messages payloads:</h1>
-      {state.selected_device_messages?.map((msg, id) => (
-        <pre key={id}>{JSON.stringify(msg.uplink_message.decoded_payload, null, '')}</pre>
-      ))}
-    </VerticalGroup>
+      {/* matching devices */}
+      <>
+        <h2>Matching devices::</h2>
+        {devicesPayloads && state && (
+          <TagList
+            className={css`
+              justify-content: left;
+            `}
+            tags={Object.entries(devicesPayloads)
+              .filter((d) => {
+                const [_, msg] = d;
+                const dPayload = msg.msgResult?.uplink_message?.decoded_payload;
+
+                if (!dPayload) {
+                  return false;
+                }
+
+                let selectedProps: string[] = [];
+                Object.entries(state).forEach(([name, val]) => {
+                  if (val.checked) {
+                    selectedProps.push(name);
+                  }
+                });
+
+                console.log('selected props', selectedProps);
+
+                return contains(dPayload, selectedProps);
+              })
+              .map(([name, _]) => name)}
+          />
+        )}
+      </>
+    </>
+  );
+};
+
+const contains = (obj: any, props: string[]) => {
+  for (let prop of props) {
+    if (!obj[prop] || typeof obj[prop] === 'object') {
+      return false;
+    }
+  }
+  return true;
+};
+
+type tableData = {
+  [id: string]: msgLoadingValue;
+};
+const DevicesList = ({
+  app,
+  zone,
+  token,
+  devices,
+  onSelect,
+  onPayloadLoaded,
+}: {
+  app: string;
+  zone: string;
+  token: string;
+  devices: ttnDevice[];
+  onSelect?: (device: ttnDevice, msg: msgResult) => void;
+  onPayloadLoaded?: (devicesPayloads: tableData) => void;
+}) => {
+  const initialPayload: tableData = {};
+
+  for (let d of devices) {
+    initialPayload[d.ids.device_id] = { loading: true };
+  }
+
+  const [payloads, setPayloads] = useState<tableData>(initialPayload);
+
+  useEffect(() => {
+    const ip: tableData = {};
+
+    for (let d of devices) {
+      ip[d.ids.device_id] = { loading: true };
+    }
+    setPayloads(ip);
+
+    let s: tableData = {};
+
+    let queries = [];
+    for (let device of devices) {
+      queries.push(
+        fetchUplinkMessage(token, zone, app, device.ids.device_id).then((msgs) => {
+          s[device.ids.device_id] = { msgResult: msgs[0], loading: false, error: false };
+          // onPayloadLoaded && onPayloadLoaded(device.ids.device_id, msgs[0]);
+        })
+      );
+    }
+
+    Promise.all(queries).then((r) => {
+      setPayloads(s);
+    });
+  }, [token, app, zone, devices]);
+
+  onPayloadLoaded && onPayloadLoaded(payloads);
+
+  return (
+    <Table<ttnDeviceRow>
+      onRowClick={(row) => {
+        console.log(`clicked`, row);
+        const device = devices.find((d) => d.ids.device_id === row['ids.device_id'])!;
+        onSelect && onSelect(device, payloads[device.ids.device_id].msgResult!);
+      }}
+      frame={devices.map((d) => {
+        const createdAt = new Date(d.created_at);
+        const updatedAt = new Date(d.updated_at);
+
+        return {
+          'ids.device_id': d.ids.device_id,
+          'ids.application_ids.application_id': d.ids.application_ids.application_id,
+          'ids.dev_eui': d.ids.dev_eui,
+          created_at: `${createdAt.toLocaleDateString()} ${createdAt.toLocaleTimeString()}`,
+          updated_at: `${updatedAt.toLocaleDateString()} ${updatedAt.toLocaleTimeString()}`,
+          payload: payloads[d.ids.device_id],
+        };
+      })}
+      columns={[
+        {
+          id: 'ids.device_id',
+          displayValue: 'Device',
+        },
+        { id: 'ids.application_ids.application_id', displayValue: 'Application' },
+        { id: 'created_at', displayValue: 'Created' },
+        { id: 'updated_at', displayValue: 'Updated' },
+        {
+          id: 'payload',
+          displayValue: 'Status',
+          renderCell: PayloadCell,
+        },
+      ]}
+      hiddenColumns={[]}
+    />
   );
 };
 
@@ -121,6 +328,17 @@ type ttnDevice = {
   };
   created_at: string;
   updated_at: string;
+};
+
+type ttnDeviceRow = {
+  'ids.device_id': string;
+  'ids.application_ids.application_id': string;
+  'ids.dev_eui': string;
+  created_at: string;
+  updated_at: string;
+
+  // payload: any;
+  payload?: msgLoadingValue;
 };
 
 type msgResult = {
@@ -153,12 +371,40 @@ type msgResult = {
   };
 };
 
+type msgLoadingValue = { msgResult?: msgResult; loading?: boolean; error?: boolean };
+
+const PayloadCell = (props: { value: msgLoadingValue }) => {
+  if (props.value.loading) {
+    return (
+      <>
+        <Icon name="fa fa-spinner" style={{ color: 'white' }} />
+        <span> Loading payload</span>
+      </>
+    );
+  }
+
+  if (props.value.error) {
+    return (
+      <>
+        <Icon name="exclamation-triangle" style={{ color: 'yellow' }} />
+        <span> Failed to load payload</span>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Icon name="check-circle" style={{ color: 'green' }} />
+    </>
+  );
+};
+
 interface TtnProps extends UseFormReturn<ThingsNetworkApplicationSettings> {
   ttn?: ThingsNetworkApplicationSettings;
-  onFetched: (token: string, app: string, zone: string, devices: ttnDevice[]) => void;
+  onSubmit: (token: string, app: string, zone: string) => void;
 }
 
-const TtnResource = ({ onFetched, control, watch, formState: { errors } }: TtnProps) => {
+const TtnResource = ({ onSubmit, control, watch, formState: { errors } }: TtnProps) => {
   const zone = watch('zone');
   const application = watch('application');
   const authorizationKey = watch('authorizationKey');
@@ -241,8 +487,7 @@ const TtnResource = ({ onFetched, control, watch, formState: { errors } }: TtnPr
           type="button"
           variant={'secondary'}
           onClick={async () => {
-            const devices = await fetchDevices(authorizationKey, zone, application);
-            onFetched(authorizationKey, application, zone, devices);
+            onSubmit(authorizationKey, application, zone);
           }}
         >
           {'Fetch devices'}
@@ -262,7 +507,10 @@ const fetchDevices = async (token: string, zone: string, app_id: string): Promis
   })
     .then((r) => r.json())
     .then((r) => r['end_devices'])
-    .catch((error) => console.log('error', error));
+    .catch((error) => {
+      console.log('failed to fetch devices', error);
+      throw new Error('failed to fetch devices');
+    });
 };
 
 const fetchUplinkMessage = async (token: string, zone: string, app_id: string, device_id: string) => {
@@ -273,9 +521,20 @@ const fetchUplinkMessage = async (token: string, zone: string, app_id: string, d
       Authorization: `Bearer ${token}`,
     },
   })
-    .then((response) => response.text())
+    .then((response) => {
+      if (!response.ok) {
+        console.log(
+          `failed to fetch msg of device: ${device_id}; status: ${response.status}; body: ${response.text()}`
+        );
+        throw new Error(`failed to fetch msg of device: ${device_id}`);
+      }
+      return response.text();
+    })
     .then((str) => str.split(/\r?\n/))
     .then((strArr) => strArr.filter((r) => r !== ''))
     .then((strArr) => strArr.map((el) => JSON.parse(el)['result'] as msgResult))
-    .catch((error) => console.log('error', error));
+    .catch((error) => {
+      console.log(`failed to parse msg response of device: ${device_id}`, error);
+      throw new Error(`failed to parse response of device: ${device_id}`);
+    });
 };

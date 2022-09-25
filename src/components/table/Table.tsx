@@ -9,10 +9,12 @@ interface Props<T> {
   columns: Array<{
     id: keyof T;
     displayValue: string;
+    renderCell?: (props: any) => JSX.Element;
   }>;
+  onRowClick?: (t: T) => void;
   hiddenColumns?: Array<keyof T>;
 }
-export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props<T>) => {
+export const Table = <T extends Object>({ frame, columns, hiddenColumns, onRowClick }: Props<T>) => {
   const tableStyles = useStyles2(getTableStyles);
 
   const memoizedData = useMemo(() => {
@@ -34,7 +36,7 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props
             return frame[i][c.id];
           },
 
-          Cell: CellComponent,
+          Cell: c.renderCell ? c.renderCell : CellComponent,
         } as Column<any>)
     );
   }, [frame, columns]);
@@ -133,7 +135,14 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns }: Props
               prepareRow(row);
               return (
                 // Apply the row props
-                <tr {...row.getRowProps()} key={index}>
+                <tr
+                  {...row.getRowProps()}
+                  onClick={() => {
+                    // console.log(row)
+                    onRowClick?.(row.values);
+                  }}
+                  key={index}
+                >
                   {
                     // Loop over the rows cells
                     //@ts-ignore
