@@ -14,11 +14,16 @@ export const HeaderRow = ({ headerGroups }: { headerGroups: Array<HeaderGroup<an
               // Loop over the headers in each row
               headerGroup.headers.map((column, idx) => (
                 // Apply the header cell props
-                <th {...column.getHeaderProps()} key={idx}>
+                //@ts-ignore
+                <th {...column.getHeaderProps(column.getSortByToggleProps())} key={idx}>
                   {
                     // Render the header
                     column.render('Header')
                   }
+                  <span>
+                    {/* @ts-ignore */}
+                    {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                  </span>
                   {
                     //@ts-ignore
                     //   column.canFilter && column.render('Filter')

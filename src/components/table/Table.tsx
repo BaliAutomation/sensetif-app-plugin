@@ -9,12 +9,16 @@ interface Props<T> {
   columns: Array<{
     id: keyof T;
     displayValue: string;
+    sortType?: string;
     renderCell?: (props: any) => JSX.Element;
   }>;
   onRowClick?: (t: T) => void;
   hiddenColumns?: Array<keyof T>;
+  pageSize?: number;
+  sortBy?: Array<{ id: string; desc: boolean }>;
 }
-export const Table = <T extends Object>({ frame, columns, hiddenColumns, onRowClick }: Props<T>) => {
+
+export const Table = <T extends Object>({ frame, columns, hiddenColumns, pageSize, sortBy, onRowClick }: Props<T>) => {
   const tableStyles = useStyles2(getTableStyles);
 
   const memoizedData = useMemo(() => {
@@ -35,7 +39,7 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns, onRowCl
           accessor: (_: any, i: number) => {
             return frame[i][c.id];
           },
-
+          sortType: c.sortType ?? 'basic',
           Cell: c.renderCell ? c.renderCell : CellComponent,
         } as Column<any>)
     );
@@ -48,11 +52,12 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns, onRowCl
       autoResetFilters: false,
       autoResetHiddenColumns: false,
       initialState: {
-        pageSize: 50,
+        pageSize: pageSize ?? 50,
         hiddenColumns: hiddenColumns?.map((k) => k.toString()),
+        sortBy: sortBy ?? [],
       },
     }),
-    [memoizedColumns, memoizedData, hiddenColumns]
+    [sortBy, pageSize, memoizedColumns, memoizedData, hiddenColumns]
   );
 
   const tableInstance = useTable({ ...options }, useFilters, useSortBy, usePagination);
@@ -75,7 +80,7 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns, onRowCl
     gotoPage,
 
     //@ts-ignore
-    state: { pageIndex, pageSize },
+    state: { pageIndex },
 
     allColumns,
     visibleColumns,
