@@ -41,12 +41,8 @@ export type msgResult = {
   };
 };
 
-export type tableData = {
-  [id: string]: msgLoadingValue;
-};
-
-export type msgLoadingValue = {
-  msgResult?: msgResult;
-  loading?: boolean;
-  error?: boolean;
+export type loadingValue<T> = {
+  isLoading: boolean;
+  error?: Error;
+  value?: T;
 };

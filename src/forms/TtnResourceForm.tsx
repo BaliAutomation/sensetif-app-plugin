@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ThingsNetworkApplicationSettings } from '../types';
 import { Button, Field, Form, HorizontalGroup, Input, Select, InputControl, RadioButtonGroup } from '@grafana/ui';
 import { AvailablePollIntervals } from 'utils/consts';
 
 import { TemplateCreator } from 'forms/ttn_template/Creator';
-import { DevicesList } from 'forms/ttn_template/DevicesList';
-import { tableData, ttnDevice, msgResult } from 'forms/ttn_template/types';
+import { DevicesTable } from 'forms/ttn_template/DevicesTable';
+import { ttnDevice, msgResult, loadingValue } from 'forms/ttn_template/types';
 
 interface Props {
   ttn?: ThingsNetworkApplicationSettings;
@@ -14,24 +14,56 @@ interface Props {
   onCancel: () => void;
 }
 
-type state = {
-  devices: ttnDevice[];
-
-  zone?: string;
-  app?: string;
-  token?: string;
-
-  selected?: {
-    device: ttnDevice;
-    msg: msgResult;
-  };
+type formValues = {
+  zone: string;
+  app: string;
+  token: string;
 };
+
+type selectedDeviceId = string;
+type devices = ttnDevice[];
+type devicesMsg = { [id: string]: loadingValue<msgResult> };
 
 export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   let ttnForm = useForm<ThingsNetworkApplicationSettings>({});
 
-  let [state, setState] = useState<state>({ devices: [] });
-  let [payloads, setPayloads] = useState<tableData>({});
+  let [formValues, setFormValues] = useState<formValues>();
+  let [devices, setDevices] = useState<devices>([]);
+  let [selectedDevice, setSelectedDevice] = useState<selectedDeviceId>();
+  let [payloads, setPayloads] = useState<devicesMsg>({});
+
+  useEffect(() => {
+    if (!formValues) {
+      return;
+    }
+
+    const { token, zone, app } = formValues;
+    fetchDevices(token, zone, app).then((d) => {
+      setDevices(d);
+    });
+  }, [formValues]);
+
+  useEffect(() => {
+    if (!formValues) {
+      return;
+    }
+
+    const { token, zone, app } = formValues;
+    for (let device of devices) {
+      setPayloads((p) => ({
+        ...p,
+        [device.ids.device_id]: { isLoading: true },
+      }));
+      fetchUplinkMessage(token, zone, app, device.ids.device_id).then((r) => {
+        if (r.length > 1) {
+          setPayloads((p) => ({
+            ...p,
+            [device.ids.device_id]: { isLoading: false, value: r[0] },
+          }));
+        }
+      });
+    }
+  }, [formValues, devices]);
 
   return (
     <>
@@ -49,13 +81,10 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
                 ttn={ttn}
                 {...ttnForm}
                 onSubmit={async (token, app, zone) => {
-                  const devices = await fetchDevices(token, zone, app);
-                  setState({
-                    ...state,
-                    token: token,
+                  setFormValues({
                     app: app,
                     zone: zone,
-                    devices: devices,
+                    token: token,
                   });
                 }}
               />
@@ -64,37 +93,30 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
         }}
       </Form>
 
-      {state.devices.length !== 0 && (
-        <DevicesList
-          zone={state.zone!}
-          app={state.app!}
-          token={state.token!}
-          devices={state.devices}
-          onPayloadLoaded={(devicesPayloads) => {
-            setPayloads(devicesPayloads);
-          }}
-          onSelect={(device, msg) => {
-            console.log(`onSelect callback`, device, msg);
-            setState({
-              ...state,
-              selected: {
-                device: device,
-                msg: msg,
-              },
-            });
+      {devices.length !== 0 && formValues && (
+        <DevicesTable
+          devices={devices.map((d) => {
+            return {
+              device: d,
+              msg: payloads[d.ids.device_id],
+            };
+          })}
+          onSelect={(deviceId, _) => {
+            setSelectedDevice(deviceId);
           }}
         />
       )}
 
-      {state.selected && (
+      {selectedDevice && (
         <>
+          <h3>{`payload from device: ${selectedDevice}:`}</h3>
+          <pre>{JSON.stringify(payloads[selectedDevice].value?.uplink_message?.decoded_payload)}</pre>
+
           <TemplateCreator
-            selectedDeviceId={state.selected.device.ids.device_id}
-            selectedPayload={state.selected?.msg?.uplink_message?.decoded_payload}
-            // devicesPayloads={payloads}
+            selectedPayload={payloads[selectedDevice].value?.uplink_message?.decoded_payload}
             devicesPayloads={Object.entries(payloads).map(([device, msg]) => ({
               name: device,
-              payload: msg?.msgResult?.uplink_message?.decoded_payload,
+              payload: msg.value?.uplink_message?.decoded_payload,
             }))}
           />
         </>
@@ -211,7 +233,33 @@ const fetchDevices = async (token: string, zone: string, app_id: string): Promis
     .then((r) => r.json())
     .then((r) => r['end_devices'])
     .catch((error) => {
-      console.log('failed to fetch devices', error);
+      console.warn('failed to fetch devices', error);
       throw new Error('failed to fetch devices');
+    });
+};
+
+const fetchUplinkMessage = async (token: string, zone: string, app_id: string, device_id: string) => {
+  const baseURL = `https://${zone}.cloud.thethings.network`;
+
+  return fetch(`${baseURL}/api/v3/as/applications/${app_id}/devices/${device_id}/packages/storage/uplink_message`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.warn(
+          `failed to fetch msg of device: ${device_id}; status: ${response.status}; body: ${response.text()}`
+        );
+        throw new Error(`failed to fetch msg of device: ${device_id}`);
+      }
+      return response.text();
+    })
+    .then((str) => str.split(/\r?\n/))
+    .then((strArr) => strArr.filter((r) => r !== ''))
+    .then((strArr) => strArr.map((el) => JSON.parse(el)['result'] as msgResult))
+    .catch((error) => {
+      console.log(`failed to parse msg response of device: ${device_id}`, error);
+      throw new Error(`failed to parse response of device: ${device_id}`);
     });
 };
