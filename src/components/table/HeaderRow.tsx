@@ -7,23 +7,25 @@ export const HeaderRow = ({ headerGroups }: { headerGroups: Array<HeaderGroup<an
     <thead>
       {
         // Loop over the header rows
-        headerGroups.map((headerGroup, idx) => (
+        headerGroups.map((headerGroup) => (
           // Apply the header row props
-          <tr {...headerGroup.getHeaderGroupProps()} key={idx}>
+          <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
             {
               // Loop over the headers in each row
-              headerGroup.headers.map((column, idx) => (
+              headerGroup.headers.map((column) => (
                 // Apply the header cell props
                 //@ts-ignore
-                <th {...column.getHeaderProps(column.getSortByToggleProps())} key={idx}>
-                  {
-                    // Render the header
-                    column.render('Header')
-                  }
-                  <span>
-                    {/* @ts-ignore */}
-                    {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
-                  </span>
+                <th {...column.getHeaderProps(column.getSortByToggleProps())} key={column.id}>
+                  <div>
+                    {
+                      // Render the header
+                      column.render('Header')
+                    }
+                    <span>
+                      {/* @ts-ignore */}
+                      {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                    </span>
+                  </div>
                   {
                     //@ts-ignore
                     //   column.canFilter && column.render('Filter')
@@ -47,6 +49,10 @@ const SimpleColumnFilter = ({
 
   return (
     <FilterInput
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       value={filterValue || ''}
       // onChange={useAsyncDebounce(setFilter, 200)}
       onChange={setFilter}
