@@ -51,6 +51,7 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns, pageSiz
       data: memoizedData,
       autoResetFilters: false,
       autoResetHiddenColumns: false,
+      autoResetPage: false,
       initialState: {
         pageSize: pageSize ?? 50,
         hiddenColumns: hiddenColumns?.map((k) => k.toString()),
