@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Checkbox, TagList } from '@grafana/ui';
-import { css } from '@emotion/css';
-
-type devicePayload = {
-  name: string;
-  payload: any;
-};
+import { Checkbox } from '@grafana/ui';
 
 type template = {
   [name: string]: { checked: boolean };
@@ -13,18 +7,29 @@ type template = {
 
 export const TemplateCreator = ({
   selectedPayload,
-  devicesPayloads,
+  onChange,
 }: {
   selectedPayload: any;
-  devicesPayloads: devicePayload[];
+  onChange: (properties: string[]) => void;
 }) => {
   let [template, setTemplate] = useState<template>();
 
-  //   // refresh on payload change
+  // refresh on payload change
   useEffect(() => {
-    console.log('[Template Creator] useEffect');
     setTemplate({});
   }, [selectedPayload]);
+
+  const onSelect = (name: string) => {
+    setTemplate((t) => {
+      let newTemplate = {
+        ...t,
+        [name]: { checked: !t?.[name]?.checked },
+      };
+      const selectedProps = Object.keys(newTemplate ?? {}).filter((k) => newTemplate?.[k].checked);
+      onChange(selectedProps);
+      return newTemplate;
+    });
+  };
 
   if (!selectedPayload) {
     return <>empty payload</>;
@@ -39,86 +44,16 @@ export const TemplateCreator = ({
             <Checkbox
               label={`${name} ${isSupported(v) ? '' : ' - objects are not supported'}`}
               value={template?.[name]?.checked}
-              onChange={(p) => {
-                // console.log(' [onChange]', p);
-                // let [_selectedFields] = [selectedFields];
-                // // @ts-ignore
-                // if (!p.target.checked) {
-                //   console.log();
-                //   _selectedFields.push(name);
-                // } else {
-                //   _selectedFields.splice(
-                //     _selectedFields.findIndex((el) => el === name),
-                //     1
-                //   );
-                // }
-
-                // setSelectedFields(_selectedFields);
-                setTemplate((t) => ({
-                  ...t,
-                  [name]: { checked: !t?.[name]?.checked },
-                }));
-              }}
+              onChange={() => onSelect(name)}
               disabled={!isSupported(v)}
             />
           </li>
         ))}
       </ul>
-
-      {/* matching devices */}
-      <>
-        <h2>Matching devices::</h2>
-        {devicesPayloads && template && (
-          <MatchingDevices
-            devicesPayloads={devicesPayloads}
-            selectedProps={Object.keys(template).filter((k) => template?.[k].checked)}
-          />
-        )}
-      </>
     </>
   );
 };
 
 const isSupported = (val: any): boolean => {
   return typeof val !== 'object';
-};
-
-const MatchingDevices = ({
-  devicesPayloads,
-  selectedProps,
-}: {
-  devicesPayloads: devicePayload[];
-  selectedProps: string[];
-}) => {
-  const deviceNames = devicesPayloads.filter((p) => filterPayload(p.payload, selectedProps)).map((p) => p.name);
-
-  return (
-    <TagList
-      tags={deviceNames}
-      className={css`
-        justify-content: left;
-      `}
-    />
-  );
-};
-
-const filterPayload = (payload: any, fields: string[]): boolean => {
-  if (payload === undefined || payload === null) {
-    return false;
-  }
-
-  for (let field of fields) {
-    if (payload[field] === null) {
-      return false;
-    }
-    if (payload[field] === undefined) {
-      return false;
-    }
-
-    if (typeof payload[field] === 'object') {
-      return false;
-    }
-  }
-
-  return true;
 };

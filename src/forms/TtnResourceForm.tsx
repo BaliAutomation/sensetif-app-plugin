@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ThingsNetworkApplicationSettings } from '../types';
-import { Button, Field, Form, HorizontalGroup, Input, Select, InputControl, RadioButtonGroup } from '@grafana/ui';
+import {
+  Button,
+  Field,
+  Form,
+  HorizontalGroup,
+  Input,
+  Select,
+  InputControl,
+  RadioButtonGroup,
+  TagList,
+} from '@grafana/ui';
 import { AvailablePollIntervals } from 'utils/consts';
 
 import { TemplateCreator } from 'forms/ttn_template/Creator';
 import { DevicesTable } from 'forms/ttn_template/DevicesTable';
+import { ConfirmationModal } from 'forms/ttn_template/ConfirmationModal';
 import { ttnDevice, msgResult, loadingValue } from 'forms/ttn_template/types';
-
+import { css } from '@emotion/css';
 interface Props {
   ttn?: ThingsNetworkApplicationSettings;
   onSubmit: (data: ThingsNetworkApplicationSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
@@ -31,6 +42,11 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   let [devices, setDevices] = useState<devices>([]);
   let [selectedDevice, setSelectedDevice] = useState<selectedDeviceId>();
   let [payloads, setPayloads] = useState<devicesMsg>({});
+
+  let [selectedDatapoints, setSelectedDatapoints] = useState<string[]>([]);
+  let [matchingDevices, setMatchingDevices] = useState<string[]>([]);
+
+  let [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (!formValues) {
@@ -113,17 +129,73 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
           <pre>{JSON.stringify(payloads[selectedDevice].value?.uplink_message?.decoded_payload)}</pre>
 
           <TemplateCreator
+            onChange={(fields) => {
+              const devicesPayloads = Object.entries(payloads).map(([device, msg]) => ({
+                name: device,
+                payload: msg.value?.uplink_message?.decoded_payload,
+              }));
+
+              const deviceNames = devicesPayloads.filter((p) => filterPayload(p.payload, fields)).map((p) => p.name);
+              setSelectedDatapoints(fields);
+              setMatchingDevices(deviceNames);
+            }}
             selectedPayload={payloads[selectedDevice].value?.uplink_message?.decoded_payload}
-            devicesPayloads={Object.entries(payloads).map(([device, msg]) => ({
-              name: device,
-              payload: msg.value?.uplink_message?.decoded_payload,
-            }))}
+          />
+          <br />
+          <Button
+            variant="primary"
+            disabled={matchingDevices.length === 0}
+            className={css`
+              justify-content: left;
+            `}
+            onClick={() => {
+              setShowModal(true);
+            }}
+          >
+            Import
+          </Button>
+          <br />
+          <br />
+          <TagList
+            tags={matchingDevices}
+            className={css`
+              justify-content: left;
+            `}
+          />
+
+          <ConfirmationModal
+            isOpen={showModal}
+            onDismiss={() => setShowModal(false)}
+            devices={matchingDevices}
+            datapoints={selectedDatapoints}
           />
         </>
       )}
     </>
   );
 };
+
+const filterPayload = (payload: any, fields: string[]): boolean => {
+  if (payload === undefined || payload === null) {
+    return false;
+  }
+
+  for (let field of fields) {
+    if (payload[field] === null) {
+      return false;
+    }
+    if (payload[field] === undefined) {
+      return false;
+    }
+
+    if (typeof payload[field] === 'object') {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 interface TtnProps extends UseFormReturn<ThingsNetworkApplicationSettings> {
   ttn?: ThingsNetworkApplicationSettings;
   onSubmit: (token: string, app: string, zone: string) => void;
