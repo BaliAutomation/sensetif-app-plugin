@@ -1,7 +1,7 @@
 {
   "name": "sensetif-app-plugin",
-  "version": "1.0.0",
-  "description": "Sensetiff",
+  "version": "1.0.1",
+  "description": "Sensetif",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
@@ -10,7 +10,7 @@
     "sign": "grafana-toolkit plugin:sign",
     "start": "yarn watch"
   },
-  "author": "Grafana Labs",
+  "author": "Sensetif",
   "license": "Apache-2.0",
   "devDependencies": {
     "@grafana/data": "8.5.0",
