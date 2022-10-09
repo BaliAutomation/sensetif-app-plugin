@@ -7,11 +7,13 @@ export const ConfirmationModal = ({
   devices,
   isOpen,
   onDismiss,
+  onConfirm,
 }: {
   datapoints: string[];
   devices: string[];
   isOpen: boolean;
   onDismiss: () => void;
+  onConfirm: () => void;
 }) => {
   return (
     <ConfirmModal
@@ -42,9 +44,7 @@ export const ConfirmationModal = ({
       dismissText={'Cancel'}
       // alternativeText={'Import'}
       // icon={icon}
-      onConfirm={() => {
-        alert('done');
-      }}
+      onConfirm={onConfirm}
       onDismiss={onDismiss}
       // onAlternative={() => {alert('done')}}
     />

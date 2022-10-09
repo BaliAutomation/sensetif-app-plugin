@@ -17,7 +17,7 @@ export interface ProjectSettings {
   country: string; // country list?
   timezone: string; // "UTC" or {continent}/{city}, ex Europe/Stockholm
   geolocation: string; // geo coordinates
-  subsystems: SubsystemSettings[];
+  subsystems?: SubsystemSettings[];
 }
 
 export interface SubsystemSettings {
@@ -25,7 +25,7 @@ export interface SubsystemSettings {
   name: string; // validate regexp:[a-z][A-Za-z0-9_]*
   title: string; // allow all characters
   locallocation: string; // allow all characters
-  datapoints: DatapointSettings[];
+  datapoints?: DatapointSettings[];
 }
 
 export enum DatasourceType {
