@@ -173,7 +173,7 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
             datapoints={selectedDatapoints}
             onDismiss={() => setShowModal(false)}
             onConfirm={() => {
-              setShowProgress(true)
+              setShowProgress(true);
               const devicesToImport = devices.filter((d) => matchingDevices.includes(d.ids.device_id));
               const geolocation = findFirstGeolocation(payloads) ?? '';
               const fPort = findFirstFport(payloads) ?? -1;
@@ -182,11 +182,7 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
             }}
           />
 
-          {
-            showProgress && <TasksProgress tasks={[
-              
-            ]} />
-          }
+          {showProgress && <TasksProgress tasks={[]} />}
         </>
       )}
     </>
@@ -221,8 +217,6 @@ const importDevices = async (
   datapoints: string[],
   geolocation: string,
   fPort: number
-
-
 ) => {
   const projectName = formValues.app;
   await upsertProject({
