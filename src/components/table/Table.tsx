@@ -12,13 +12,22 @@ interface Props<T> {
     sortType?: string;
     renderCell?: (props: any) => JSX.Element;
   }>;
-  onRowClick?: (t: T) => void;
+  onRowClick?: (rowID: number, t: T) => void;
   hiddenColumns?: Array<keyof T>;
   pageSize?: number;
   sortBy?: Array<{ id: string; desc: boolean }>;
+  selectedRowIDs?: number[];
 }
 
-export const Table = <T extends Object>({ frame, columns, hiddenColumns, pageSize, sortBy, onRowClick }: Props<T>) => {
+export const Table = <T extends Object>({
+  frame,
+  columns,
+  hiddenColumns,
+  selectedRowIDs,
+  pageSize,
+  sortBy,
+  onRowClick,
+}: Props<T>) => {
   const tableStyles = useStyles2(getTableStyles);
 
   const memoizedData = useMemo(() => {
@@ -144,9 +153,9 @@ export const Table = <T extends Object>({ frame, columns, hiddenColumns, pageSiz
                 <tr
                   {...row.getRowProps()}
                   onClick={() => {
-                    // console.log(row)
-                    onRowClick?.(row.values);
+                    onRowClick?.(row.id, row.values);
                   }}
+                  style={selectedRowIDs?.includes(row.id) ? { outline: 'rgb(110, 159, 255) solid 2px' } : {}}
                   key={index}
                 >
                   {

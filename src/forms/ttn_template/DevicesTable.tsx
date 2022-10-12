@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Icon } from '@grafana/ui';
 
 import { Table } from 'components/table/Table';
@@ -15,6 +15,7 @@ export const DevicesTable = ({
   devices: devicesTableData[];
   onSelect?: (device_id: string, msg: loadingValue<msgResult>) => void;
 }) => {
+  const [selectedRow, setSelectedRow] = useState<number>();
   return (
     <Table<ttnDeviceRow>
       pageSize={5}
@@ -24,8 +25,9 @@ export const DevicesTable = ({
           desc: true,
         },
       ]}
-      onRowClick={(row) => {
-        onSelect && onSelect(row['ids.device_id'], row.payload);
+      onRowClick={(id, values) => {
+        setSelectedRow(id);
+        onSelect && onSelect(values['ids.device_id'], values.payload);
       }}
       frame={devices.map((d) => {
         const createdAt = new Date(d.device.created_at);
@@ -65,6 +67,7 @@ export const DevicesTable = ({
         },
       ]}
       hiddenColumns={[]}
+      selectedRowIDs={selectedRow ? [selectedRow] : []}
     />
   );
 };
