@@ -56,6 +56,36 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   let [showModal, setShowModal] = useState<boolean>(false);
   let [showProgress, setShowProgress] = useState<boolean>(false);
 
+  const setPayloadsLoading = (devices: ttnDevice[]) => {
+    let devicesMsg: devicesMsg = {};
+    for (let device of devices) {
+      devicesMsg[device.ids.device_id] = { isLoading: true };
+    }
+
+    setPayloads(devicesMsg);
+  };
+
+  const fetchAndSetPayloads = ({
+    token,
+    zone,
+    app,
+    device,
+  }: {
+    token: string;
+    zone: string;
+    app: string;
+    device: string;
+  }) => {
+    fetchUplinkMessage(token, zone, app, device).then((r) => {
+      if (r.length > 0) {
+        setPayloads((p) => ({
+          ...p,
+          [device]: { isLoading: false, value: r[0] },
+        }));
+      }
+    });
+  };
+
   useEffect(() => {
     if (!formValues) {
       return;
@@ -68,23 +98,25 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   }, [formValues]);
 
   useEffect(() => {
+    // console.log('use effect...');
     if (!formValues) {
       return;
     }
 
+    if (!devices) {
+      return;
+    }
+
+    setPayloadsLoading(devices);
+
     const { token, zone, app } = formValues;
-    for (let device of devices) {
-      setPayloads((p) => ({
-        ...p,
-        [device.ids.device_id]: { isLoading: true },
-      }));
-      fetchUplinkMessage(token, zone, app, device.ids.device_id).then((r) => {
-        if (r.length > 1) {
-          setPayloads((p) => ({
-            ...p,
-            [device.ids.device_id]: { isLoading: false, value: r[0] },
-          }));
-        }
+    for (let i = 0; i < devices.length; i++) {
+      let device = devices[i];
+      fetchAndSetPayloads({
+        app: app,
+        token: token,
+        zone: zone,
+        device: device.ids.device_id,
       });
     }
   }, [formValues, devices]);
@@ -113,7 +145,7 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
         }}
       </Form>
 
-      {devices.length !== 0 && formValues && (
+      {devices && devices.length !== 0 && formValues && (
         <DevicesTable
           devices={devices.map((d) => {
             return {
@@ -173,6 +205,7 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
             datapoints={selectedDatapoints}
             onDismiss={() => setShowModal(false)}
             onConfirm={() => {
+              setShowModal(false);
               setShowProgress(true);
               const devicesToImport = devices.filter((d) => matchingDevices.includes(d.ids.device_id));
               const geolocation = findFirstGeolocation(payloads) ?? '';

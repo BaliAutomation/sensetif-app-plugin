@@ -17,7 +17,7 @@
     "@grafana/runtime": "8.5.0",
     "@grafana/toolkit": "8.5.0",
     "@grafana/ui": "8.5.0",
-    "@types/react-table": "^7.7.11",
+    "@types/react-table": "^7.7.12",
     "@types/react-window": "^1.8.5",
     "react-hook-form": "7.5.3"
   },

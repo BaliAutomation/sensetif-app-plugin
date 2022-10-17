@@ -1,32 +1,51 @@
-import { FilterPill, HorizontalGroup, Pagination, useStyles2 } from '@grafana/ui';
 import React, { useMemo } from 'react';
-import { Cell, Column, TableOptions, useFilters, usePagination, useSortBy, useTable } from 'react-table';
+import { Checkbox, FilterPill, HorizontalGroup, Pagination, useStyles2 } from '@grafana/ui';
+import {
+  Cell,
+  Column,
+  TableOptions,
+  useFilters,
+  usePagination,
+  useSortBy,
+  useRowSelect,
+  useTable,
+  CellProps,
+  Renderer,
+  Row,
+} from 'react-table';
 import { HeaderRow } from './HeaderRow';
 import { getTableStyles } from './styles';
 
-interface Props<T> {
+interface Props<T extends Object> {
   frame: T[];
+  selectableRows?: boolean;
   columns: Array<{
     id: keyof T;
     displayValue: string;
+    filterable?: boolean;
+    sortable?: boolean;
     sortType?: string;
-    renderCell?: (props: any) => JSX.Element;
+    minWidth?: number;
+    maxWidth?: number;
+    width?: number;
+    renderCell?: Renderer<CellProps<{}, any>>;
   }>;
-  onRowClick?: (rowID: number, t: T) => void;
+  onCellClick?: (v: Cell<T, any>) => void;
+  canHideColumns?: boolean;
   hiddenColumns?: Array<keyof T>;
   pageSize?: number;
   sortBy?: Array<{ id: string; desc: boolean }>;
-  selectedRowIDs?: number[];
 }
 
 export const Table = <T extends Object>({
   frame,
   columns,
   hiddenColumns,
-  selectedRowIDs,
   pageSize,
   sortBy,
-  onRowClick,
+  canHideColumns,
+  onCellClick,
+  selectableRows,
 }: Props<T>) => {
   const tableStyles = useStyles2(getTableStyles);
 
@@ -38,23 +57,29 @@ export const Table = <T extends Object>({
     return Array(frame?.length).fill(0);
   }, [frame]);
 
-  const memoizedColumns: ReadonlyArray<Column<any>> = useMemo(() => {
+  const memoizedColumns: ReadonlyArray<Column<T>> = useMemo(() => {
     return columns.map(
       (c) =>
         ({
           // id: idx.toString(),
           id: c.id,
           Header: c.displayValue,
+          displayValue: c.displayValue,
           accessor: (_: any, i: number) => {
             return frame[i][c.id];
           },
+          minWidth: c.minWidth,
+          maxWidth: c.maxWidth,
+          width: c.width,
           sortType: c.sortType ?? 'basic',
-          Cell: c.renderCell ? c.renderCell : CellComponent,
-        } as Column<any>)
+          sortable: c.sortable,
+          filterable: c.filterable,
+          Cell: c.renderCell ?? CellComponent,
+        } as Column<T>)
     );
   }, [frame, columns]);
 
-  const options: TableOptions<any> = useMemo(
+  const options: TableOptions<T> = useMemo(
     () => ({
       columns: memoizedColumns,
       data: memoizedData,
@@ -63,14 +88,43 @@ export const Table = <T extends Object>({
       autoResetPage: false,
       initialState: {
         pageSize: pageSize ?? 50,
-        hiddenColumns: hiddenColumns?.map((k) => k.toString()),
+        hiddenColumns: hiddenColumns?.map((k) => k.toString()) ?? [],
         sortBy: sortBy ?? [],
       },
     }),
     [sortBy, pageSize, memoizedColumns, memoizedData, hiddenColumns]
   );
 
-  const tableInstance = useTable({ ...options }, useFilters, useSortBy, usePagination);
+  const tableInstance = useTable<T>({ ...options }, useFilters, useSortBy, usePagination, useRowSelect, (hooks) => {
+    if (selectableRows) {
+      hooks.visibleColumns.push((columns) => [
+        // Let's make a column for selection
+        {
+          id: 'import',
+          displayValue: 'Import',
+          fitlerable: false,
+          sortable: false,
+          // The header can use the table's getToggleAllRowsSelectedProps method
+          // to render a checkbox
+          // @ts-ignore
+          Header: ({ getToggleAllPageRowsSelectedProps }) => (
+            <div>
+              <Checkbox {...getToggleAllPageRowsSelectedProps()} />
+            </div>
+          ),
+          // The cell can use the individual row's getToggleRowSelectedProps method
+          // to the render a checkbox
+          Cell: ({ row }: CellProps<T>) => (
+            <div>
+              {/* @ts-ignore */}
+              <Checkbox {...row.getToggleRowSelectedProps()} />
+            </div>
+          ),
+        },
+        ...columns,
+      ]);
+    }
+  });
 
   const {
     getTableProps,
@@ -90,16 +144,24 @@ export const Table = <T extends Object>({
     gotoPage,
 
     //@ts-ignore
-    state: { pageIndex },
+    state: { pageIndex, selectedRowIds },
 
     allColumns,
     visibleColumns,
   } = tableInstance;
 
-  const TableCell = ({ cell, styles }: { cell: Cell<any>; styles: any }) => {
+  const TableCell = <T extends {}>({
+    cell,
+    onClick,
+    styles,
+  }: {
+    cell: Cell<T>;
+    onClick: (v: Cell<T>) => void;
+    styles: any;
+  }) => {
     const cellProps = cell.getCellProps();
     return (
-      <td {...cellProps}>
+      <td {...cellProps} onClick={() => onClick(cell)}>
         {cell.render('Cell', {
           cellProps,
           tableStyles: styles,
@@ -112,58 +174,60 @@ export const Table = <T extends Object>({
   return (
     <>
       <div>
-        <HorizontalGroup width="100%">
-          <FilterPill
-            selected={allColumns.length === visibleColumns.length}
-            onClick={() => {
-              if (visibleColumns.length === 0 || visibleColumns.length === allColumns.length) {
-                allColumns.forEach((c) => c.toggleHidden());
-              } else {
-                allColumns.forEach((c) => c.toggleHidden(false));
-              }
-            }}
-            label={'Toggle All'}
-          />
-          {allColumns.map((column) => {
-            return (
-              <div key={column.id}>
-                <label>
-                  <FilterPill
-                    selected={column.isVisible}
-                    onClick={() => column.toggleHidden()}
-                    label={column.Header!.toString()}
-                  />
-                </label>
-              </div>
-            );
-          })}
-        </HorizontalGroup>
+        {canHideColumns && (
+          <HorizontalGroup width="100%">
+            <FilterPill
+              selected={allColumns.length === visibleColumns.length}
+              onClick={() => {
+                if (visibleColumns.length === 0 || visibleColumns.length === allColumns.length) {
+                  allColumns.forEach((c) => c.toggleHidden());
+                } else {
+                  allColumns.forEach((c) => c.toggleHidden(false));
+                }
+              }}
+              label={'Toggle All'}
+            />
+            {allColumns.map((column) => {
+              return (
+                <div key={column.id}>
+                  <label>
+                    <FilterPill
+                      selected={column.isVisible}
+                      onClick={() => column.toggleHidden()}
+                      // @ts-ignore
+                      label={column.displayValue!.toString()}
+                    />
+                  </label>
+                </div>
+              );
+            })}
+          </HorizontalGroup>
+        )}
       </div>
       <table {...tableProps} style={{ ...tableProps.style, width: '100%' }}>
         <HeaderRow headerGroups={headerGroups} />
         <tbody {...getTableBodyProps()}>
           {
             // Loop over the table rows
-            //@ts-ignore
-            page.map((row, index) => {
+            (page as Array<Row<T>>).map((row) => {
               // Prepare the row for display
               prepareRow(row);
               return (
                 // Apply the row props
-                <tr
-                  {...row.getRowProps()}
-                  onClick={() => {
-                    onRowClick?.(row.id, row.values);
-                  }}
-                  style={selectedRowIDs?.includes(row.id) ? { outline: 'rgb(110, 159, 255) solid 2px' } : {}}
-                  key={index}
-                >
+                <tr {...row.getRowProps()} key={row.id}>
                   {
                     // Loop over the rows cells
-                    //@ts-ignore
-                    row.cells.map((cell, index) => {
+                    row.cells.map((cell) => {
                       // Apply the cell props
-                      return <TableCell cell={cell} key={index} styles={tableStyles} />;
+                      return (
+                        <TableCell
+                          //@ts-ignore
+                          key={cell.id}
+                          cell={cell}
+                          onClick={() => onCellClick && onCellClick(cell)}
+                          styles={tableStyles}
+                        />
+                      );
                     })
                   }
                 </tr>

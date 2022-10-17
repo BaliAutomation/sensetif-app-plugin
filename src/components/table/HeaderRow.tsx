@@ -2,7 +2,17 @@ import { FilterInput } from '@grafana/ui';
 import React from 'react';
 import { HeaderGroup } from 'react-table';
 
-export const HeaderRow = ({ headerGroups }: { headerGroups: Array<HeaderGroup<any>> }) => {
+export const HeaderRow = <T extends Object>({ headerGroups }: { headerGroups: Array<HeaderGroup<T>> }) => {
+  const getThProps = (column: HeaderGroup<T>) => {
+    // @ts-ignore
+    if (column.sortable) {
+      // @ts-ignore
+      return { ...column.getHeaderProps(column.getSortByToggleProps()) };
+    }
+
+    return { ...column.getHeaderProps() };
+  };
+
   return (
     <thead>
       {
@@ -14,22 +24,24 @@ export const HeaderRow = ({ headerGroups }: { headerGroups: Array<HeaderGroup<an
               // Loop over the headers in each row
               headerGroup.headers.map((column) => (
                 // Apply the header cell props
-                //@ts-ignore
-                <th {...column.getHeaderProps(column.getSortByToggleProps())} key={column.id}>
+                <th {...getThProps(column)} key={column.id}>
                   <div>
                     {
                       // Render the header
                       column.render('Header')
                     }
-                    <span>
-                      {/* @ts-ignore */}
-                      {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
-                    </span>
+                    {/* @ts-ignore */}
+                    {column.sortable && (
+                      <span>
+                        {/* @ts-ignore */}
+                        {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                      </span>
+                    )}
                   </div>
                   {
                     //@ts-ignore
                     //   column.canFilter && column.render('Filter')
-                    column.canFilter && <SimpleColumnFilter column={column} />
+                    column.filterable && <SimpleColumnFilter column={column} />
                   }
                 </th>
               ))

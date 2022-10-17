@@ -29,7 +29,7 @@ export type msgResult = {
     rx_metadata: any;
     settings: any;
     received_at: string;
-    confirmed: true;
+    confirmed: boolean;
     consumed_airtime: string;
     version_ids: any;
     network_ids: {

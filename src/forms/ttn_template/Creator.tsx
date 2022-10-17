@@ -38,18 +38,16 @@ export const TemplateCreator = ({
   return (
     <>
       {/* select fields */}
-      <ul>
-        {Object.entries(selectedPayload).map(([name, v]) => (
-          <li key={name}>
-            <Checkbox
-              label={`${name} ${isSupported(v) ? '' : ' - objects are not supported'}`}
-              value={template?.[name]?.checked}
-              onChange={() => onSelect(name)}
-              disabled={!isSupported(v)}
-            />
-          </li>
-        ))}
-      </ul>
+      {Object.entries(selectedPayload).map(([name, v]) => (
+        <div key={name}>
+          <Checkbox
+            label={`${name} ${isSupported(v) ? '' : ' - objects are not supported'}`}
+            value={template?.[name]?.checked}
+            onChange={() => onSelect(name)}
+            disabled={!isSupported(v)}
+          />
+        </div>
+      ))}
     </>
   );
 };

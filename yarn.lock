@@ -2362,10 +2362,10 @@
     "hoist-non-react-statics" "^3.3.0"
     "redux" "^4.0.0"
 
-"@types/react-table@^7.7.11":
-  "integrity" "sha512-Ntfr4EMWgqf/m/CxfmiHww5HvE1nOfK3yEm3NJ3ZWv9IkdteqTOklG3rJtFCtICKAkr3q5pqajkm0y1+WnmdbA=="
-  "resolved" "https://registry.npmjs.org/@types/react-table/-/react-table-7.7.11.tgz"
-  "version" "7.7.11"
+"@types/react-table@^7.7.12":
+  "integrity" "sha512-bRUent+NR/WwtDGwI/BqhZ8XnHghwHw0HUKeohzB5xN3K2qKWYE5w19e7GCuOkL1CXD9Gi1HFy7TIm2AvgWUHg=="
+  "resolved" "https://registry.npmjs.org/@types/react-table/-/react-table-7.7.12.tgz"
+  "version" "7.7.12"
   dependencies:
     "@types/react" "*"
 

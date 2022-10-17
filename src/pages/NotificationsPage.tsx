@@ -51,6 +51,7 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
   return (
     <>
       <CustomTable<TableNotification>
+        canHideColumns={true}
         frame={data.map((n) => {
           let valueData: string;
           try {
