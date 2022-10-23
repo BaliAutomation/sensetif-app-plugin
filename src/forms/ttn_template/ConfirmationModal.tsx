@@ -1,6 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ConfirmModal, TagList } from '@grafana/ui';
+import { DatapointForm, datapointFormValues } from './DatapointForm';
 import { css } from '@emotion/css';
+
+const tagCss = css`
+  justify-content: left;
+`;
+
+export type confirmationResult = {
+  devices: string[];
+  datapoints: string[];
+  formValues: datapointFormValues;
+};
 
 export const ConfirmationModal = ({
   datapoints,
@@ -13,8 +24,24 @@ export const ConfirmationModal = ({
   devices: string[];
   isOpen: boolean;
   onDismiss: () => void;
-  onConfirm: () => void;
+  onConfirm: (result: confirmationResult) => void;
 }) => {
+  let [devicesToImport, setDevicesToImport] = useState<string[]>([]);
+
+  useEffect(() => {
+    setDevicesToImport(devices);
+  }, [devices]);
+
+  const formRef = React.createRef<HTMLFormElement>();
+
+  const submit = () => {
+    if (formRef.current) {
+      formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    } else {
+      console.warn('no formRef current value');
+    }
+  };
+
   return (
     <ConfirmModal
       isOpen={isOpen}
@@ -22,31 +49,39 @@ export const ConfirmationModal = ({
       body={
         <>
           <span>datapooints:</span>
-          <TagList
-            tags={datapoints}
-            className={css`
-              justify-content: left;
-            `}
-          />
+          <TagList tags={datapoints} className={tagCss} />
           <br></br>
           <span>matching devices</span>
           <TagList
-            tags={devices}
-            className={css`
-              justify-content: left;
-            `}
+            icon={'trash-alt'}
+            tags={devicesToImport}
+            onClick={(name) => {
+              const idx = devicesToImport.findIndex((el) => el === name);
+              let copy = [...devicesToImport];
+              copy.splice(idx, 1);
+              setDevicesToImport(copy);
+            }}
+            className={tagCss}
           />
           <br></br>
+
+          <DatapointForm
+            externalRef={formRef}
+            onSubmit={(v) => {
+              onConfirm({
+                devices: devicesToImport,
+                datapoints: datapoints,
+                formValues: v,
+              });
+            }}
+          />
         </>
       }
       description={'Confirm you want to import these devices'}
       confirmText={'Import'}
       dismissText={'Cancel'}
-      // alternativeText={'Import'}
-      // icon={icon}
-      onConfirm={onConfirm}
+      onConfirm={submit}
       onDismiss={onDismiss}
-      // onAlternative={() => {alert('done')}}
     />
   );
 };

@@ -9,15 +9,17 @@ export type devicesTableData = {
   msg: loadingValue<msgResult>;
 };
 export const DevicesTable = ({
+  pageSize,
   devices,
   onSelect,
 }: {
+  pageSize: number;
   devices: devicesTableData[];
   onSelect: (device_id: string, msg: loadingValue<msgResult>) => void;
 }) => {
   return (
     <Table<ttnDeviceRow>
-      pageSize={20}
+      pageSize={pageSize}
       sortBy={[
         {
           id: 'created_at',

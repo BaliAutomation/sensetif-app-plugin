@@ -1,46 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
-import { ThingsNetworkApplicationSettings, Ttnv3Datasource, DatasourceType, PollInterval } from '../types';
-import {
-  Button,
-  Field,
-  Form,
-  HorizontalGroup,
-  Input,
-  Select,
-  InputControl,
-  RadioButtonGroup,
-  TagList,
-} from '@grafana/ui';
-import { AvailablePollIntervals } from 'utils/consts';
+import { useForm } from 'react-hook-form';
+import { ThingsNetworkApplicationSettings, Ttnv3Datasource, DatasourceType } from '../types';
+import { Form } from '@grafana/ui';
 
-import { TemplateCreator } from 'forms/ttn_template/Creator';
+import { TemplateCreatorModal } from 'forms/ttn_template/Creator';
 import { DevicesTable } from 'forms/ttn_template/DevicesTable';
 import { ConfirmationModal } from 'forms/ttn_template/ConfirmationModal';
 import { ttnDevice, msgResult, loadingValue } from 'forms/ttn_template/types';
-import { css } from '@emotion/css';
 import { upsertDatapoint, upsertProject, upsertSubsystem } from 'utils/api';
-import { TasksProgress } from './ttn_template/TasksProgress';
+import { formValues, TtnResource } from './ttn_template/FetchForm';
+import { datapointFormValues } from './ttn_template/DatapointForm';
+// import { TasksProgress } from './ttn_template/TasksProgress';
 interface Props {
   ttn?: ThingsNetworkApplicationSettings;
   onSubmit: (data: ThingsNetworkApplicationSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
   onCancel: () => void;
 }
 
-type formValues = {
-  zone: string;
-  app: string;
-  token: string;
-  pollInterval: PollInterval;
-};
+//
 
 type selectedDeviceId = string;
 type devices = ttnDevice[];
 type devicesMsg = { [id: string]: loadingValue<msgResult> };
-
-//
-
-//
 
 export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   let ttnForm = useForm<ThingsNetworkApplicationSettings>({});
@@ -50,11 +31,12 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   let [selectedDevice, setSelectedDevice] = useState<selectedDeviceId>();
   let [payloads, setPayloads] = useState<devicesMsg>({});
 
-  let [selectedDatapoints, setSelectedDatapoints] = useState<string[]>([]);
-  let [matchingDevices, setMatchingDevices] = useState<string[]>([]);
+  let [templateDatapoints, setTemplateDatapoints] = useState<string[]>([]);
+  let [templateMatchingDevices, setTemplateMatchingDevices] = useState<string[]>([]);
 
-  let [showModal, setShowModal] = useState<boolean>(false);
-  let [showProgress, setShowProgress] = useState<boolean>(false);
+  let [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
+  let [showDatapointsModal, setShowDatapointsModal] = useState<boolean>(false);
+  // let [showProgress, setShowProgress] = useState<boolean>(false);
 
   const setPayloadsLoading = (devices: ttnDevice[]) => {
     let devicesMsg: devicesMsg = {};
@@ -98,7 +80,6 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   }, [formValues]);
 
   useEffect(() => {
-    // console.log('use effect...');
     if (!formValues) {
       return;
     }
@@ -147,6 +128,7 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
 
       {devices && devices.length !== 0 && formValues && (
         <DevicesTable
+          pageSize={25}
           devices={devices.map((d) => {
             return {
               device: d,
@@ -155,69 +137,66 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
           })}
           onSelect={(deviceId, _) => {
             setSelectedDevice(deviceId);
+            setShowDatapointsModal(true);
           }}
         />
       )}
 
-      {selectedDevice && (
-        <>
-          <h3>{`payload from device: ${selectedDevice}:`}</h3>
-          <pre>{JSON.stringify(payloads[selectedDevice].value?.uplink_message?.decoded_payload)}</pre>
+      <>
+        <TemplateCreatorModal
+          isOpen={showDatapointsModal}
+          onDismiss={() => {
+            setSelectedDevice(undefined);
+            setShowDatapointsModal(false);
+            setTemplateMatchingDevices([]);
+            setTemplateDatapoints([]);
+          }}
+          onConfirm={(datapoints: string[]) => {
+            setShowDatapointsModal(false);
+            setShowConfirmationModal(true);
 
-          <TemplateCreator
-            onChange={(fields) => {
-              const devicesPayloads = Object.entries(payloads).map(([device, msg]) => ({
-                name: device,
-                payload: msg.value?.uplink_message?.decoded_payload,
-              }));
+            setTemplateDatapoints(datapoints);
 
-              const deviceNames = devicesPayloads.filter((p) => filterPayload(p.payload, fields)).map((p) => p.name);
-              setSelectedDatapoints(fields);
-              setMatchingDevices(deviceNames);
-            }}
-            selectedPayload={payloads[selectedDevice].value?.uplink_message?.decoded_payload}
-          />
-          <br />
-          <Button
-            variant="primary"
-            disabled={matchingDevices.length === 0}
-            className={css`
-              justify-content: left;
-            `}
-            onClick={() => {
-              setShowModal(true);
-            }}
-          >
-            Import
-          </Button>
-          <br />
-          <br />
-          <TagList
-            tags={matchingDevices}
-            className={css`
-              justify-content: left;
-            `}
-          />
+            // calc matching devices
+            const devicesPayloads = Object.entries(payloads).map(([device, msg]) => ({
+              name: device,
+              payload: msg.value?.uplink_message?.decoded_payload,
+            }));
 
-          <ConfirmationModal
-            isOpen={showModal}
-            devices={matchingDevices}
-            datapoints={selectedDatapoints}
-            onDismiss={() => setShowModal(false)}
-            onConfirm={() => {
-              setShowModal(false);
-              setShowProgress(true);
-              const devicesToImport = devices.filter((d) => matchingDevices.includes(d.ids.device_id));
-              const geolocation = findFirstGeolocation(payloads) ?? '';
-              const fPort = findFirstFport(payloads) ?? -1;
+            const deviceNames = devicesPayloads.filter((p) => filterPayload(p.payload, datapoints)).map((p) => p.name);
 
-              importDevices(formValues!, devicesToImport, selectedDatapoints, geolocation, fPort);
-            }}
-          />
+            setTemplateMatchingDevices(deviceNames);
+          }}
+          selectedPayload={selectedDevice && payloads?.[selectedDevice]?.value?.uplink_message?.decoded_payload}
+        />
 
-          {showProgress && <TasksProgress tasks={[]} />}
-        </>
-      )}
+        <ConfirmationModal
+          isOpen={showConfirmationModal}
+          devices={templateMatchingDevices}
+          datapoints={templateDatapoints}
+          onDismiss={() => setShowConfirmationModal(false)}
+          onConfirm={(confirmResult) => {
+            setShowConfirmationModal(false);
+
+            let devicesToImport = devices.filter((d) => confirmResult.devices.includes(d.ids.device_id));
+            let payloadsToImport: devicesMsg = {};
+            for (let device of devicesToImport) {
+              const id = device.ids.device_id;
+              payloadsToImport[id] = payloads[id];
+            }
+
+            importDevices(
+              devicesToImport,
+              payloadsToImport,
+              formValues!,
+              confirmResult.datapoints,
+              confirmResult.formValues
+            );
+          }}
+        />
+
+        {/* {showProgress && <TasksProgress tasks={[]} />} */}
+      </>
     </>
   );
 };
@@ -245,13 +224,16 @@ const findFirstGeolocation = (payloads: devicesMsg) => {
 };
 
 const importDevices = async (
-  formValues: formValues,
   devices: ttnDevice[],
+  payloads: devicesMsg,
+  formValues: formValues,
   datapoints: string[],
-  geolocation: string,
-  fPort: number
+  datapointFormValues: datapointFormValues
 ) => {
   const projectName = formValues.app;
+  const geolocation = findFirstGeolocation(payloads) ?? '';
+  const fPort = findFirstFport(payloads) ?? -1;
+
   await upsertProject({
     name: projectName,
     title: projectName,
@@ -266,7 +248,9 @@ const importDevices = async (
   await delay(1000);
 
   return Promise.all(
-    devices.map((device) => createSubsystemWithDevices(formValues, projectName, device, datapoints, fPort))
+    devices.map((device) =>
+      createSubsystemWithDevices(formValues, projectName, device, datapoints, fPort, datapointFormValues)
+    )
   );
 };
 
@@ -275,7 +259,8 @@ const createSubsystemWithDevices = async (
   projectName: string,
   device: ttnDevice,
   datapoints: string[],
-  fPort: number
+  fPort: number,
+  datapointFormValues: datapointFormValues
 ) => {
   const subsystemName = device.ids.device_id;
   await upsertSubsystem(projectName, {
@@ -297,12 +282,11 @@ const createSubsystemWithDevices = async (
         subsystem: subsystemName,
         name: datapoint,
         datasourcetype: DatasourceType.ttnv3,
-        pollinterval: formValues.pollInterval,
         datasource: makeDatasource(formValues, datapoint, device.ids.device_id, fPort),
-        // @ts-ignore
-        proc: undefined,
-        // @ts-ignore
-        timeToLive: undefined,
+
+        pollinterval: datapointFormValues.pollInterval,
+        timeToLive: datapointFormValues.timeToLive,
+        proc: datapointFormValues.processing,
       }).catch((e) => {
         console.warn(`failed to create datapoint: ${datapoint} for subsystem ${subsystemName}; reason:`, e);
       });
@@ -347,111 +331,6 @@ const filterPayload = (payload: any, fields: string[]): boolean => {
   }
 
   return true;
-};
-
-interface TtnProps extends UseFormReturn<ThingsNetworkApplicationSettings> {
-  ttn?: ThingsNetworkApplicationSettings;
-  onSubmit: (formValues: formValues) => void;
-}
-
-const TtnResource = ({ onSubmit, control, watch, formState: { errors } }: TtnProps) => {
-  const zone = watch('zone');
-  const application = watch('application');
-  const authorizationKey = watch('authorizationKey');
-  const pollInterval = watch('pollinterval');
-
-  return (
-    <>
-      <HorizontalGroup>
-        <HorizontalGroup>
-          <Field label="Zone">
-            <InputControl
-              render={({ field: { ref, ...field } }) => (
-                <RadioButtonGroup
-                  {...field}
-                  options={[
-                    { label: 'eu1', value: 'eu1' },
-                    { label: 'nam1', value: 'nam1' },
-                    { label: 'au1', value: 'au1' },
-                  ]}
-                />
-              )}
-              rules={{
-                required: 'Zone is required',
-              }}
-              control={control}
-              defaultValue={zone ?? 'eu1'}
-              name="zone"
-            />
-          </Field>
-        </HorizontalGroup>
-
-        <Field
-          label="Poll interval"
-          invalid={!!errors.pollinterval}
-          error={errors.pollinterval && errors.pollinterval.message}
-        >
-          <InputControl
-            render={({ field: { onChange, ref, ...field } }) => (
-              <Select
-                {...field}
-                onChange={(selectable) => onChange(selectable.value)}
-                options={AvailablePollIntervals}
-              />
-            )}
-            rules={{
-              required: 'Interval selection is required',
-            }}
-            name="pollinterval"
-            control={control}
-            defaultValue={AvailablePollIntervals[5].value}
-          />
-        </Field>
-
-        <Field
-          label="Authorization Key"
-          invalid={!!errors?.authorizationKey}
-          error={errors?.authorizationKey && errors?.authorizationKey.message}
-        >
-          <InputControl
-            render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Authorization Key" />}
-            control={control}
-            name="authorizationKey"
-            defaultValue={authorizationKey ?? ''}
-          />
-        </Field>
-        <Field
-          label="Application"
-          invalid={!!errors?.application}
-          error={errors?.application && errors?.application.message}
-        >
-          <InputControl
-            render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Application" />}
-            control={control}
-            name="application"
-            defaultValue={application ?? ''}
-          />
-        </Field>
-
-        {/* Fetch Devices */}
-        <Button
-          type="button"
-          variant={'secondary'}
-          onClick={() => {
-            // onSubmit(authorizationKey, application, zone);
-            onSubmit({
-              app: application,
-              token: authorizationKey,
-              zone: zone,
-              pollInterval: pollInterval,
-            });
-          }}
-        >
-          {'Fetch devices'}
-        </Button>
-      </HorizontalGroup>
-    </>
-  );
 };
 
 const fetchDevices = async (token: string, zone: string, app_id: string): Promise<ttnDevice[]> => {

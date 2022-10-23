@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Checkbox } from '@grafana/ui';
+import { Checkbox, ConfirmModal } from '@grafana/ui';
 
 type template = {
   [name: string]: { checked: boolean };
 };
 
-export const TemplateCreator = ({
+export const TemplateCreatorModal = ({
+  isOpen,
   selectedPayload,
-  onChange,
+  onDismiss,
+  onConfirm,
 }: {
+  isOpen: boolean;
   selectedPayload: any;
-  onChange: (properties: string[]) => void;
+  onConfirm: (properties: string[]) => void;
+  onDismiss: () => void;
 }) => {
   let [template, setTemplate] = useState<template>();
 
@@ -20,25 +24,21 @@ export const TemplateCreator = ({
   }, [selectedPayload]);
 
   const onSelect = (name: string) => {
-    setTemplate((t) => {
-      let newTemplate = {
-        ...t,
-        [name]: { checked: !t?.[name]?.checked },
-      };
-      const selectedProps = Object.keys(newTemplate ?? {}).filter((k) => newTemplate?.[k].checked);
-      onChange(selectedProps);
-      return newTemplate;
-    });
+    setTemplate((t) => ({
+      ...t,
+      [name]: { checked: !t?.[name]?.checked },
+    }));
   };
 
   if (!selectedPayload) {
-    return <>empty payload</>;
+    return null;
   }
 
   return (
-    <>
-      {/* select fields */}
-      {Object.entries(selectedPayload).map(([name, v]) => (
+    <ConfirmModal
+      isOpen={isOpen}
+      title="Select datapoints to be imported"
+      body={Object.entries(selectedPayload).map(([name, v]) => (
         <div key={name}>
           <Checkbox
             label={`${name} ${isSupported(v) ? '' : ' - objects are not supported'}`}
@@ -48,7 +48,13 @@ export const TemplateCreator = ({
           />
         </div>
       ))}
-    </>
+      confirmText="Confirm"
+      onConfirm={() => {
+        const selectedProps = Object.keys(template ?? {}).filter((k) => template?.[k].checked);
+        onConfirm(selectedProps);
+      }}
+      onDismiss={onDismiss}
+    />
   );
 };
 
