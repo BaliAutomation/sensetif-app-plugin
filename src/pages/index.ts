@@ -15,10 +15,13 @@ import { Projects } from './Projects';
 import { ResourcesPage } from './Resources';
 import { Subsystems } from './Subsystems';
 import { Succeeded } from './Succeeded';
+import { ImportProject } from './ImportProject';
 
 export type PageID =
   | 'projects'
   | 'new_project'
+  | 'import_project'
+  | 'import_things_stack'
   | 'edit_project'
   | 'subsystems'
   | 'new_subsystem'
@@ -55,6 +58,13 @@ export const pages: PageDefinition[] = [
     icon: 'fa fa-project-diagram',
     id: 'edit_project',
     text: ' Edit Project',
+  },
+
+  {
+    component: ImportProject,
+    icon: 'fa fa-project-diagram',
+    id: 'import_project',
+    text: ' Import Project',
   },
 
   {
@@ -151,8 +161,8 @@ export const pages: PageDefinition[] = [
   {
     component: AddThingsNetworkApplication,
     icon: 'fa cloud',
-    id: 'new_thingsnetwork_application',
-    text: ' Things Network',
+    id: 'import_things_stack',
+    text: 'Things Network',
   },
   {
     component: EditThingsNetworkApplication,

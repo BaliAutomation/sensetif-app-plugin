@@ -3,7 +3,7 @@ import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
 import { Alert, Icon } from '@grafana/ui';
 import { ProjectSettings } from '../types';
-import { goToAddProject, goToEditProject, goToSubsystems } from 'utils/navigation';
+import { goToAddProject, goToEditProject, goToImportProject, goToSubsystems } from 'utils/navigation';
 import { deleteProject, getProjects } from 'utils/api';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
@@ -37,7 +37,9 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
 
   return (
     <>
-      <PageHeader title={''} subtitle={''} primaryText={'Add Project'} onPrimaryClick={() => goToAddProject()} />
+      <PageHeader title={''} subtitle={''} primaryText={'Add Project'} onPrimaryClick={() => goToAddProject()}
+                  secondaryIcon={'cloud-download'} secondaryText={'Import Project'} onSecondaryClick={() => goToImportProject()}
+      />
 
       {!isLoading && projects.length === 0 && (
         <Alert severity={'info'} title="Please add projects.">
