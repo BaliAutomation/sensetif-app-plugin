@@ -2,13 +2,11 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { ThingsNetworkApplicationSettings } from '../../types';
 import { Button, Field, HorizontalGroup, Input, InputControl, RadioButtonGroup } from '@grafana/ui';
-// import { AvailablePollIntervals } from 'utils/consts';
 
 export type formValues = {
   zone: string;
   app: string;
   token: string;
-  // pollInterval: PollInterval;
 };
 
 export interface TtnProps extends UseFormReturn<ThingsNetworkApplicationSettings> {
@@ -20,7 +18,6 @@ export const TtnResource = ({ onSubmit, control, watch, formState: { errors } }:
   const zone = watch('zone');
   const application = watch('application');
   const authorizationKey = watch('authorizationKey');
-  // const pollInterval = watch('pollinterval');
 
   return (
     <>
@@ -48,28 +45,6 @@ export const TtnResource = ({ onSubmit, control, watch, formState: { errors } }:
           </Field>
         </HorizontalGroup>
 
-        {/* <Field
-          label="Poll interval"
-          invalid={!!errors.pollinterval}
-          error={errors.pollinterval && errors.pollinterval.message}
-        >
-          <InputControl
-            render={({ field: { onChange, ref, ...field } }) => (
-              <Select
-                {...field}
-                onChange={(selectable) => onChange(selectable.value)}
-                options={AvailablePollIntervals}
-              />
-            )}
-            rules={{
-              required: 'Interval selection is required',
-            }}
-            name="pollinterval"
-            control={control}
-            defaultValue={AvailablePollIntervals[5].value}
-          />
-        </Field> */}
-
         <Field
           label="Authorization Key"
           invalid={!!errors?.authorizationKey}
@@ -78,6 +53,7 @@ export const TtnResource = ({ onSubmit, control, watch, formState: { errors } }:
           <InputControl
             render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Authorization Key" />}
             control={control}
+            rules={{ required: { value: true, message: 'Required.' } }}
             name="authorizationKey"
             defaultValue={authorizationKey ?? ''}
           />
@@ -90,6 +66,7 @@ export const TtnResource = ({ onSubmit, control, watch, formState: { errors } }:
           <InputControl
             render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Application" />}
             control={control}
+            rules={{ required: { value: true, message: 'Required.' } }}
             name="application"
             defaultValue={application ?? ''}
           />
@@ -100,12 +77,10 @@ export const TtnResource = ({ onSubmit, control, watch, formState: { errors } }:
           type="button"
           variant={'secondary'}
           onClick={() => {
-            // onSubmit(authorizationKey, application, zone);
             onSubmit({
               app: application,
               token: authorizationKey,
               zone: zone,
-              // pollInterval: pollInterval,
             });
           }}
         >

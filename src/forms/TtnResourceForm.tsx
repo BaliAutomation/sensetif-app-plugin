@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { ThingsNetworkApplicationSettings, Ttnv3Datasource, DatasourceType } from '../types';
-import { Form } from '@grafana/ui';
+import { Alert, Form } from '@grafana/ui';
 
 import { TemplateCreatorModal } from 'forms/ttn_template/Creator';
 import { DevicesTable } from 'forms/ttn_template/DevicesTable';
@@ -17,8 +17,6 @@ interface Props {
   onCancel: () => void;
 }
 
-//
-
 type selectedDeviceId = string;
 type devices = ttnDevice[];
 type devicesMsg = { [id: string]: loadingValue<msgResult> };
@@ -26,8 +24,11 @@ type devicesMsg = { [id: string]: loadingValue<msgResult> };
 export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
   let ttnForm = useForm<ThingsNetworkApplicationSettings>({});
 
+  let [apiError, setApiError] = useState<Error>();
+
   let [formValues, setFormValues] = useState<formValues>();
   let [devices, setDevices] = useState<devices>([]);
+
   let [selectedDevice, setSelectedDevice] = useState<selectedDeviceId>();
   let [payloads, setPayloads] = useState<devicesMsg>({});
 
@@ -59,10 +60,11 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
     device: string;
   }) => {
     fetchUplinkMessage(token, zone, app, device).then((r) => {
-      if (r.length > 0) {
+      setApiError(r.error);
+      if (r.messages.length > 0) {
         setPayloads((p) => ({
           ...p,
-          [device]: { isLoading: false, value: r[0] },
+          [device]: { isLoading: false, value: r.messages[0] },
         }));
       }
     });
@@ -74,36 +76,36 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
     }
 
     const { token, zone, app } = formValues;
-    fetchDevices(token, zone, app).then((d) => {
-      setDevices(d);
-    });
-  }, [formValues]);
+    setPayloads({});
 
-  useEffect(() => {
-    if (!formValues) {
-      return;
-    }
-
-    if (!devices) {
-      return;
-    }
-
-    setPayloadsLoading(devices);
-
-    const { token, zone, app } = formValues;
-    for (let i = 0; i < devices.length; i++) {
-      let device = devices[i];
-      fetchAndSetPayloads({
-        app: app,
-        token: token,
-        zone: zone,
-        device: device.ids.device_id,
+    fetchDevices(token, zone, app)
+      .then((d) => {
+        setDevices(d.devices);
+        setApiError(d.error);
+        return d.devices;
+      })
+      .then((devices) => {
+        setPayloadsLoading(devices);
+        for (let i = 0; i < devices.length; i++) {
+          let device = devices[i];
+          fetchAndSetPayloads({
+            app: app,
+            token: token,
+            zone: zone,
+            device: device.ids.device_id,
+          });
+        }
       });
-    }
-  }, [formValues, devices]);
+  }, [formValues]);
 
   return (
     <>
+      {apiError && (
+        <Alert title={'Fetch error'}>
+          <div> {apiError.message} </div>
+        </Alert>
+      )}
+
       <Form<ThingsNetworkApplicationSettings>
         onSubmit={onSubmit}
         maxWidth={1024}
@@ -333,44 +335,86 @@ const filterPayload = (payload: any, fields: string[]): boolean => {
   return true;
 };
 
-const fetchDevices = async (token: string, zone: string, app_id: string): Promise<ttnDevice[]> => {
+type fetchDevicesResponse = {
+  devices: ttnDevice[];
+  error?: Error;
+};
+const fetchDevices = async (token: string, zone: string, app_id: string): Promise<fetchDevicesResponse> => {
   const baseURL = `https://${zone}.cloud.thethings.network`;
-
-  return fetch(`${baseURL}/api/v3/applications/${app_id}/devices`, {
+  const opts: RequestInit = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
-    .then((r) => r.json())
-    .then((r) => r['end_devices'])
-    .catch((error) => {
-      console.warn('failed to fetch devices', error);
-      throw new Error('failed to fetch devices');
-    });
+  };
+
+  try {
+    const response = await fetch(`${baseURL}/api/v3/applications/${app_id}/devices`, opts);
+    const rJson = await response.json();
+
+    if (!response.ok) {
+      const msg: string = rJson?.['message'] ?? `failed to fetch with response code ${response.statusText}`;
+
+      return {
+        error: new Error(msg),
+        devices: [],
+      };
+    }
+
+    return {
+      devices: rJson?.['end_devices'],
+    };
+  } catch (error) {
+    console.warn('failed to fetch devices', error);
+    return {
+      devices: [],
+      error: new Error('failed to fetch devices'),
+    };
+  }
 };
 
-const fetchUplinkMessage = async (token: string, zone: string, app_id: string, device_id: string) => {
+type fetchMessageResponse = {
+  messages: msgResult[];
+  error?: Error;
+};
+const fetchUplinkMessage = async (
+  token: string,
+  zone: string,
+  app_id: string,
+  device_id: string
+): Promise<fetchMessageResponse> => {
   const baseURL = `https://${zone}.cloud.thethings.network`;
-
-  return fetch(`${baseURL}/api/v3/as/applications/${app_id}/devices/${device_id}/packages/storage/uplink_message`, {
+  const opts: RequestInit = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        console.warn(
-          `failed to fetch msg of device: ${device_id}; status: ${response.status}; body: ${response.text()}`
-        );
-        throw new Error(`failed to fetch msg of device: ${device_id}`);
-      }
-      return response.text();
-    })
-    .then((str) => str.split(/\r?\n/))
-    .then((strArr) => strArr.filter((r) => r !== ''))
-    .then((strArr) => strArr.map((el) => JSON.parse(el)['result'] as msgResult))
-    .catch((error) => {
-      console.warn(`failed to parse msg response of device: ${device_id}`, error);
-      throw new Error(`failed to parse response of device: ${device_id}`);
-    });
+  };
+
+  try {
+    const response = await fetch(
+      `${baseURL}/api/v3/as/applications/${app_id}/devices/${device_id}/packages/storage/uplink_message`,
+      opts
+    );
+    if (!response.ok) {
+      return {
+        messages: [],
+        error: new Error(`failed to fetch with response code ${response.statusText}`),
+      };
+    }
+
+    const rText = await response.text();
+    const out = rText
+      .split(/\r?\n/)
+      .filter((r) => r !== '')
+      .map((el) => JSON.parse(el)['result'] as msgResult);
+
+    return {
+      messages: out,
+    };
+  } catch (error) {
+    console.warn(`failed to parse msg response of device: ${device_id}`, error);
+    return {
+      messages: [],
+      error: new Error(`failed to parse response of device: ${device_id}`),
+    };
+  }
 };

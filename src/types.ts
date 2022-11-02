@@ -227,7 +227,6 @@ export interface ResourceSettings {
 }
 export interface ThingsNetworkApplicationSettings extends ResourceSettings {
   zone: string;
-  // pollinterval: PollInterval;
   application: string;
   authorizationKey: string;
 }
