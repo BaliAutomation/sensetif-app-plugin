@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Checkbox, ConfirmModal } from '@grafana/ui';
+import { Badge, Checkbox, ConfirmModal, CustomScrollbar } from '@grafana/ui';
 
 type template = {
   [name: string]: { checked: boolean };
@@ -38,16 +38,22 @@ export const TemplateCreatorModal = ({
     <ConfirmModal
       isOpen={isOpen}
       title="Select datapoints to be imported"
-      body={Object.entries(selectedPayload).map(([name, v]) => (
+      body={
+        <CustomScrollbar autoHeightMax='410px'>
+        {Object.entries(selectedPayload).map(([name, v]) => (
         <div key={name}>
           <Checkbox
-            label={`${name} ${isSupported(v) ? '' : ' - objects are not supported'}`}
             value={template?.[name]?.checked}
             onChange={() => onSelect(name)}
             disabled={!isSupported(v)}
-          />
+          >
+          </Checkbox>
+            {' '}<Badge text={name} color="blue"/>
+            {!isSupported(v) && <span> - objects are not supported</span>}
         </div>
       ))}
+      </CustomScrollbar>
+      }
       confirmText="Confirm"
       onConfirm={() => {
         const selectedProps = Object.keys(template ?? {}).filter((k) => template?.[k].checked);
