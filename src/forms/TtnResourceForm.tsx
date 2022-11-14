@@ -306,7 +306,7 @@ const makeDatasource = (formValues: formValues, point: string, device: string, f
     fport: fPort,
     point: point,
 
-    poll: false,
+    poll: true,
     subscribe: false,
     webhook: false,
   };
