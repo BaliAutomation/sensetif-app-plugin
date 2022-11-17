@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { ThingsNetworkApplicationSettings, Ttnv3Datasource, DatasourceType } from '../types';
 import { Alert, Form } from '@grafana/ui';
 
@@ -22,8 +21,6 @@ type devices = ttnDevice[];
 type devicesMsg = { [id: string]: loadingValue<msgResult> };
 
 export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
-  let ttnForm = useForm<ThingsNetworkApplicationSettings>({});
-
   let [apiError, setApiError] = useState<Error>();
 
   let [formValues, setFormValues] = useState<formValues>();
@@ -113,17 +110,15 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
           ...ttn,
         }}
       >
-        {() => {
+        {(formApi) => {
           return (
-            <>
               <TtnResource
                 ttn={ttn}
-                {...ttnForm}
+                {...formApi}
                 onSubmit={(formValues) => {
                   setFormValues(formValues);
                 }}
               />
-            </>
           );
         }}
       </Form>
@@ -145,7 +140,7 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
       )}
 
       <>
-        <TemplateCreatorModal
+        {showDatapointsModal && <TemplateCreatorModal
           isOpen={showDatapointsModal}
           onDismiss={() => {
             setSelectedDevice(undefined);
@@ -170,9 +165,9 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
             setTemplateMatchingDevices(deviceNames);
           }}
           selectedPayload={selectedDevice && payloads?.[selectedDevice]?.value?.uplink_message?.decoded_payload}
-        />
+        />}
 
-        <ConfirmationModal
+        {showConfirmationModal && <ConfirmationModal
           isOpen={showConfirmationModal}
           devices={templateMatchingDevices}
           datapoints={templateDatapoints}
@@ -195,7 +190,7 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
               confirmResult.formValues
             );
           }}
-        />
+        />}
 
         {/* {showProgress && <TasksProgress tasks={[]} />} */}
       </>

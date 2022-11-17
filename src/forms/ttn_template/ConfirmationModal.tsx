@@ -29,7 +29,7 @@ export const ConfirmationModal = ({
   let [devicesToImport, setDevicesToImport] = useState<device[]>([]);
 
   useEffect(() => {
-    setDevicesToImport(devices.map(device => ({name:device, import: true})));
+    setDevicesToImport(devices.map(device => ({ name: device, import: true })));
   }, [devices]);
 
   const formRef = React.createRef<HTMLFormElement>();
@@ -49,34 +49,34 @@ export const ConfirmationModal = ({
       body={
         <>
 
-<span>Datapooints:</span>
-<CustomScrollbar autoHide={false} autoHeightMax='250px'>
-<HorizontalGroup spacing="xs" align="flex-start" wrap>
-  {datapoints.map(dp => (<Badge key={dp} text={dp} color={'green'}/>))}
-  </HorizontalGroup>
-</CustomScrollbar>
+          <span>Datapooints:</span>
+          <CustomScrollbar autoHide={false} autoHeightMax='250px'>
+            <HorizontalGroup spacing="xs" align="flex-start" wrap>
+              {datapoints.map(dp => (<Badge key={dp} text={dp} color={'green'} />))}
+            </HorizontalGroup>
+          </CustomScrollbar>
 
-<br/>
-        <span>Matching devices</span>
-<CustomScrollbar autoHide={false} autoHeightMax='250px'>
+          <br />
+          <span>Matching devices</span>
+          <CustomScrollbar autoHide={false} autoHeightMax='250px'>
 
-      <HorizontalGroup spacing="xs" align="flex-start" wrap>
-{devicesToImport.map((device, idx) => (
-  <Badge 
-    key={device.name} 
-      text={device.name} 
-      color={device.import ? 'green' : 'purple'}
-      icon={device.import ? 'check' : undefined}
-      tooltip={device.import ? 'click to exclude' : 'click to include'}
-      onClick={() => {
-        let copy=[...devicesToImport]
-        copy[idx].import = !copy[idx].import
-        setDevicesToImport(copy)
-      }}
-    />)
-)}
-</HorizontalGroup>
-</CustomScrollbar>
+            <HorizontalGroup spacing="xs" align="flex-start" wrap>
+              {devicesToImport.map((device, idx) => (
+                <Badge
+                  key={device.name}
+                  text={device.name}
+                  color={device.import ? 'green' : 'purple'}
+                  icon={device.import ? 'check' : undefined}
+                  tooltip={device.import ? 'click to exclude' : 'click to include'}
+                  onClick={() => {
+                    let copy = [...devicesToImport]
+                    copy[idx].import = !copy[idx].import
+                    setDevicesToImport(copy)
+                  }}
+                />)
+              )}
+            </HorizontalGroup>
+          </CustomScrollbar>
 
           <br></br>
 
@@ -84,7 +84,7 @@ export const ConfirmationModal = ({
             externalRef={formRef}
             onSubmit={(v) => {
               onConfirm({
-                devices: devicesToImport.filter(e => e.import===true).map(e => e.name),
+                devices: devicesToImport.filter(e => e.import === true).map(e => e.name),
                 datapoints: datapoints,
                 formValues: v,
               });
