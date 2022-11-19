@@ -146,6 +146,3 @@ export const cancelled = (sessionId: string): Promise<string> =>
 // The Things Network
 export const getResource = (projectName: string, resourceName: string): Promise<ResourceSettings> =>
   request(projectName + '/_resources/' + resourceName, 'GET', '', 0);
-
-export const upsertResource = (projectName: string, resource: ResourceSettings) =>
-  request(projectName + '/_resources/' + resource.name, 'PUT', JSON.stringify(resource), WAIT_AFTER_EXEC_MS);

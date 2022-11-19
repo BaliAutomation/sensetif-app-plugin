@@ -5,7 +5,7 @@ import { Alert, LoadingPlaceholder } from '@grafana/ui';
 import { goToResources } from '../utils/navigation';
 import { TtnResourceForm } from 'forms/TtnResourceForm';
 import { logError } from '@grafana/runtime';
-import { getResource, upsertResource } from '../utils//api';
+import { getResource } from '../utils//api';
 
 export const EditThingsNetworkApplication: FC<AppRootProps> = ({ query }) => {
   const projectName: string = query['project'];
@@ -33,12 +33,6 @@ export const EditThingsNetworkApplication: FC<AppRootProps> = ({ query }) => {
       });
   };
 
-  const updateTtnResource = (projectName: string, ttnResource: ThingsNetworkApplicationSettings) => {
-    upsertResource(projectName, ttnResource)
-      .then(() => goToResources(projectName))
-      .catch((err) => logError(err));
-  };
-
   if (isLoading) {
     return <LoadingPlaceholder text="Loading..." />;
   }
@@ -55,7 +49,6 @@ export const EditThingsNetworkApplication: FC<AppRootProps> = ({ query }) => {
     <>
       <TtnResourceForm
         ttn={ttnResource}
-        onSubmit={(data) => updateTtnResource(projectName, data)}
         onCancel={() => goToResources(projectName)}
       />
     </>
