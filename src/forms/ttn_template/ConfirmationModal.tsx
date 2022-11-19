@@ -68,6 +68,7 @@ export const ConfirmationModal = ({
                   color={device.import ? 'green' : 'purple'}
                   icon={device.import ? 'check' : undefined}
                   tooltip={device.import ? 'click to exclude' : 'click to include'}
+                  style={{ cursor: 'pointer' }}
                   onClick={() => {
                     let copy = [...devicesToImport]
                     copy[idx].import = !copy[idx].import
@@ -79,6 +80,7 @@ export const ConfirmationModal = ({
           </CustomScrollbar>
 
           <br></br>
+
 
           <DatapointForm
             externalRef={formRef}

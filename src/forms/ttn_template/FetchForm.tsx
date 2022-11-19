@@ -10,7 +10,6 @@ export type formValues = {
 
 export interface TtnProps extends FormAPI<ThingsNetworkApplicationSettings> {
   ttn?: ThingsNetworkApplicationSettings;
-  onSubmit: (formValues: formValues) => void;
 }
 
 export const TtnResource = ({ register, control, watch, errors }: TtnProps) => {

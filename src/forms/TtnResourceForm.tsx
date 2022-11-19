@@ -12,7 +12,6 @@ import { datapointFormValues } from './ttn_template/DatapointForm';
 // import { TasksProgress } from './ttn_template/TasksProgress';
 interface Props {
   ttn?: ThingsNetworkApplicationSettings;
-  onSubmit: (data: ThingsNetworkApplicationSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
   onCancel: () => void;
 }
 
@@ -20,7 +19,7 @@ type selectedDeviceId = string;
 type devices = ttnDevice[];
 type devicesMsg = { [id: string]: loadingValue<msgResult> };
 
-export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
+export const TtnResourceForm = ({ ttn, onCancel }: Props) => {
   let [apiError, setApiError] = useState<Error>();
 
   let [formValues, setFormValues] = useState<formValues>();
@@ -104,23 +103,19 @@ export const TtnResourceForm = ({ ttn, onSubmit, onCancel }: Props) => {
       )}
 
       <Form<ThingsNetworkApplicationSettings>
-        onSubmit={onSubmit}
         maxWidth={1024}
-        defaultValues={{
-          ...ttn,
+        onSubmit={(a) => {
+          setFormValues({
+            app: a.application,
+            zone: a.zone,
+            token: a.authorizationKey,
+          })
         }}
       >
-        {(formApi) => {
-          return (
-              <TtnResource
-                ttn={ttn}
-                {...formApi}
-                onSubmit={(formValues) => {
-                  setFormValues(formValues);
-                }}
-              />
-          );
-        }}
+        {(formApi) => (<TtnResource
+          ttn={ttn}
+          {...formApi}
+        />)}
       </Form>
 
       {devices && devices.length !== 0 && formValues && (

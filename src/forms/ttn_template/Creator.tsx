@@ -40,19 +40,23 @@ export const TemplateCreatorModal = ({
       title="Select datapoints to be imported"
       body={
         <CustomScrollbar autoHeightMax='410px'>
-        {Object.entries(selectedPayload).map(([name, v]) => (
-        <div key={name}>
-          <Checkbox
-            value={template?.[name]?.checked}
-            onChange={() => onSelect(name)}
-            disabled={!isSupported(v)}
-          >
-          </Checkbox>
-            {' '}<Badge text={name} color="blue"/>
-            {!isSupported(v) && <span> - objects are not supported</span>}
-        </div>
-      ))}
-      </CustomScrollbar>
+          {Object.entries(selectedPayload).map(([name, v]) => (
+            <div key={name}>
+              <Checkbox
+                value={template?.[name]?.checked}
+                onChange={() => onSelect(name)}
+                disabled={!isSupported(v)}
+              >
+              </Checkbox>
+              {' '}
+              <Badge text={name}
+                color={template?.[name]?.checked ? 'green' : 'purple'}
+                style={{ cursor: 'pointer' }}
+                onClick={() => { onSelect(name) }} />
+              {!isSupported(v) && <span> - objects are not supported</span>}
+            </div>
+          ))}
+        </CustomScrollbar>
       }
       confirmText="Confirm"
       onConfirm={() => {

@@ -85,7 +85,7 @@ const DatapointSubFormInner = ({ onSubmit, handleSubmit, externalRef }: Datapoin
   );
 };
 
-interface OtherFieldsProps extends UseFormReturn<otherFields> {}
+interface OtherFieldsProps extends UseFormReturn<otherFields> { }
 
 const OtherFieldsForm = ({ control, formState: { errors } }: OtherFieldsProps) => {
   return (
@@ -139,7 +139,7 @@ const OtherFieldsForm = ({ control, formState: { errors } }: OtherFieldsProps) =
   );
 };
 
-interface ProcessingProps extends UseFormReturn<Processing> {}
+interface ProcessingProps extends UseFormReturn<Processing> { }
 
 const ProcessingSubForm = ({ control, watch, formState: { errors } }: ProcessingProps) => {
   const scaling = watch('scaling');
@@ -147,6 +147,25 @@ const ProcessingSubForm = ({ control, watch, formState: { errors } }: Processing
   return (
     <>
       <VerticalGroup>
+        <HorizontalGroup>
+          <Field label="Minimum Value" invalid={!!errors.min} error={errors.min && errors.min.message}>
+            <InputControl
+              render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Leave blank for no limit" />}
+              control={control}
+              name="min"
+              defaultValue={''}
+            />
+          </Field>
+          <Field label="Maximum Value" invalid={!!errors.max} error={errors.max && errors.max.message}>
+            <InputControl
+              render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Leave blank for no limit" />}
+              control={control}
+              name="max"
+              defaultValue={''}
+            />
+          </Field>
+        </HorizontalGroup>
+
         <Field label="Unit" invalid={!!errors?.unit} error={errors?.unit && errors?.unit?.message}>
           <InputControl
             render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Unit" />}
@@ -206,25 +225,6 @@ const ProcessingSubForm = ({ control, watch, formState: { errors } }: Processing
               />
             </Field>
           )}
-        </HorizontalGroup>
-
-        <HorizontalGroup>
-          <Field label="Minimum Value" invalid={!!errors.min} error={errors.min && errors.min.message}>
-            <InputControl
-              render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Leave blank for no limit" />}
-              control={control}
-              name="min"
-              defaultValue={''}
-            />
-          </Field>
-          <Field label="Maximum Value" invalid={!!errors.max} error={errors.max && errors.max.message}>
-            <InputControl
-              render={({ field: { ref, ...field } }) => <Input {...field} placeholder="Leave blank for no limit" />}
-              control={control}
-              name="max"
-              defaultValue={''}
-            />
-          </Field>
         </HorizontalGroup>
       </VerticalGroup>
     </>
