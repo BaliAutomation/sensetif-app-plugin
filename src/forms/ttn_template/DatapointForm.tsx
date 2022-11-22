@@ -211,7 +211,7 @@ const ProcessingSubForm = ({ control, watch, formState: { errors } }: Processing
                 render={({ field: { ref, ...field } }) => <Input {...field} placeholder="k" />}
                 control={control}
                 name="k"
-                defaultValue={''}
+                defaultValue={1.0}
               />
             </Field>
           )}
@@ -221,7 +221,7 @@ const ProcessingSubForm = ({ control, watch, formState: { errors } }: Processing
                 render={({ field: { ref, ...field } }) => <Input {...field} placeholder="m" />}
                 control={control}
                 name="m"
-                defaultValue={''}
+                defaultValue={0.0}
               />
             </Field>
           )}
