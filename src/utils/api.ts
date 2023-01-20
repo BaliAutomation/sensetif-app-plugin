@@ -153,5 +153,5 @@ export const getResource = (projectName: string, resourceName: string): Promise<
   request(projectName + '/_resources/' + resourceName, 'GET', '', 0);
 
 // Datapoint Manual Update of Value
-export const updateTimeseriesValues = (projectName: string, subsystemName: string, datapointName:string, values: TsPair[] ): Promise<ResourceSettings> =>
+export const updateTimeseriesValues = (projectName: string, subsystemName: string, datapointName: string, values: TsPair[] ): Promise<ResourceSettings> =>
   request('/_timeseries/' + projectName + '/' + subsystemName + '/' + datapointName, 'PUT', JSON.stringify(values), 0);

@@ -4,7 +4,7 @@ import { SimpleOptions } from '../types';
 import { css, cx } from '@emotion/css';
 // import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useStyles2 } from '@grafana/ui';
-import { InteracriveTable } from './Table';
+import { InteractiveTable } from './Table';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
@@ -35,7 +35,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         `
       )}
     >
-     <InteracriveTable frames={data.series}/>
+     <InteractiveTable frames={data.series}/>
     </div>
   );
 };

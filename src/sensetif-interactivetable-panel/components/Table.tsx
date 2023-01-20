@@ -155,16 +155,22 @@ function dataFramesToMydata(frames: DataFrame[]): mydata[] {
   return out
 }
 
-export function InteracriveTable({ frames }: { frames: DataFrame[] }) {
+export function InteractiveTable({ frames }: { frames: DataFrame[] }) {
   const md = dataFramesToMydata(frames)
 
   const valueColumns = React.useMemo<Array<ColumnDef<mydata, cellValue>>>(
-    () => Object.keys(md[0].values).map(key => ({
-      header: key,
-      accessorFn: (val: mydata) => val.values[key],
-      cell: editableColumn.cell,
-      enableColumnFilter: true,
-    })), [md]
+    () => {
+      if( !md || !md[0]) {
+        return [];
+      }
+
+      return Object.keys(md[0].values).map(key => ({
+        header: key,
+        accessorFn: (val: mydata) => val.values[key],
+        cell: editableColumn.cell,
+        enableColumnFilter: true,
+      }));
+    }, [md]
   )
 
   const columns = React.useMemo<Array<ColumnDef<mydata, cellValue>>>(
