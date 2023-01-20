@@ -14,6 +14,11 @@ import { API_RESOURCES } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 200;
 
+interface TsPair {
+  ts: string,
+  value: number
+}
+
 const request = (path: string, method: string, body: string, waitTime = 0) => {
   logInfo('Request: ' + method + ' ' + path);
   let srv = getBackendSrv();
@@ -146,3 +151,7 @@ export const cancelled = (sessionId: string): Promise<string> =>
 // The Things Network
 export const getResource = (projectName: string, resourceName: string): Promise<ResourceSettings> =>
   request(projectName + '/_resources/' + resourceName, 'GET', '', 0);
+
+// Datapoint Manual Update of Value
+export const updateTimeseriesValues = (projectName: string, subsystemName: string, datapointName:string, values: TsPair[] ): Promise<ResourceSettings> =>
+  request('/_timeseries/' + projectName + '/' + subsystemName + '/' + datapointName, 'PUT', JSON.stringify(values), 0);
