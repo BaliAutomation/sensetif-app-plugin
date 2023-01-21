@@ -19,11 +19,18 @@ import { Input, useStyles2 } from '@grafana/ui'
 import { DataFrame, dateTimeFormat } from '@grafana/data'
 import { getTableStyles } from 'components/table/styles'
 
+
+export type UpdateValue = {
+  time: Date;
+  refId: string;
+  value: number;
+}
+
 declare module '@tanstack/react-table' {
   interface TableMeta<TData extends RowData> {
     updateData: (rowIndex: number, columnId: string, value: cellValue) => void
   }
- }
+}
 
 const EditableCell = (getValue: () => cellValue, table: Table<mydata>, rowIndex: number, colId: string) => {
   const initialValue = getValue()
@@ -155,12 +162,18 @@ function dataFramesToMydata(frames: DataFrame[]): mydata[] {
   return out
 }
 
-export function InteractiveTable({ frames }: { frames: DataFrame[] }) {
+export function InteractiveTable({
+  frames,
+  onUpdate
+}: {
+  frames: DataFrame[],
+  onUpdate: (value: UpdateValue) => void
+}) {
   const md = dataFramesToMydata(frames)
 
   const valueColumns = React.useMemo<Array<ColumnDef<mydata, cellValue>>>(
     () => {
-      if( !md || !md[0]) {
+      if (!md || !md[0]) {
         return [];
       }
 
@@ -187,7 +200,6 @@ export function InteractiveTable({ frames }: { frames: DataFrame[] }) {
 
 
   const [data, setData] = React.useState(() => md)
-
   // const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
 
   const table = useReactTable<mydata>({
@@ -201,7 +213,6 @@ export function InteractiveTable({ frames }: { frames: DataFrame[] }) {
     // Provide our updateData function to our table meta
     meta: {
       updateData: (rowIndex, columnId, value) => {
-        console.log(`updating row: ${rowIndex}, column: ${columnId}, value: ${value}`)
         // console.log(`updated data: rowIdx: ${rowIndex}; colId: ${columnId}`)
         if (typeof value !== 'number') {
           // console.log(`skipping update of value of type: "${typeof value} "`)
@@ -224,16 +235,21 @@ export function InteractiveTable({ frames }: { frames: DataFrame[] }) {
                   ...old[rowIndex].values,
                   [columnId]: value
                 }
-                // [columnId]: value
               }
             }
             return row
           })
 
-          console.log('new: ', fresh)
           return fresh
+        })
+
+        const updatedValue = {
+          time: table.getRow(String(rowIndex)).original.time,
+          refId: columnId,
+          value: value,
         }
-        )
+
+        onUpdate(updatedValue)
       },
     },
     debugTable: true,

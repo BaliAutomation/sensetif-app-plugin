@@ -230,3 +230,8 @@ export interface ThingsNetworkApplicationSettings extends ResourceSettings {
   application: string;
   authorizationKey: string;
 }
+
+export interface TsPair {
+  ts: string,
+  value: number
+}
