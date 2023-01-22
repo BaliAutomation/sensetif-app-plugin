@@ -154,8 +154,8 @@ function dataFramesToMydata(frames: DataFrame[]): mydata[] {
   })
 
   out.sort((a, b: mydata): number => {
-    if (a.time < b.time) { return -1 };
-    if (a.time === b.time) { return 0 };
+    if (a.time < b.time) { return -1 }
+    if (a.time === b.time) { return 0 }
     return 1;
   })
 

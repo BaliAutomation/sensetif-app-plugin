@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataQuery, PanelData, PanelProps } from '@grafana/data';
+import { DataQuery, dateTimeFormatISO, PanelData, PanelProps } from '@grafana/data';
 import { SimpleOptions } from '../types';
 import { css, cx } from '@emotion/css';
 // import { useStyles2, useTheme2 } from '@grafana/ui';
@@ -75,7 +75,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         copy[value.refId] = {}
       }
 
-      copy[value.refId][value.time.getTime()] = value.value
+      copy[value.refId][dateTimeFormatISO(value.time)] = value.value
 
       return copy
     })
