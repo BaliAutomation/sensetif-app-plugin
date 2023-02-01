@@ -1,17 +1,11 @@
 import React from 'react'
 
-//
-import './index.css'
-
-//
 import {
-  Column,
   Table,
   ColumnDef,
   useReactTable,
   getCoreRowModel,
   getFilteredRowModel,
-  // getPaginationRowModel,
   flexRender,
   RowData,
 } from '@tanstack/react-table'
@@ -32,7 +26,7 @@ declare module '@tanstack/react-table' {
   }
 }
 
-const EditableCell = (getValue: () => cellValue, table: Table<mydata>, rowIndex: number, colId: string) => {
+const EditableCell = (getValue: () => cellValue, table: Table<mydata>, rowIndex: number, colId: string, tableStyles: any) => {
   const initialValue = getValue()
   const [value, setValue] = React.useState(initialValue)
   const [editMode, setEditMode] = React.useState<boolean>(false)
@@ -49,66 +43,31 @@ const EditableCell = (getValue: () => cellValue, table: Table<mydata>, rowIndex:
     setValue(initialValue)
   }, [initialValue])
 
-  // const handleKeyDown = (key: string) => {
-  //   console.log('clicked: ', key)
-  //   if (key === 'Enter') {
-  //     onBlur()
-  //   }
-  // };
-
-  const tableStyles = useStyles2(getTableStyles);
-
-  // const updateValue = (val: string) => {
-  //   console.log(`updateValue: ${val}`)
-  //   let newValue: any = val
-  //   if (typeof initialValue === 'number') {
-  //     newValue = Number(value)
-  //   }
-
-  //   // table.options.meta?.updateData(rowIndex, colId, value);
-  //   setValue(newValue);
-  //   // setEditMode(false);
-  // }
-
   return (
-    <div className={tableStyles.cellContainer}
-      onClick={() => { if (!editMode) { setEditMode(true) } }}
-    >
+    <div onClick={() => { if (!editMode) { setEditMode(true) } }} className={tableStyles.cellContainer}>
       {editMode && <Input autoFocus
         type='number'
         value={value as number}
-        // onChange={e => updateValue(e.currentTarget.value)}
         onChange={e => setValue(e.currentTarget.value)}
-        // onKeyDown={e => handleKeyDown(e.key)}
         onBlur={onBlur} />}
-      {!editMode && <span>{value}</span>}
+
+      {!editMode && <div className={tableStyles.cellText}><span style={{display: 'inline-table'}}>{value}</span></div>}
     </div>
   )
 }
 
-const editableColumn: Partial<ColumnDef<mydata, any>> = {
-  cell: ({ getValue, row: { index }, column: { id }, table }) => {
+const editableColumnStyled = (tableStyle: any): Partial<ColumnDef<mydata, any>> => {
 
-    return EditableCell(getValue, table, index, id)
+  const editableColumn: Partial<ColumnDef<mydata, any>> = {
+    cell: ({ getValue, row: { index }, column: { id }, table }) => {
+
+      return EditableCell(getValue, table, index, id, tableStyle)
+    }
   }
+
+  return editableColumn
 }
 
-
-// function useSkipper() {
-//   const shouldSkipRef = React.useRef(true)
-//   const shouldSkip = shouldSkipRef.current
-
-//   // Wrap a function with this to skip a pagination reset temporarily
-//   const skip = React.useCallback(() => {
-//     shouldSkipRef.current = false
-//   }, [])
-
-//   React.useEffect(() => {
-//     shouldSkipRef.current = true
-//   })
-
-//   return [shouldSkip, skip] as const
-// }
 
 type cellValue = number | string
 
@@ -169,6 +128,9 @@ export function InteractiveTable({
   frames: DataFrame[],
   onUpdate: (value: UpdateValue) => void
 }) {
+  console.log(`init interactive table...`)
+  const tableStyles = useStyles2(getTableStyles);
+
   const md = dataFramesToMydata(frames)
 
   const valueColumns = React.useMemo<Array<ColumnDef<mydata, cellValue>>>(
@@ -180,10 +142,10 @@ export function InteractiveTable({
       return Object.keys(md[0].values).map(key => ({
         header: key,
         accessorFn: (val: mydata) => val.values[key],
-        cell: editableColumn.cell,
+        cell: editableColumnStyled(tableStyles).cell,
         enableColumnFilter: true,
       }));
-    }, [md]
+    }, [md, tableStyles]
   )
 
   const columns = React.useMemo<Array<ColumnDef<mydata, cellValue>>>(
@@ -191,41 +153,35 @@ export function InteractiveTable({
       {
         header: 'Time',
         accessorFn: (row: mydata) => { return dateTimeFormat(row.time) },
-        cell: (props) => (<span>{props.getValue()}</span>)
-        // cell: (props) => {return ''}
+        cell: (props) => (<div className={tableStyles.cellContainer}>
+          <div className={tableStyles.cellText}>
+            <span>{props.getValue()}</span>
+          </div>
+        </div>)
       },
       ...valueColumns,
-    ]), [valueColumns]
+    ]), [valueColumns, tableStyles]
   )
 
 
   const [data, setData] = React.useState(() => md)
-  // const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
 
   const table = useReactTable<mydata>({
     data,
     columns,
-    // defaultColumn,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // getPaginationRowModel: getPaginationRowModel(),
-    // autoResetPageIndex,
     // Provide our updateData function to our table meta
     meta: {
       updateData: (rowIndex, columnId, value) => {
-        // console.log(`updated data: rowIdx: ${rowIndex}; colId: ${columnId}`)
         if (typeof value !== 'number') {
-          // console.log(`skipping update of value of type: "${typeof value} "`)
           return
         }
-        // console.log(`update with value: ${value}`)
 
         if (isNaN(value)) {
           return
         }
 
-        // Skip age index reset until after next rerender
-        // skipAutoResetPageIndex()
         setData(old => {
           let fresh = old.map((row, index) => {
             if (index === rowIndex) {
@@ -256,25 +212,20 @@ export function InteractiveTable({
   })
 
   return (
-    <div className="tableContainer">
+    <div className={tableStyles.table}>
       <table style={{ width: '100%' }}>
         <thead>
           {table.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id}>
+            <tr key={headerGroup.id} className={tableStyles.headerRow}>
               {headerGroup.headers.map(header => {
                 return (
                   <th key={header.id} colSpan={header.colSpan}>
                     {header.isPlaceholder ? null : (
-                      <div>
+                      <div className={tableStyles.headerCell}>
                         {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                        {header.column.getCanFilter() ? (
-                          <div>
-                            <Filter column={header.column as Column<mydata, any>} table={table} />
-                          </div>
-                        ) : null}
                       </div>
                     )}
                   </th>
@@ -286,7 +237,7 @@ export function InteractiveTable({
         <tbody>
           {table.getRowModel().rows.map(row => {
             return (
-              <tr key={row.id}>
+              <tr key={row.id} className={tableStyles.row}>
                 {row.getVisibleCells().map(cell => {
                   return (
                     <td key={cell.id}>
@@ -302,61 +253,7 @@ export function InteractiveTable({
           })}
         </tbody>
       </table>
-
-      <div className="flex items-center gap-2">
-      </div>
-      <div>{table.getRowModel().rows.length} Rows</div>
     </div>
   )
 }
-function Filter({
-  column,
-  table,
-}: {
-  column: Column<mydata, cellValue>
-  table: Table<mydata>
-}) {
-  const firstValue = table
-    .getPreFilteredRowModel()
-    .flatRows[0]
-    ?.getValue<cellValue>(column.id)
 
-  const columnFilterValue = column.getFilterValue()
-
-  return typeof firstValue === 'number' ? (
-    <div className="flex space-x-2">
-      <input
-        type="number"
-        value={(columnFilterValue as [number, number])?.[0] ?? ''}
-        onChange={e =>
-          column.setFilterValue((old: [number, number]) => [
-            e.target.value,
-            old?.[1],
-          ])
-        }
-        placeholder={`Min`}
-        className="w-24 border shadow rounded"
-      />
-      <input
-        type="number"
-        value={(columnFilterValue as [number, number])?.[1] ?? ''}
-        onChange={e =>
-          column.setFilterValue((old: [number, number]) => [
-            old?.[0],
-            e.target.value,
-          ])
-        }
-        placeholder={`Max`}
-        className="w-24 border shadow rounded"
-      />
-    </div>
-  ) : (
-    <input
-      type="text"
-      value={(columnFilterValue ?? '') as string}
-      onChange={e => column.setFilterValue(e.target.value)}
-      placeholder={`Search...`}
-      className="w-36 border shadow rounded"
-    />
-  )
-}

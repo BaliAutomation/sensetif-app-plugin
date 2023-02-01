@@ -121,6 +121,10 @@ export const getTableStyles = (theme: GrafanaTheme2) => {
       background: ${headerBg};
       position: relative;
     `,
+    headerRow: css`
+      label: row;
+      border-bottom: 1px solid ${borderColor};
+    `,
     headerCell: css`
       padding: ${cellPadding}px;
       overflow: hidden;

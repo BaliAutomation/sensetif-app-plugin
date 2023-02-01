@@ -4,7 +4,7 @@ import { SimpleOptions } from '../types';
 import { css, cx } from '@emotion/css';
 // import { useStyles2, useTheme2 } from '@grafana/ui';
 import { Button, ConfirmModal, useStyles2 } from '@grafana/ui';
-import { InteractiveTable, UpdateValue } from './Table';
+import { InteractiveTable, UpdateValue } from './InteractiveTable';
 import { TsPair } from 'types';
 import { updateTimeseriesValues } from 'utils/api';
 
@@ -14,7 +14,6 @@ const getStyles = () => {
   return {
     wrapper: css`
       height: 100%;
-      font-family: Open Sans;
       position: relative;
     `,
     textBox: css`
