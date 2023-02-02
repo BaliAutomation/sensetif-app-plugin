@@ -30,7 +30,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     console.warn("panel is only comaptible with sensetif datasource")
   }
 
-
   const [showConfirmation, setShowConfirmation] = React.useState<boolean>()
 
   const styles = useStyles2(getStyles);

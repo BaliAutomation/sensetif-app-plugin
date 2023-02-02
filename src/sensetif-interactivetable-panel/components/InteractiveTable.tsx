@@ -51,23 +51,30 @@ const EditableCell = (getValue: () => cellValue, table: Table<mydata>, rowIndex:
         onChange={e => setValue(e.currentTarget.value)}
         onBlur={onBlur} />}
 
-      {!editMode && <div className={tableStyles.cellText}><span style={{display: 'inline-table'}}>{value}</span></div>}
+      {!editMode && <div className={tableStyles.cellText}><span style={{ display: 'inline-table' }}>{value}</span></div>}
     </div>
   )
 }
 
-const editableColumnStyled = (tableStyle: any): Partial<ColumnDef<mydata, any>> => {
+const SimpleColumn = (getValue: () => cellValue, tableStyles: any) => (
+  <div className={tableStyles.cellContainer}>
+          <div className={tableStyles.cellText}>
+            <span>{getValue()}</span>
+          </div>
+        </div>
+)
 
-  const editableColumn: Partial<ColumnDef<mydata, any>> = {
-    cell: ({ getValue, row: { index }, column: { id }, table }) => {
+const editableColumnStyled = (tableStyles: any): Partial<ColumnDef<mydata, any>> => ({
+  cell: ({ getValue, row: { index }, column: { id }, table }) => (
+    EditableCell(getValue, table, index, id, tableStyles)
+  )
+})
 
-      return EditableCell(getValue, table, index, id, tableStyle)
-    }
-  }
-
-  return editableColumn
-}
-
+const simpleColumnStyled = (tableStyles: any): Partial<ColumnDef<mydata, any>> => ({
+  cell: ({ getValue }) => (
+    SimpleColumn(getValue, tableStyles)
+  )
+})
 
 type cellValue = number | string
 
@@ -128,7 +135,6 @@ export function InteractiveTable({
   frames: DataFrame[],
   onUpdate: (value: UpdateValue) => void
 }) {
-  console.log(`init interactive table...`)
   const tableStyles = useStyles2(getTableStyles);
 
   const md = dataFramesToMydata(frames)
@@ -153,11 +159,7 @@ export function InteractiveTable({
       {
         header: 'Time',
         accessorFn: (row: mydata) => { return dateTimeFormat(row.time) },
-        cell: (props) => (<div className={tableStyles.cellContainer}>
-          <div className={tableStyles.cellText}>
-            <span>{props.getValue()}</span>
-          </div>
-        </div>)
+        cell: simpleColumnStyled(tableStyles).cell
       },
       ...valueColumns,
     ]), [valueColumns, tableStyles]
@@ -214,7 +216,7 @@ export function InteractiveTable({
   return (
     <div className={tableStyles.table}>
       <table style={{ width: '100%' }}>
-        <thead>
+        <thead className={tableStyles.thead}>
           {table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id} className={tableStyles.headerRow}>
               {headerGroup.headers.map(header => {
