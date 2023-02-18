@@ -5,7 +5,7 @@ import { css, cx } from '@emotion/css';
 // import { useStyles2, useTheme2 } from '@grafana/ui';
 import { Button, ConfirmModal, useStyles2 } from '@grafana/ui';
 import { InteractiveTable, UpdateValue } from './InteractiveTable';
-import { TsPair } from 'types';
+import { ResourceSettings, TsPair } from 'types';
 import { updateTimeseriesValues } from 'utils/api';
 
 interface Props extends PanelProps<SimpleOptions> { }
@@ -72,9 +72,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       if (!copy[value.refId]) {
         copy[value.refId] = {}
       }
-
       copy[value.refId][dateTimeFormatISO(value.time)] = value.value
-
       return copy
     })
   }
@@ -85,9 +83,16 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       isOpen={showConfirmation}
       confirmText={"Confirm"}
       onConfirm={() => {
+        let promises: Array<Promise<ResourceSettings>> = [];
         makeRequests().forEach(req => {
-          updateTimeseriesValues(req.project, req.subsystem, req.datapoint, req.tsPairs)
-        })
+          let promise = updateTimeseriesValues(req.project, req.subsystem, req.datapoint, req.tsPairs);
+          promises.push( promise );
+        });
+        Promise.all(promises)
+          .catch(reason => {
+            // TODO: How to show the Grafana notification thingy?
+          })
+          .finally(() => setShowConfirmation(false) )
       }}
       onDismiss={() => setShowConfirmation(false)}
       body={<>

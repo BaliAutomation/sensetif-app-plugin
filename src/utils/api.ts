@@ -129,14 +129,14 @@ export const renameDatapoint = (
   return request(projectName + '/' + subsystemName + '/' + oldName, 'POST', JSON.stringify(change), WAIT_AFTER_EXEC_MS);
 };
 
-export const getLimits = (): Promise<Limits> => request('_limits/current', 'GET', '', 0);
+export const getLimits = (): Promise<Limits> => request('_limits/current', 'GET', '', 20);
 
-export const getPlans = (): Promise<PlanSettings[]> => request('_plans', 'GET', '', 0);
+export const getPlans = (): Promise<PlanSettings[]> => request('_plans', 'GET', '', 20);
 
 export const checkout = (price: string): Promise<string> =>
   request('_plans/checkout', 'POST', '{ "price": "' + price + '"}', 100);
 
-export const getPayments = (): Promise<Payment[]> => request('_payments/', 'GET', '', 0);
+export const getPayments = (): Promise<Payment[]> => request('_payments/', 'GET', '', 20);
 
 export const confirmation = (sessionId: string): Promise<string> =>
   request('_checkout/success', 'POST', '{ "id": "' + sessionId + '"}', 500);
@@ -146,8 +146,8 @@ export const cancelled = (sessionId: string): Promise<string> =>
 
 // The Things Network
 export const getResource = (projectName: string, resourceName: string): Promise<ResourceSettings> =>
-  request(projectName + '/_resources/' + resourceName, 'GET', '', 0);
+  request(projectName + '/_resources/' + resourceName, 'GET', '', 20);
 
 // Datapoint Manual Update of Value
 export const updateTimeseriesValues = (projectName: string, subsystemName: string, datapointName: string, values: TsPair[] ): Promise<ResourceSettings> =>
-  request('_timeseries/' + projectName + '/' + subsystemName + '/' + datapointName, 'PUT', JSON.stringify(values), 0);
+  request('_timeseries/' + projectName + '/' + subsystemName + '/' + datapointName, 'PUT', JSON.stringify(values), 20);
