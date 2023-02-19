@@ -1,8 +1,7 @@
 import React from 'react';
-import { DataQuery, dateTimeFormatISO, PanelData, PanelProps } from '@grafana/data';
+import { DataQuery, dateTimeFormat, PanelData, PanelProps } from '@grafana/data';
 import { SimpleOptions } from '../types';
 import { css, cx } from '@emotion/css';
-// import { useStyles2, useTheme2 } from '@grafana/ui';
 import { Button, ConfirmModal, useStyles2 } from '@grafana/ui';
 import { InteractiveTable, UpdateValue } from './InteractiveTable';
 import { ResourceSettings, TsPair } from 'types';
@@ -73,7 +72,12 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       if (!copy[value.refId]) {
         copy[value.refId] = {};
       }
-      copy[value.refId][dateTimeFormatISO(value.time)] = value.value;
+      const formattedTime = dateTimeFormat(value.time, {
+        defaultWithMS: true,
+        timeZone: "UTC",
+      });
+      // copy[value.refId][dateTimeFormatISO(value.time, { timeZone: 'utc' })] = value.value;
+      copy[value.refId][formattedTime] = value.value;
       return copy;
     });
   };
