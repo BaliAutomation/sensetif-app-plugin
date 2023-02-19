@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataQuery, dateTimeFormat, PanelData, PanelProps } from '@grafana/data';
+import { DataQuery, PanelData, PanelProps } from '@grafana/data';
 import { SimpleOptions } from '../types';
 import { css, cx } from '@emotion/css';
 import { Button, ConfirmModal, useStyles2 } from '@grafana/ui';
@@ -72,10 +72,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       if (!copy[value.refId]) {
         copy[value.refId] = {};
       }
-      const formattedTime = dateTimeFormat(value.time, {
-        defaultWithMS: true,
-        timeZone: "UTC",
-      });
+      const formattedTime = new Date(value.time).toJSON(); // hackish, but the Grafana documentation is lying in the TsDoc, and doesn't generate millis in the call below
       // copy[value.refId][dateTimeFormatISO(value.time, { timeZone: 'utc' })] = value.value;
       copy[value.refId][formattedTime] = value.value;
       return copy;
