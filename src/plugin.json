@@ -62,6 +62,10 @@
       "path": "/a/sensetif-app?tab=notifications",
       "role": "Viewer",
       "addToNav": true
+    },
+    {
+      "type": "panel",
+      "name": "interactive-panel"
     }
   ],
   "dependencies": {
