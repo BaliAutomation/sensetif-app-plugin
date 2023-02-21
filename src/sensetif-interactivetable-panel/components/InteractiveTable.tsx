@@ -48,7 +48,7 @@ const EditableCell = (getValue: () => cellValue, table: Table<mydata>, rowIndex:
       {editMode && <Input autoFocus
         type='number'
         value={value as number}
-        onChange={e => setValue(e.currentTarget.value)}
+        onChange={e => setValue(Number(e.currentTarget.value))}
         onBlur={onBlur} />}
 
       {!editMode && <div className={tableStyles.cellText}><span style={{ display: 'inline-table' }}>{value}</span></div>}
@@ -76,7 +76,7 @@ const simpleColumnStyled = (tableStyles: any): Partial<ColumnDef<mydata, any>> =
   )
 })
 
-type cellValue = number | string
+type cellValue = number
 
 type mydata = {
   time: Date,

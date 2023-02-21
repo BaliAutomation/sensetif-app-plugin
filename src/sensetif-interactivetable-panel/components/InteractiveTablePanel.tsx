@@ -1,38 +1,37 @@
 import React from 'react';
-import { DataQuery, PanelData, PanelProps } from '@grafana/data';
 import { SimpleOptions } from '../types';
+import { AlertErrorPayload, AlertPayload, AppEvents, DataQuery, PanelData, PanelProps } from '@grafana/data';
 import { css, cx } from '@emotion/css';
-import { Button, ConfirmModal, useStyles2 } from '@grafana/ui';
+// import { useStyles2, useTheme2 } from '@grafana/ui';
+import { Button, ConfirmModal, Icon, useStyles2 } from '@grafana/ui';
 import { InteractiveTable, UpdateValue } from './InteractiveTable';
-import { ResourceSettings, TsPair } from 'types';
+import {  TsPair } from 'types';
 import { updateTimeseriesValues } from 'utils/api';
+import { getAppEvents } from '@grafana/runtime';
 
 interface Props extends PanelProps<SimpleOptions> {
 }
-
-const getStyles = () => {
-  return {
-    wrapper: css`
-      height: 100%;
-      position: relative;
-    `,
-    textBox: css`
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      padding: 10px;
-    `,
-  };
-};
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
   if (!isValidData(data)) {
     console.warn('panel is only comaptible with sensetif datasource');
   }
 
-  const [showConfirmation, setShowConfirmation] = React.useState<boolean>();
 
-  const styles = useStyles2(getStyles);
+  const appEvents = getAppEvents();
+  const notifySuccess = (payload: AlertPayload) => appEvents.publish({ type: AppEvents.alertSuccess.name, payload });
+  const notifyError = (payload: AlertErrorPayload) => appEvents.publish({ type: AppEvents.alertError.name, payload });
+
+  const [showConfirmation, setShowConfirmation] = React.useState<boolean>()
+  const [isProcessing, setIsProcessing] = React.useState<boolean>(false)
+
+
+  const styles = useStyles2(() => ({
+    wrapper: css`
+      height: 100%;
+      position: relative;
+    `,
+  }));
 
   type updates = {
     [refId: string]: {
@@ -48,6 +47,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   }
 
   const [state, setState] = React.useState<updates>({});
+
 
   const makeRequests = (): request[] => {
     return Object.keys(state).map((refId) => {
@@ -79,28 +79,42 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     });
   };
 
+  if (isProcessing) {
+    return <><Icon name="fa fa-spinner" style={{ color: 'white' }} />
+      <span> Updating...</span>
+    </>
+  }
+
   if (showConfirmation) {
+    let preview = () => (<div>
+      <div><span><i>project/subsystem/datapoint: updates</i></span></div>
+      {makeRequests().map((r, idx) => (
+        <div key={idx}><span>{r.project}/{r.subsystem}/{r.datapoint}: {r.tsPairs.length}</span></div>
+      ))}</div>)
+
     return <ConfirmModal
       title={'Update values confirmation'}
       isOpen={showConfirmation}
-      confirmText={'Confirm'}
-      onConfirm={() => {
-        let promises: Array<Promise<ResourceSettings>> = [];
-        makeRequests().forEach(req => {
-          let promise = updateTimeseriesValues(req.project, req.subsystem, req.datapoint, req.tsPairs);
-          promises.push(promise);
-        });
-        Promise.all(promises)
-          .catch(reason => {
-            // TODO: How to show the Grafana notification thingy?
-          })
-          .finally(() => setShowConfirmation(false));
+      confirmText={"Confirm"}
+      onConfirm={async () => {
+        let updateRequests = makeRequests()
+          .map(req => updateTimeseriesValues({
+            projectName: req.project,
+            subsystemName: req.subsystem,
+            datapointName: req.datapoint,
+            values: req.tsPairs
+          }))
+
+        setIsProcessing(true)
+        await Promise.all(updateRequests)
+          .then(() => { setState({}); notifySuccess(['Values updated.']) })
+          .catch(e => { notifyError(['Failed to update values.']) })
+          .finally(() => { setIsProcessing(false); setShowConfirmation(false) })
+
       }}
       onDismiss={() => setShowConfirmation(false)}
-      body={<>
-        <pre>{JSON.stringify(makeRequests(), null, ' ')}</pre>
-      </>}
-    />;
+      body={preview()}
+    />
   }
 
   return (
@@ -110,9 +124,12 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         height: ${height}px;
       `}
     >
-      <Button onClick={() => {
-        setShowConfirmation(true);
-      }}>Confirm Update</Button>
+
+      <Button
+        disabled={Object.keys(state).length === 0}
+        onClick={() => { setShowConfirmation(true) }}>
+        {'Confirm Update'}
+      </Button>
       <div className={cx(styles.wrapper)}>
         <InteractiveTable
           frames={data.series}
