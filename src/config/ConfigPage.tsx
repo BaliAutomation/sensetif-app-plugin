@@ -1,35 +1,14 @@
-import React, { PureComponent } from 'react';
-import { PluginConfigPageProps, PluginMeta } from '@grafana/data';
-import { Alert, Button } from '@grafana/ui';
-import { getBackendSrv } from '@grafana/runtime';
+import React from 'react';
+import { AppPluginMeta, PluginConfigPageProps } from '@grafana/data';
+import { Alert } from '@grafana/ui';
+import { SensetifAppSettings } from 'types';
 
-export class ConfigPageBody extends PureComponent<PluginConfigPageProps<PluginMeta>> {
-  constructor(props: PluginConfigPageProps<PluginMeta>) {
-    super(props);
-  }
+interface Props extends PluginConfigPageProps<AppPluginMeta<SensetifAppSettings>> {}
 
-  enable = () => {
-    const updateCmd = {
-      enabled: true,
-      pinned: true,
-    };
-
-    return getBackendSrv()
-      .post(`/api/plugins/${this.props.plugin.meta.id}/settings`, updateCmd)
-      .then((r) => {
-        window.location.href = window.location.href;
-      });
-  };
-
-  render() {
-    return !this.props.plugin.meta.enabled ? (
-      <Button variant="primary" onClick={this.enable}>
-        Enable
-      </Button>
-    ) : (
-      <Alert severity="info" title={this.props.plugin.meta.name}>
-        Plugin already enabled
-      </Alert>
-    );
-  }
-}
+export const ConfigPageBody = ({ plugin }: Props) => {
+  return (
+    <Alert severity="info" title={plugin.meta.name}>
+      Different part of the plugin are configured in different tabs separately.
+    </Alert>
+  );
+};

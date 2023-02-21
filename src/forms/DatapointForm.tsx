@@ -104,16 +104,15 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
           ...datapoint,
           datasource: ds,
         };
-        console.log(out);
         onSubmit(out);
       },
       (err) => {
-        console.log(err);
+        console.warn(err);
       }
     );
   };
   const onInvalid: SubmitErrorHandler<DatapointSettings> = (err) => {
-    console.log(err);
+    console.warn(err);
   };
 
   const validateDatasourceSubform = async (onValid: SubmitHandler<any>, onInvalid: SubmitErrorHandler<any>) => {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AppRootProps, NavModelItem } from '@grafana/data';
+import { AppRootProps, availableIconsIndex, isIconName, NavModelItem, toIconName } from '@grafana/data';
 import { PageDefinition, PageID } from 'pages';
 import { APP_SUBTITLE, APP_TITLE } from './consts';
 
@@ -13,14 +13,15 @@ type Args = {
 export function useNavModel({ meta, pages, path, tab }: Args) {
   return useMemo(() => {
     const tabs: NavModelItem[] = [];
-
     const projectsPage: PageID = 'projects';
-
     pages.forEach(({ text, icon, id }) => {
+      if( ! isIconName(icon)) {
+        (availableIconsIndex as any)[icon] = true;
+      }
       tabs.push({
-        text,
-        icon,
-        id,
+        text: text,
+        icon: toIconName(icon),
+        id: id,
         url: `${path}?tab=${id}`,
       });
 

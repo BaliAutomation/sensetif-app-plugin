@@ -14,7 +14,7 @@ export const defaultValues: Ttnv3Datasource = {
   point: '',
   fport: -1,
   zone: '',
-  poll: false,
+  poll: true,
   subscribe: false,
   webhook: false,
 };

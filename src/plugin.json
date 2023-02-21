@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "app",
-  "name": "System",
+  "name": "Sensetif System",
   "id": "sensetif-app",
   "autoEnabled": true,
   "info": {
@@ -38,9 +38,16 @@
       "type": "page",
       "name": "Projects",
       "path": "/a/sensetif-app?tab=projects",
-      "role": "Viewer",
+      "role": "Editor",
       "addToNav": true,
       "defaultNav": true
+    },
+    {
+      "type": "page",
+      "name": "Import",
+      "path": "/a/sensetif-app?tab=import_project",
+      "role": "Editor",
+      "addToNav": false
     },
     {
       "type": "page",

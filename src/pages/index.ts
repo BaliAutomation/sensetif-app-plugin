@@ -2,20 +2,26 @@ import { AppRootProps } from '@grafana/data';
 import { AddDatapoint } from './AddDatapoint';
 import { AddProject } from './AddProject';
 import { AddSubsystem } from './AddSubsystem';
+import { AddThingsNetworkApplication } from './AddThingsNetworkApplication';
 import { Cancelled } from './Cancelled';
 import { Datapoints } from './Datapoints';
 import { EditDatapoint } from './EditDatapoint';
 import { EditProject } from './EditProject';
 import { EditSubsystem } from './EditSubsystem';
+import { EditThingsNetworkApplication } from './EditThingsNetworkApplication';
 import { NotificationsPage } from './NotificationsPage';
 import { Plans } from './Plans';
 import { Projects } from './Projects';
+import { ResourcesPage } from './Resources';
 import { Subsystems } from './Subsystems';
 import { Succeeded } from './Succeeded';
+import { ImportProject } from './ImportProject';
 
 export type PageID =
   | 'projects'
   | 'new_project'
+  | 'import_project'
+  | 'import_things_stack'
   | 'edit_project'
   | 'subsystems'
   | 'new_subsystem'
@@ -27,7 +33,10 @@ export type PageID =
   | 'plans'
   // | 'payments'
   | 'succeeded'
-  | 'cancelled';
+  | 'cancelled'
+  | 'resources'
+  | 'new_thingsnetwork_application'
+  | 'edit_thingsnetwork_application';
 
 export type PageDefinition = {
   component: React.FC<AppRootProps>;
@@ -49,6 +58,13 @@ export const pages: PageDefinition[] = [
     icon: 'fa fa-project-diagram',
     id: 'edit_project',
     text: ' Edit Project',
+  },
+
+  {
+    component: ImportProject,
+    icon: 'fa fa-project-diagram',
+    id: 'import_project',
+    text: ' Import Project',
   },
 
   {
@@ -133,5 +149,25 @@ export const pages: PageDefinition[] = [
     icon: 'fa fa-minus-circle',
     id: 'cancelled',
     text: ' Cancelled',
+  },
+
+  // The Things Network
+  {
+    component: ResourcesPage,
+    icon: 'fa helmet-battle',
+    id: 'resources',
+    text: ' Resources',
+  },
+  {
+    component: AddThingsNetworkApplication,
+    icon: 'fa cloud',
+    id: 'import_things_stack',
+    text: 'Things Network',
+  },
+  {
+    component: EditThingsNetworkApplication,
+    icon: 'fa cloud',
+    id: 'edit_thingsnetwork_application',
+    text: ' Things Network',
   },
 ];

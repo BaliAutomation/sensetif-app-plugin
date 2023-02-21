@@ -2,27 +2,46 @@ import { FilterInput } from '@grafana/ui';
 import React from 'react';
 import { HeaderGroup } from 'react-table';
 
-export const HeaderRow = ({ headerGroups }: { headerGroups: Array<HeaderGroup<any>> }) => {
+export const HeaderRow = <T extends Object>({ headerGroups }: { headerGroups: Array<HeaderGroup<T>> }) => {
+  const getThProps = (column: HeaderGroup<T>) => {
+    // @ts-ignore
+    if (column.sortable) {
+      // @ts-ignore
+      return { ...column.getHeaderProps(column.getSortByToggleProps()) };
+    }
+
+    return { ...column.getHeaderProps() };
+  };
+
   return (
     <thead>
       {
         // Loop over the header rows
-        headerGroups.map((headerGroup, idx) => (
+        headerGroups.map((headerGroup) => (
           // Apply the header row props
-          <tr {...headerGroup.getHeaderGroupProps()} key={idx}>
+          <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
             {
               // Loop over the headers in each row
-              headerGroup.headers.map((column, idx) => (
+              headerGroup.headers.map((column) => (
                 // Apply the header cell props
-                <th {...column.getHeaderProps()} key={idx}>
-                  {
-                    // Render the header
-                    column.render('Header')
-                  }
+                <th {...getThProps(column)} key={column.id}>
+                  <div>
+                    {
+                      // Render the header
+                      column.render('Header')
+                    }
+                    {/* @ts-ignore */}
+                    {column.sortable && (
+                      <span>
+                        {/* @ts-ignore */}
+                        {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                      </span>
+                    )}
+                  </div>
                   {
                     //@ts-ignore
                     //   column.canFilter && column.render('Filter')
-                    column.canFilter && <SimpleColumnFilter column={column} />
+                    column.filterable && <SimpleColumnFilter column={column} />
                   }
                 </th>
               ))
@@ -42,6 +61,10 @@ const SimpleColumnFilter = ({
 
   return (
     <FilterInput
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       value={filterValue || ''}
       // onChange={useAsyncDebounce(setFilter, 200)}
       onChange={setFilter}

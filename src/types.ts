@@ -1,7 +1,13 @@
 export interface SensetifAppSettings {
-  customText?: string;
-  customCheckbox?: boolean;
   limits?: Limits;
+
+  ttnApiKey?: string;
+  isTtnApiKeySet?: boolean;
+
+  ttnHosts?: Array<{
+    host: string;
+    key: string;
+  }>;
 }
 
 export interface ProjectSettings {
@@ -11,7 +17,7 @@ export interface ProjectSettings {
   country: string; // country list?
   timezone: string; // "UTC" or {continent}/{city}, ex Europe/Stockholm
   geolocation: string; // geo coordinates
-  subsystems: SubsystemSettings[];
+  subsystems?: SubsystemSettings[];
 }
 
 export interface SubsystemSettings {
@@ -19,7 +25,7 @@ export interface SubsystemSettings {
   name: string; // validate regexp:[a-z][A-Za-z0-9_]*
   title: string; // allow all characters
   locallocation: string; // allow all characters
-  datapoints: DatapointSettings[];
+  datapoints?: DatapointSettings[];
 }
 
 export enum DatasourceType {
@@ -212,4 +218,15 @@ export interface Payment {
   currency: string;
   description: string;
   invoicelink: string;
+}
+
+// The Things Network
+export interface ResourceSettings {
+  name: string; // validate regexp:[a-z][A-Za-z0-9]*
+  type: DatasourceType;
+}
+export interface ThingsNetworkApplicationSettings extends ResourceSettings {
+  zone: string;
+  application: string;
+  authorizationKey: string;
 }
