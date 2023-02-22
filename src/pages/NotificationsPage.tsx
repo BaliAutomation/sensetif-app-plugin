@@ -33,7 +33,7 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
 
   useEffect(() => {
     const stream = getGrafanaLiveSrv().getStream<Notification>(addr);
-    stream.subscribe((event) => {
+    let subscription = stream.subscribe((event) => {
       if (event.type === LiveChannelEventType.Message) {
         // use functional updated to not pass `data` as a dependency
         // otherwise `useEffect` will be triggered too often
@@ -43,6 +43,7 @@ const Notifications = ({ addr }: { addr: LiveChannelAddress }) => {
         });
       }
     });
+    return () => subscription.unsubscribe();
   }, [addr, setData]);
 
   return (
