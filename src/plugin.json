@@ -66,6 +66,10 @@
     {
       "type": "panel",
       "name": "interactive-panel"
+    },
+    {
+      "type": "datasource",
+      "name": "sensetif-datasource"
     }
   ],
   "dependencies": {
