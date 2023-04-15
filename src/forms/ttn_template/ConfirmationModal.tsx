@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Badge, ConfirmModal, CustomScrollbar, HorizontalGroup } from '@grafana/ui';
+import { ConfirmModal, CustomScrollbar, MultiSelect } from '@grafana/ui';
 import { DatapointForm, datapointFormValues } from './DatapointForm';
-
-type device = {
-  name: string
-  import: boolean
-}
+import { SelectableValue } from '@grafana/data';
 
 export type confirmationResult = {
   devices: string[];
@@ -14,23 +10,25 @@ export type confirmationResult = {
 };
 
 export const ConfirmationModal = ({
+  selectedDevice,
   datapoints,
   devices,
-  isOpen,
   onDismiss,
   onConfirm,
 }: {
+  selectedDevice: string
   datapoints: string[];
   devices: string[];
-  isOpen: boolean;
   onDismiss: () => void;
   onConfirm: (result: confirmationResult) => void;
 }) => {
-  let [devicesToImport, setDevicesToImport] = useState<device[]>([]);
+  let [devicesToImport, setDevicesToImport] = useState<SelectableValue[]>([]);
+  let [datapointsToImport, setDatapointsToImport] = useState<SelectableValue[]>([]);
 
   useEffect(() => {
-    setDevicesToImport(devices.map(device => ({ name: device, import: true })));
-  }, [devices]);
+    setDevicesToImport(devices.map(device => ({ label: device, value: device })));
+    setDatapointsToImport(datapoints.map(datapoint => ({ label: datapoint, value: datapoint })));
+  }, [devices, datapoints]);
 
   const formRef = React.createRef<HTMLFormElement>();
 
@@ -44,50 +42,38 @@ export const ConfirmationModal = ({
 
   return (
     <ConfirmModal
-      isOpen={isOpen}
-      title={'Datapoints to import'}
+      isOpen={true}
+      title={`Datapoints to import based on device: ${selectedDevice}`}
       body={
         <>
-
           <span>Datapooints:</span>
           <CustomScrollbar autoHide={false} autoHeightMax='250px'>
-            <HorizontalGroup spacing="xs" align="flex-start" wrap>
-              {datapoints.map(dp => (<Badge key={dp} text={dp} color={'green'} />))}
-            </HorizontalGroup>
+            <MultiSelect 
+              options={datapoints.map(dp => ({label: dp, value: dp}))}
+              value={datapointsToImport}
+              onChange={(v) => {setDatapointsToImport(v)}}
+            />
           </CustomScrollbar>
 
           <br />
           <span>Matching devices</span>
           <CustomScrollbar autoHide={false} autoHeightMax='250px'>
 
-            <HorizontalGroup spacing="xs" align="flex-start" wrap>
-              {devicesToImport.map((device, idx) => (
-                <Badge
-                  key={device.name}
-                  text={device.name}
-                  color={device.import ? 'green' : 'purple'}
-                  icon={device.import ? 'check' : undefined}
-                  tooltip={device.import ? 'click to exclude' : 'click to include'}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    let copy = [...devicesToImport]
-                    copy[idx].import = !copy[idx].import
-                    setDevicesToImport(copy)
-                  }}
-                />)
-              )}
-            </HorizontalGroup>
+            <MultiSelect 
+              options={devices.map(device => ({label: device, value: device}))}
+              value={devicesToImport}
+              onChange={(v) => {setDevicesToImport(v)}}
+            />
           </CustomScrollbar>
 
           <br></br>
-
 
           <DatapointForm
             externalRef={formRef}
             onSubmit={(v) => {
               onConfirm({
-                devices: devicesToImport.filter(e => e.import === true).map(e => e.name),
-                datapoints: datapoints,
+                devices: devicesToImport.map(d => d.value),
+                datapoints: datapointsToImport.map(d => d.value),
                 formValues: v,
               });
             }}

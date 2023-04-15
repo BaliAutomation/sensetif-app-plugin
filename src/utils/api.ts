@@ -9,7 +9,10 @@ import {
   ProjectSettings,
   SubsystemSettings,
   ResourceSettings,
-  TsPair
+  TsPair,
+  FetchDevicesResponse,
+  FetchMessageResponse,
+  msgResult
 } from 'types';
 import { API_RESOURCES } from './consts';
 
@@ -170,3 +173,81 @@ export const updateTimeseriesValues = ({
   const path = '_timeseries/' + projectName + '/' + subsystemName + '/' + datapointName;
   return request<ResourceSettings>(path, 'PUT', JSON.stringify(values), 20);
 }
+
+
+// import ttn
+export const fetchDevices = async (token: string, zone: string, app_id: string): Promise<FetchDevicesResponse> => {
+  const baseURL = `https://${zone}.cloud.thethings.network`;
+  const opts: RequestInit = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  try {
+    const response = await fetch(`${baseURL}/api/v3/applications/${app_id}/devices`, opts);
+    const rJson = await response.json();
+
+    if (!response.ok) {
+      const msg: string = rJson?.['message'] ?? `failed to fetch with response code ${response.statusText}`;
+
+      return {
+        error: new Error(msg),
+        devices: [],
+      };
+    }
+
+    return {
+      devices: rJson?.['end_devices'],
+    };
+  } catch (error) {
+    console.warn('failed to fetch devices', error);
+    return {
+      devices: [],
+      error: new Error('failed to fetch devices'),
+    };
+  }
+};
+
+export const fetchUplinkMessage = async (
+  token: string,
+  zone: string,
+  app_id: string,
+  device_id: string
+): Promise<FetchMessageResponse> => {
+  const baseURL = `https://${zone}.cloud.thethings.network`;
+  const opts: RequestInit = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  try {
+    const response = await fetch(
+      `${baseURL}/api/v3/as/applications/${app_id}/devices/${device_id}/packages/storage/uplink_message`,
+      opts
+    );
+    if (!response.ok) {
+      return {
+        messages: [],
+        error: new Error(`failed to fetch with response code ${response.statusText}`),
+      };
+    }
+
+    const rText = await response.text();
+    const out = rText
+      .split(/\r?\n/)
+      .filter((r) => r !== '')
+      .map((el) => JSON.parse(el)['result'] as msgResult);
+
+    return {
+      messages: out,
+    };
+  } catch (error) {
+    console.warn(`failed to parse msg response of device: ${device_id}`, error);
+    return {
+      messages: [],
+      error: new Error(`failed to parse response of device: ${device_id}`),
+    };
+  }
+};

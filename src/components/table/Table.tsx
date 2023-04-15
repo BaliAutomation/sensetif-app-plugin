@@ -30,7 +30,6 @@ interface Props<T extends Object> {
     width?: number;
     renderCell?: Renderer<CellProps<{}, any>>;
   }>;
-  onCellClick?: (v: Cell<T, any>) => void;
   canHideColumns?: boolean;
   hiddenColumns?: Array<keyof T>;
   pageSize?: number;
@@ -44,7 +43,6 @@ export const Table = <T extends Object>({
   pageSize,
   sortBy,
   canHideColumns,
-  onCellClick,
   selectableRows,
 }: Props<T>) => {
   const tableStyles = useStyles2(getTableStyles);
@@ -152,16 +150,14 @@ export const Table = <T extends Object>({
 
   const TableCell = <T extends {}>({
     cell,
-    onClick,
     styles,
   }: {
     cell: Cell<T>;
-    onClick: (v: Cell<T>) => void;
     styles: any;
   }) => {
     const cellProps = cell.getCellProps();
     return (
-      <td {...cellProps} onClick={() => onClick(cell)}>
+      <td {...cellProps}>
         {cell.render('Cell', {
           cellProps,
           tableStyles: styles,
@@ -224,7 +220,6 @@ export const Table = <T extends Object>({
                           //@ts-ignore
                           key={cell.id}
                           cell={cell}
-                          onClick={() => onCellClick && onCellClick(cell)}
                           styles={tableStyles}
                         />
                       );

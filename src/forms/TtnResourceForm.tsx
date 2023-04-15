@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ThingsNetworkApplicationSettings, Ttnv3Datasource, DatasourceType } from '../types';
+import { ThingsNetworkApplicationSettings, Ttnv3Datasource, DatasourceType, uplingMessage } from '../types';
 import { Alert, Form } from '@grafana/ui';
 
-import { TemplateCreatorModal } from 'forms/ttn_template/Creator';
-import { DevicesTable } from 'forms/ttn_template/DevicesTable';
+import { DevicesTable, payloadState } from 'forms/ttn_template/DevicesTable';
 import { ConfirmationModal } from 'forms/ttn_template/ConfirmationModal';
-import { ttnDevice, msgResult, loadingValue } from 'forms/ttn_template/types';
-import { upsertDatapoint, upsertProject, upsertSubsystem } from 'utils/api';
+import { fetchDevices, fetchUplinkMessage, upsertDatapoint, upsertProject, upsertSubsystem } from 'utils/api';
 import { formValues, TtnResource } from './ttn_template/FetchForm';
 import { datapointFormValues } from './ttn_template/DatapointForm';
 // import { TasksProgress } from './ttn_template/TasksProgress';
@@ -15,56 +13,27 @@ interface Props {
   onCancel: () => void;
 }
 
-type selectedDeviceId = string;
-type devices = ttnDevice[];
-type devicesMsg = { [id: string]: loadingValue<msgResult> };
+type device = {
+  payload: {
+    loaded: boolean;
+    error?: any;
+    value?: uplingMessage;
+  },
+
+  id: string,
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+type devicesMap = { [id: string]: device };
 
 export const TtnResourceForm = ({ ttn, onCancel }: Props) => {
   let [apiError, setApiError] = useState<Error>();
-
   let [formValues, setFormValues] = useState<formValues>();
-  let [devices, setDevices] = useState<devices>([]);
+  let [selectedDevice, setSelectedDevice] = useState<string>();
+  let [devicesWithPayload, setDevicesWithPayload] = useState<devicesMap>();
 
-  let [selectedDevice, setSelectedDevice] = useState<selectedDeviceId>();
-  let [payloads, setPayloads] = useState<devicesMsg>({});
-
-  let [templateDatapoints, setTemplateDatapoints] = useState<string[]>([]);
-  let [templateMatchingDevices, setTemplateMatchingDevices] = useState<string[]>([]);
-
-  let [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
-  let [showDatapointsModal, setShowDatapointsModal] = useState<boolean>(false);
   // let [showProgress, setShowProgress] = useState<boolean>(false);
-
-  const setPayloadsLoading = (devices: ttnDevice[]) => {
-    let devicesMsg: devicesMsg = {};
-    for (let device of devices) {
-      devicesMsg[device.ids.device_id] = { isLoading: true };
-    }
-
-    setPayloads(devicesMsg);
-  };
-
-  const fetchAndSetPayloads = ({
-    token,
-    zone,
-    app,
-    device,
-  }: {
-    token: string;
-    zone: string;
-    app: string;
-    device: string;
-  }) => {
-    fetchUplinkMessage(token, zone, app, device).then((r) => {
-      setApiError(r.error);
-      if (r.messages.length > 0) {
-        setPayloads((p) => ({
-          ...p,
-          [device]: { isLoading: false, value: r.messages[0] },
-        }));
-      }
-    });
-  };
 
   useEffect(() => {
     if (!formValues) {
@@ -72,26 +41,42 @@ export const TtnResourceForm = ({ ttn, onCancel }: Props) => {
     }
 
     const { token, zone, app } = formValues;
-    setPayloads({});
 
-    fetchDevices(token, zone, app)
-      .then((d) => {
-        setDevices(d.devices);
-        setApiError(d.error);
-        return d.devices;
-      })
-      .then((devices) => {
-        setPayloadsLoading(devices);
-        for (let i = 0; i < devices.length; i++) {
-          let device = devices[i];
-          fetchAndSetPayloads({
-            app: app,
-            token: token,
-            zone: zone,
-            device: device.ids.device_id,
-          });
-        }
-      });
+    (async () => {
+      const d = await fetchDevices(token, zone, app)
+      let newdevices: device[] = d.devices.map(ttnDevice => ({
+        createdAt: new Date(ttnDevice.created_at),
+        updatedAt: new Date(ttnDevice.updated_at),
+        id: ttnDevice.ids.device_id,
+        payload: { loaded: false },
+      }))
+      let newdevicesmapping: devicesMap = {}
+      for (let nd of newdevices) {
+        newdevicesmapping[nd.id] = nd
+      }
+
+      setApiError(d.error)
+      setDevicesWithPayload(newdevicesmapping)
+
+      for (let device of d.devices) {
+        const deviceID = device.ids.device_id
+        fetchUplinkMessage(token, zone, app, deviceID).then(r => {
+          setApiError(r.error)
+          setDevicesWithPayload((md) => ({
+            ...md,
+            [deviceID]: {
+              ...md![deviceID],
+              payload: {
+                ...md![deviceID].payload,
+                loaded: true,
+                value: r.messages?.[0]?.uplink_message
+              }
+            }
+          }))
+        })
+      }
+    })()
+
   }, [formValues]);
 
   return (
@@ -118,68 +103,74 @@ export const TtnResourceForm = ({ ttn, onCancel }: Props) => {
         />)}
       </Form>
 
-      {devices && devices.length !== 0 && formValues && (
+      {devicesWithPayload && Object.keys(devicesWithPayload).length !== 0 && (
         <DevicesTable
           pageSize={25}
-          devices={devices.map((d) => {
-            return {
-              device: d,
-              msg: payloads[d.ids.device_id],
-            };
-          })}
-          onSelect={(deviceId, _) => {
+          devices={Object.entries(devicesWithPayload).map(([deviceID, device]) => ({
+            id: deviceID,
+            availableDatapoints: getSupportedDatapointsOfDevice(devicesWithPayload![deviceID]),
+            createdAt: device.createdAt,
+            updatedAt: device.updatedAt,
+            payloadState: newDeviceToState(device),
+          }
+          ))}
+          onSelect={(deviceId) => {
             setSelectedDevice(deviceId);
-            setShowDatapointsModal(true);
+          }}
+          onReload={async (deviceId) => {
+            setDevicesWithPayload((md) => ({
+              ...md,
+              [deviceId]: {
+                ...md![deviceId],
+                payload: {
+                  ...md![deviceId].payload,
+                  loaded: false,
+                }
+              }
+            }))
+
+            const r = await fetchUplinkMessage(formValues!.token, formValues!.zone, formValues!.app, deviceId)
+            setApiError(r.error)
+            setDevicesWithPayload((md) => ({
+              ...md,
+              [deviceId]: {
+                ...md![deviceId],
+                payload: {
+                  ...md![deviceId].payload,
+                  loaded: true,
+                  value: r.messages?.[0]?.uplink_message
+                }
+              }
+            }))
           }}
         />
       )}
-
       <>
-        {showDatapointsModal && <TemplateCreatorModal
-          isOpen={showDatapointsModal}
-          onDismiss={() => {
-            setSelectedDevice(undefined);
-            setShowDatapointsModal(false);
-            setTemplateMatchingDevices([]);
-            setTemplateDatapoints([]);
-          }}
-          onConfirm={(datapoints: string[]) => {
-            setShowDatapointsModal(false);
-            setShowConfirmationModal(true);
-
-            setTemplateDatapoints(datapoints);
-
-            // calc matching devices
-            const devicesPayloads = Object.entries(payloads).map(([device, msg]) => ({
-              name: device,
-              payload: msg.value?.uplink_message?.decoded_payload,
-            }));
-
-            const deviceNames = devicesPayloads.filter((p) => filterPayload(p.payload, datapoints)).map((p) => p.name);
-
-            setTemplateMatchingDevices(deviceNames);
-          }}
-          selectedPayload={selectedDevice && payloads?.[selectedDevice]?.value?.uplink_message?.decoded_payload}
-        />}
-
-        {showConfirmationModal && <ConfirmationModal
-          isOpen={showConfirmationModal}
-          devices={templateMatchingDevices}
-          datapoints={templateDatapoints}
-          onDismiss={() => setShowConfirmationModal(false)}
+        {selectedDevice && <ConfirmationModal
+          selectedDevice={selectedDevice}
+          devices={
+            findDevicesWithDatapoints(
+              devicesWithPayload!,
+              getSupportedDatapointsOfDevice(devicesWithPayload![selectedDevice])
+            )
+          }
+          datapoints={getSupportedDatapointsOfDevice(devicesWithPayload![selectedDevice])}
+          onDismiss={() => setSelectedDevice(undefined)}
           onConfirm={(confirmResult) => {
-            setShowConfirmationModal(false);
+            const geolocation = findFirstGeolocation(devicesWithPayload!) ?? '';
+            const fPort = findFirstFport(devicesWithPayload!) ?? -1;
 
-            let devicesToImport = devices.filter((d) => confirmResult.devices.includes(d.ids.device_id));
-            let payloadsToImport: devicesMsg = {};
-            for (let device of devicesToImport) {
-              const id = device.ids.device_id;
-              payloadsToImport[id] = payloads[id];
-            }
+            // console.log({
+            //   confirmResult: confirmResult,
+            //   geo: geolocation,
+            //   fPort: fPort,
+            //   form: formValues
+            // })
 
             importDevices(
-              devicesToImport,
-              payloadsToImport,
+              confirmResult.devices,
+              geolocation,
+              fPort,
               formValues!,
               confirmResult.datapoints,
               confirmResult.formValues
@@ -193,38 +184,32 @@ export const TtnResourceForm = ({ ttn, onCancel }: Props) => {
   );
 };
 
-const findFirstFport = (payloads: devicesMsg) => {
-  for (let [_, msg] of Object.entries(payloads)) {
-    const fPort = msg?.value?.uplink_message?.f_port;
-    if (fPort !== undefined) {
-      return fPort;
-    }
-  }
-
-  return undefined;
+const findFirstFport = (payloads: devicesMap) => {
+  const deviceWithFport = Object.values(payloads).find((device) => device.payload.value?.f_port !== undefined)
+  return deviceWithFport?.payload.value?.f_port
 };
 
-const findFirstGeolocation = (payloads: devicesMsg) => {
-  for (let [_, msg] of Object.entries(payloads)) {
-    const location = msg?.value?.uplink_message?.rx_metadata?.[0]?.location;
-    if (location !== undefined) {
-      return `${location.latitude},${location.longitude}`;
-    }
+const findFirstGeolocation = (payloads: devicesMap) => {
+  const deviceWithLocation = Object.values(payloads).find((device) => device.payload.value?.rx_metadata?.[0]?.location !== undefined)
+
+  if (deviceWithLocation === undefined) {
+    return undefined
   }
 
-  return undefined;
+  const location = deviceWithLocation.payload.value?.rx_metadata?.[0]?.location
+  return `${location.latitude},${location.longitude}`
 };
 
+// todo: split and mv to api.ts
 const importDevices = async (
-  devices: ttnDevice[],
-  payloads: devicesMsg,
+  deviceIds: string[],
+  geolocation: string,
+  fPort: number,
   formValues: formValues,
   datapoints: string[],
   datapointFormValues: datapointFormValues
 ) => {
   const projectName = formValues.app;
-  const geolocation = findFirstGeolocation(payloads) ?? '';
-  const fPort = findFirstFport(payloads) ?? -1;
 
   await upsertProject({
     name: projectName,
@@ -240,8 +225,8 @@ const importDevices = async (
   await delay(1000);
 
   return Promise.all(
-    devices.map((device) =>
-      createSubsystemWithDevices(formValues, projectName, device, datapoints, fPort, datapointFormValues)
+    deviceIds.map((deviceId) =>
+      createSubsystemWithDevices(formValues, projectName, deviceId, datapoints, fPort, datapointFormValues)
     )
   );
 };
@@ -249,12 +234,12 @@ const importDevices = async (
 const createSubsystemWithDevices = async (
   formValues: formValues,
   projectName: string,
-  device: ttnDevice,
+  deviceId: string,
   datapoints: string[],
   fPort: number,
   datapointFormValues: datapointFormValues
 ) => {
-  const subsystemName = device.ids.device_id;
+  const subsystemName = deviceId;
   await upsertSubsystem(projectName, {
     project: projectName,
     name: subsystemName,
@@ -274,7 +259,7 @@ const createSubsystemWithDevices = async (
         subsystem: subsystemName,
         name: datapoint,
         datasourcetype: DatasourceType.ttnv3,
-        datasource: makeDatasource(formValues, datapoint, device.ids.device_id, fPort),
+        datasource: makeDatasource(formValues, datapoint, deviceId, fPort),
 
         pollinterval: datapointFormValues.pollInterval,
         timeToLive: datapointFormValues.timeToLive,
@@ -304,107 +289,51 @@ const makeDatasource = (formValues: formValues, point: string, device: string, f
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const filterPayload = (payload: any, fields: string[]): boolean => {
-  if (payload === undefined || payload === null) {
-    return false;
+const newDeviceToState = (d: device): payloadState => {
+  if (d.payload.error) {
+    return 'error'
   }
 
-  for (let field of fields) {
-    if (payload[field] === null) {
-      return false;
-    }
-    if (payload[field] === undefined) {
-      return false;
-    }
+  if (!d.payload.loaded) {
+    return 'loading'
+  }
 
-    if (typeof payload[field] === 'object') {
-      return false;
+  if (d.payload.value === undefined) {
+    return 'empty'
+  }
+
+  return 'loaded'
+}
+
+const findDevicesWithDatapoints = (devices: devicesMap, datapoints: string[]): string[] => {
+  return Object.values(devices)
+    .filter((d) => containsDatapoints(d, datapoints)).
+    map(d => d.id)
+}
+
+const containsDatapoints = (device: device, datapoints: string[]): boolean => {
+  const supportedDatapoints = getSupportedDatapointsOfDevice(device)
+  return containAllValues(supportedDatapoints, datapoints)
+}
+
+const containAllValues = (arr: string[], values: string[]): boolean => {
+  for (let v of values) {
+    if (!arr.includes(v)) {
+      return false
     }
   }
 
-  return true;
-};
+  return true
+}
 
-type fetchDevicesResponse = {
-  devices: ttnDevice[];
-  error?: Error;
-};
-const fetchDevices = async (token: string, zone: string, app_id: string): Promise<fetchDevicesResponse> => {
-  const baseURL = `https://${zone}.cloud.thethings.network`;
-  const opts: RequestInit = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  try {
-    const response = await fetch(`${baseURL}/api/v3/applications/${app_id}/devices`, opts);
-    const rJson = await response.json();
-
-    if (!response.ok) {
-      const msg: string = rJson?.['message'] ?? `failed to fetch with response code ${response.statusText}`;
-
-      return {
-        error: new Error(msg),
-        devices: [],
-      };
-    }
-
-    return {
-      devices: rJson?.['end_devices'],
-    };
-  } catch (error) {
-    console.warn('failed to fetch devices', error);
-    return {
-      devices: [],
-      error: new Error('failed to fetch devices'),
-    };
+const getSupportedDatapointsOfDevice = (device: device): string[] => {
+  if (device?.payload?.value?.decoded_payload === undefined) {
+    return []
   }
-};
 
-type fetchMessageResponse = {
-  messages: msgResult[];
-  error?: Error;
-};
-const fetchUplinkMessage = async (
-  token: string,
-  zone: string,
-  app_id: string,
-  device_id: string
-): Promise<fetchMessageResponse> => {
-  const baseURL = `https://${zone}.cloud.thethings.network`;
-  const opts: RequestInit = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  return Object.entries(device?.payload?.value?.decoded_payload)
+    .filter(([, payloadValue]) => typeof payloadValue !== 'object')
+    .map(([datapoint, _]) => datapoint)
+}
 
-  try {
-    const response = await fetch(
-      `${baseURL}/api/v3/as/applications/${app_id}/devices/${device_id}/packages/storage/uplink_message`,
-      opts
-    );
-    if (!response.ok) {
-      return {
-        messages: [],
-        error: new Error(`failed to fetch with response code ${response.statusText}`),
-      };
-    }
 
-    const rText = await response.text();
-    const out = rText
-      .split(/\r?\n/)
-      .filter((r) => r !== '')
-      .map((el) => JSON.parse(el)['result'] as msgResult);
-
-    return {
-      messages: out,
-    };
-  } catch (error) {
-    console.warn(`failed to parse msg response of device: ${device_id}`, error);
-    return {
-      messages: [],
-      error: new Error(`failed to parse response of device: ${device_id}`),
-    };
-  }
-};
