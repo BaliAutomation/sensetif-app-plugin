@@ -229,7 +229,7 @@ export interface ThingsNetworkApplicationSettings extends ResourceSettings {
   zone: string;
   application: string;
   authorizationKey: string;
-  fPort?: number;
+  fPort?: string;
   limitFetchedMessages?: boolean;
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ThingsNetworkApplicationSettings, Ttnv3Datasource, DatasourceType, uplingMessage } from '../types';
+import { ThingsNetworkApplicationSettings, Ttnv3Datasource, DatasourceType, uplingMessage, FetchMessageResponse } from '../types';
 import { Alert, Form } from '@grafana/ui';
 
 import { DevicesTable, payloadState } from 'forms/ttn_template/DevicesTable';
@@ -44,7 +44,7 @@ type formValues = {
   zone: string;
   app: string;
   token: string;
-  fPort?: number;
+  fPort?: string;
   limitFetchedMessages?: boolean;
 };
 
@@ -112,16 +112,8 @@ export const TtnResourceForm = ({ ttn, onCancel }: Props) => {
         const fetchLimit = getFetchMessagesLimit(limitFetchedMessages)
         fetchUplinkMessage(token, zone, app, deviceID, fetchLimit).then(r => {
           setApiError(r.error)
-          let fPorts: fPortPayload = {}
-          r.messages?.forEach(m => {
-            //TODO: refactor: check if already exists in fPorts map
-            fPorts[m.uplink_message.f_port] = {
-              payload: getPayloadFields(m.uplink_message.decoded_payload),
-              location: findGeoLocation(m.uplink_message),
-            }
-          })
-
-          setDevicePayloads(deviceID, fPorts);
+          // setMessageResponse(r, deviceID)
+          setDevicePayloads(deviceID, getFports(formValues!.fPort, r))
         })
       }
     })()
@@ -181,15 +173,7 @@ export const TtnResourceForm = ({ ttn, onCancel }: Props) => {
             )
 
             setApiError(r.error)
-            let fPorts: fPortPayload = {}
-            r.messages?.forEach(m => {
-              //TODO: refactor: check if already exists in fPorts map
-              fPorts[m.uplink_message.f_port] = {
-                payload: getPayloadFields(m.uplink_message.decoded_payload),
-                location: findGeoLocation(m.uplink_message),
-              }
-            })
-            setDevicePayloads(deviceId, fPorts)
+            setDevicePayloads(deviceId, getFports(formValues!.fPort, r))
           }}
         />
       )}
@@ -218,8 +202,24 @@ export const TtnResourceForm = ({ ttn, onCancel }: Props) => {
   );
 };
 
+
+const getFports = (fPortFilter: string | undefined, r: FetchMessageResponse): fPortPayload => {
+  let fPorts: fPortPayload = {}
+  r.messages?.forEach(m => {
+    if (fPortFilter === undefined || fPortFilter === '' || Number(fPortFilter) === m.uplink_message.f_port) {
+      fPorts[m.uplink_message.f_port] = {
+        payload: getPayloadFields(m.uplink_message.decoded_payload),
+        location: findGeoLocation(m.uplink_message),
+      }
+    }
+  })
+
+  return fPorts
+}
+
+
 const getPayloadFields = (payload: any): payloadField[] => {
- return Object.entries(payload).map(([k, v]) => ({
+  return Object.entries(payload).map(([k, v]) => ({
     name: k,
     type: typeof v,
     supported: (typeof v) !== 'object'

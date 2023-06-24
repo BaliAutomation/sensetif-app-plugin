@@ -10,7 +10,7 @@ export const TtnResource = ({ register, control, watch, errors }: TtnProps) => {
   const zone = watch('zone');
   const application = watch('application');
   const authorizationKey = watch('authorizationKey');
-  // const fPort = watch('fPort');
+  const fPort = watch('fPort');
 
   return (
     <>
@@ -48,6 +48,7 @@ export const TtnResource = ({ register, control, watch, errors }: TtnProps) => {
             })}
             isConfigured={false}
             onReset={() => { }}
+            autoComplete='current-password'
             defaultValue={authorizationKey ?? ''}
             placeholder={'Authorization Key'}
           />
@@ -66,7 +67,7 @@ export const TtnResource = ({ register, control, watch, errors }: TtnProps) => {
           />
         </Field>
 
-        {/* <Field
+        <Field
           label="fPort"
           invalid={!!errors.fPort}
           error={errors.fPort && errors.fPort.message}
@@ -76,7 +77,7 @@ export const TtnResource = ({ register, control, watch, errors }: TtnProps) => {
             placeholder={'fPort'}
             defaultValue={fPort ?? ''}
           />
-        </Field> */}
+        </Field>
 
         <Field
           label="Limit fetched messages"
