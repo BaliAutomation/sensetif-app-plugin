@@ -213,20 +213,33 @@ export const fetchUplinkMessage = async (
   token: string,
   zone: string,
   app_id: string,
-  device_id: string
+  device_id: string,
+  limit: number,
 ): Promise<FetchMessageResponse> => {
   const baseURL = `https://${zone}.cloud.thethings.network`;
-  const opts: RequestInit = {
+  const path = `/api/v3/as/applications/${app_id}/devices/${device_id}/packages/storage/uplink_message`
+
+  const fields = [
+    'up.uplink_message.decoded_payload',
+    'up.uplink_message.f_port', 
+    'up.uplink_message.rx_metadata'
+  ]
+
+  const reqURL = new URL(path, baseURL)
+  reqURL.searchParams.append("field_mask", fields.join(','))
+  reqURL.searchParams.append("order", '-received_at')
+  if (limit) {
+    reqURL.searchParams.append("limit", `${limit}`)
+  }
+
+  const opts = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/v3/as/applications/${app_id}/devices/${device_id}/packages/storage/uplink_message`,
-      opts
-    );
+    const response = await fetch(reqURL, opts);
     if (!response.ok) {
       return {
         messages: [],

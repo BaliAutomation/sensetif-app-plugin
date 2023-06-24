@@ -1,12 +1,6 @@
 import React from 'react';
 import { ThingsNetworkApplicationSettings } from '../../types';
-import { Button, Field, FormAPI, HorizontalGroup, Input, InputControl, RadioButtonGroup, } from '@grafana/ui';
-
-export type formValues = {
-  zone: string;
-  app: string;
-  token: string;
-};
+import { Button, Checkbox, Field, FormAPI, HorizontalGroup, Input, InputControl, RadioButtonGroup, SecretInput } from '@grafana/ui';
 
 export interface TtnProps extends FormAPI<ThingsNetworkApplicationSettings> {
   ttn?: ThingsNetworkApplicationSettings;
@@ -16,6 +10,7 @@ export const TtnResource = ({ register, control, watch, errors }: TtnProps) => {
   const zone = watch('zone');
   const application = watch('application');
   const authorizationKey = watch('authorizationKey');
+  // const fPort = watch('fPort');
 
   return (
     <>
@@ -47,14 +42,17 @@ export const TtnResource = ({ register, control, watch, errors }: TtnProps) => {
           error={errors?.authorizationKey && errors?.authorizationKey.message}
         >
 
-          <Input
+          <SecretInput
             {...register('authorizationKey', {
               required: 'Authorization key is required'
             })}
+            isConfigured={false}
+            onReset={() => { }}
             defaultValue={authorizationKey ?? ''}
             placeholder={'Authorization Key'}
           />
         </Field>
+
 
         <Field
           label="Application"
@@ -65,6 +63,33 @@ export const TtnResource = ({ register, control, watch, errors }: TtnProps) => {
             {...register('application', { required: 'Application is required' })}
             placeholder={'Application'}
             defaultValue={application ?? ''}
+          />
+        </Field>
+
+        {/* <Field
+          label="fPort"
+          invalid={!!errors.fPort}
+          error={errors.fPort && errors.fPort.message}
+        >
+          <Input
+            {...register('fPort')}
+            placeholder={'fPort'}
+            defaultValue={fPort ?? ''}
+          />
+        </Field> */}
+
+        <Field
+          label="Limit fetched messages"
+        >
+          <InputControl
+            render={({ field: { ref, ...field } }) => (
+              <Checkbox
+                {...field}
+              />
+            )}
+            control={control}
+            defaultValue={true}
+            name="limitFetchedMessages"
           />
         </Field>
 

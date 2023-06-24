@@ -9,7 +9,6 @@ export type devicesTableData = {
   createdAt: Date,
   updatedAt: Date,
   payloadState: payloadState
-  availableDatapoints: string[]
 }
 
 export const DevicesTable = ({
@@ -39,7 +38,6 @@ export const DevicesTable = ({
           updated_at: d.updatedAt,
           payload: {
             state: d.payloadState,
-            availableDatapoints: d.availableDatapoints,
           },
           reload: true
         };
@@ -95,11 +93,10 @@ type ttnDeviceRow = {
 
 type ttnDevicePayloadState = {
   state: payloadState,
-  availableDatapoints: string[],
 }
 
-const DateCell = (props: { value: Date }) => {
-  return <>{`${props.value.toLocaleDateString()} ${props.value.toLocaleTimeString()}`}</>;
+const DateCell = ({ value }: { value: Date }) => {
+  return <>{`${value.toLocaleDateString()} ${value.toLocaleTimeString()}`}</>;
 };
 
 const mkDeviceCellRenderer = (props: any, onclick: any): any => {
@@ -149,11 +146,7 @@ const PayloadCell = (props: { value: ttnDevicePayloadState }) => {
 
   return (
     <>
-      <Tooltip content={<>
-        <span>available datapoints:</span>
-        <ul>{props.value.availableDatapoints.map((dp, idx) => <li key={idx}>{dp}</li>)}</ul></>}>
-        <Icon name="check-circle" style={{ color: 'green' }} />
-      </Tooltip>
+      <Icon name="check-circle" style={{ color: 'green' }} />
     </>
   );
 };

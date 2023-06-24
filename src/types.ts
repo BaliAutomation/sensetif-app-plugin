@@ -229,6 +229,8 @@ export interface ThingsNetworkApplicationSettings extends ResourceSettings {
   zone: string;
   application: string;
   authorizationKey: string;
+  fPort?: number;
+  limitFetchedMessages?: boolean;
 }
 
 export interface TsPair {
@@ -255,7 +257,6 @@ export type ttnDevice = {
 };
 
 export type msgResult = {
-  received_at: string;
   end_device_ids: endDeviceIds;
   uplink_message: uplingMessage;
 };
@@ -271,23 +272,10 @@ export type endDeviceIds = {
 
 export type uplingMessage = {
   f_port: number;
-  f_cnt: number;
-  frm_payload: string;
   decoded_payload: any;
   rx_metadata: Array<{
     location: any;
   }>;
-  settings: any;
-  received_at: string;
-  confirmed: boolean;
-  consumed_airtime: string;
-  version_ids: any;
-  network_ids: {
-    net_id: string;
-    tenant_id: string;
-    cluster_id: string;
-    cluster_address: string;
-  };
 }
 
 // common
