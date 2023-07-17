@@ -293,6 +293,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                     { label: 'Http(s)', value: DatasourceType.web },
                     { label: 'Things Network', value: DatasourceType.ttnv3 },
                     { label: 'MQTT', value: DatasourceType.mqtt },
+                    { label: 'Parameters', value: DatasourceType.parameters },
                   ]}
                 />
               )}

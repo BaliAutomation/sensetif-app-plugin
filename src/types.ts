@@ -86,8 +86,12 @@ export interface WebDatasource {
   timestampExpression: string; // if format==xml, then xpath. if format==json, then jsonpath.
 }
 
+interface ParametersMap {
+  [k: string]: string;
+}
+
 export interface ParametersDatasource {
-  parameters: {}
+  parameters: ParametersMap
 }
 
 export interface MqttDatasource {
