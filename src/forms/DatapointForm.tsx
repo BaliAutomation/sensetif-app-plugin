@@ -5,6 +5,7 @@ import {
   DatasourceType,
   ScalingFunction,
   Ttnv3Datasource,
+  ParametersDatasource,
   WebDatasource,
   MqttDatasource,
 } from '../types';
@@ -25,6 +26,7 @@ import { AvailablePollIntervals, AvailableTimeToLivePeriods } from '../utils/con
 import { MqttDatasourceForm, defaultValues as defaultMqqt } from './datapoint/MqttDatasourceForm';
 import { WebDatasourceForm, defaultValues as defaultWeb } from './datapoint/WebDatasourceForm';
 import { Ttnv3DatasourceForm, defaultValues as defaultTtnv3 } from './datapoint/Ttnv3DatasourceForm';
+import { ParametersDatasourceForm, defaultValues as defaultParameters } from './datapoint/ParametersDatasourceForm';
 import { SubmitErrorHandler, SubmitHandler, useForm, UseFormReturn } from 'react-hook-form';
 
 interface Props {
@@ -331,6 +333,8 @@ const DatasourceSubform = ({
       return <WebDatasourceForm ds={ds as WebDatasource} {...(api as UseFormReturn<WebDatasource>)} />;
     case DatasourceType.ttnv3:
       return <Ttnv3DatasourceForm ds={ds as Ttnv3Datasource} {...(api as UseFormReturn<Ttnv3Datasource>)} />;
+    case DatasourceType.parameters:
+      return <ParametersDatasourceForm ds={ds as ParametersDatasource} {...(api as UseFormReturn<ParametersDatasource>)} />;
   }
 };
 
@@ -344,5 +348,8 @@ const defaultDatasource = (sourceType: DatasourceType): Datasource => {
 
     case DatasourceType.ttnv3:
       return defaultTtnv3;
+
+    case DatasourceType.parameters:
+      return defaultParameters;
   }
 };

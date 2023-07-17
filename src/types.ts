@@ -32,9 +32,10 @@ export enum DatasourceType {
   web = 'web',
   ttnv3 = 'ttnv3',
   mqtt = 'mqtt',
+  parameters = 'parameters',
 }
 
-export type Datasource = WebDatasource | Ttnv3Datasource | MqttDatasource;
+export type Datasource = WebDatasource | Ttnv3Datasource | MqttDatasource | ParametersDatasource;
 
 export interface Processing {
   unit: string; // Allow all characters
@@ -83,6 +84,10 @@ export interface WebDatasource {
 
   timestampType: TimestampType;
   timestampExpression: string; // if format==xml, then xpath. if format==json, then jsonpath.
+}
+
+export interface ParametersDatasource {
+  parameters: {}
 }
 
 export interface MqttDatasource {
