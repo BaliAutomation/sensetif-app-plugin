@@ -2,7 +2,7 @@ import React, {FC} from 'react';
 import {ParametersDatasource} from '../../types';
 import {UseFormReturn} from 'react-hook-form';
 import {Table} from "@grafana/ui";
-import {ArrayVector, DataFrame, Field, FieldState, FieldType} from "@grafana/data";
+import {ArrayVector, DataFrame, Field, FieldType} from "@grafana/data";
 
 
 interface Props extends UseFormReturn<ParametersDatasource> {
