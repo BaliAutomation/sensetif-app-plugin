@@ -2,7 +2,7 @@ import React, {FC} from 'react';
 import {ParametersDatasource} from '../../types';
 import {UseFormReturn} from 'react-hook-form';
 import {Table} from "@grafana/ui";
-import {ArrayVector, DataFrame, FieldType} from "@grafana/data";
+import {ArrayVector, DataFrame, Field, FieldState, FieldType} from "@grafana/data";
 
 
 interface Props extends UseFormReturn<ParametersDatasource> {
@@ -28,21 +28,22 @@ export const ParametersDatasourceForm: FC<Props> = ({ds}) => {
     let keys: ArrayVector<string> = new ArrayVector<string>(dsKeys);
     let values: ArrayVector<string> = new ArrayVector<string>(dsVals);
 
+    let keyField: Field<string> = {
+        name: "name",
+        type: FieldType.string,
+        config: {},
+        values: keys
+    };
+    let valueField: Field<string> = {
+        name: "value",
+        type: FieldType.string,
+        config: {
+            writeable: true,
+        },
+        values: values
+    };
     let frame: DataFrame = {
-        fields: [
-            {
-                name: "name",
-                type: FieldType.string,
-                config: {},
-                values: keys
-            },
-            {
-                name: "value",
-                type: FieldType.string,
-                config: {},
-                values: values
-            }
-        ],
+        fields: [ keyField, valueField ],
         length: length
     }
     return (
