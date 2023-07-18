@@ -56,6 +56,8 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
         return true;
       case DatasourceType.ttnv3:
         return true;
+      case DatasourceType.parameters:
+        return true;
       case DatasourceType.mqtt:
         return false;
       default:
@@ -76,7 +78,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
     },
     timeToLive: AvailableTimeToLivePeriods[0].value,
     pollinterval: AvailablePollIntervals[5].value,
-    datasourcetype: DatasourceType.mqtt,
+    datasourcetype: DatasourceType.ttnv3,
   };
 
   const {
@@ -301,7 +303,7 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
                 required: 'Source type selection is required',
               }}
               control={control}
-              defaultValue={datapoint ? datapoint.datasourcetype : DatasourceType.web}
+              defaultValue={datapoint ? datapoint.datasourcetype : DatasourceType.ttnv3}
               name="datasourcetype"
             />
           </Field>
