@@ -2,7 +2,13 @@ import React, {FC} from 'react';
 import {ParametersDatasource} from '../../types';
 import {UseFormReturn} from 'react-hook-form';
 import {Table} from "@grafana/ui";
-import {ArrayVector, DataFrame, Field, FieldType} from "@grafana/data";
+import {
+    applyFieldOverrides,
+    ArrayVector,
+    DataFrame,
+    Field,
+    FieldType
+} from "@grafana/data";
 
 
 interface Props extends UseFormReturn<ParametersDatasource> {
@@ -13,7 +19,7 @@ export const defaultValues: ParametersDatasource = {
     parameters: {}
 };
 
-export const ParametersDatasourceForm: FC<Props> = ({ds}) => {
+export const ParametersDatasourceForm: FC<Props> = ({ds}, theme) => {
     if (ds === undefined) {
         return (<> </>);
     }
@@ -46,10 +52,20 @@ export const ParametersDatasourceForm: FC<Props> = ({ds}) => {
         fields: [ keyField, valueField ],
         length: length
     }
+    let frames = applyFieldOverrides({
+        data: [frame],
+        fieldConfig: {
+            overrides: [],
+            defaults: {},
+        },
+        theme,
+        replaceVariables: (value: string) => value,
+    });
+    let frameIdx = 0;
     return (
         <>
             <div>
-                <Table data={frame} width={150} height={150} columnMinWidth={150} enablePagination={false}/>
+                <Table data={frames[frameIdx]} width={300} height={300} columnMinWidth={150} enablePagination={false}/>
             </div>
         </>
     );
