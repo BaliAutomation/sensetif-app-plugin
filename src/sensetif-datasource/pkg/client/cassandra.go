@@ -290,7 +290,7 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 	var mqtt model.MqttDatasource
 	var parameters model.ParametersDatasource
 	var proc model.Processing
-	err := scanner.Scan(&r.Project, &r.Subsystem, &r.Name, &r.Interval, &r.SourceType, &r.TimeToLive, &proc, &ttnv3, &web, &mqtt)
+	err := scanner.Scan(&r.Project, &r.Subsystem, &r.Name, &r.Interval, &r.SourceType, &r.TimeToLive, &proc, &ttnv3, &web, &mqtt, &parameters)
 	log.DefaultLogger.Info(fmt.Sprintf("Datapoint: %+v", r))
 	log.DefaultLogger.Info(fmt.Sprintf("Processing: %+v", proc))
 	r.Proc = proc
