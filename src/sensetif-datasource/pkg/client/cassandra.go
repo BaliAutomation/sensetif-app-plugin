@@ -80,14 +80,14 @@ func (cass *CassandraClient) QueryTimeseries(org int64, sensor model.SensorRef, 
 			var rowValue model.TsPair
 			err := scanner.Scan(&rowValue.Value, &rowValue.TS)
 			if err != nil {
-				log.DefaultLogger.Error("Internal Error? Failed to read record", err)
+				log.DefaultLogger.Error("Internal Error 1? Failed to read record", err)
 			}
 			p := []model.TsPair{rowValue}
 			result = append(p, result...)
 		}
 		err := iter.Close()
 		if err != nil {
-			log.DefaultLogger.Error("Internal Error? Failed to read record", err)
+			log.DefaultLogger.Error("Internal Error 2? Failed to read record", err)
 		}
 	}
 	return reduceSize(maxValues, result)
@@ -115,7 +115,7 @@ func (cass *CassandraClient) GetCurrentLimits(orgId int64) (model.PlanLimits, er
 	for scanner.Next() {
 		err := scanner.Scan(&limits.MaxDatapoints, &limits.MaxStorage, &limits.MinPollInterval)
 		if err != nil {
-			log.DefaultLogger.Error("Internal Error? Failed to read record", err)
+			log.DefaultLogger.Error("Internal Error 3? Failed to read record", err)
 		}
 	}
 	return limits, iter.Close()
@@ -130,7 +130,7 @@ func (cass *CassandraClient) GetOrganization(orgId int64) (model.OrganizationSet
 		var org model.OrganizationSettings
 		err := scanner.Scan(&org.Name, &org.Email, &org.StripeCustomer, &org.CurrentPlan)
 		if err != nil {
-			log.DefaultLogger.Error("Internal Error? Failed to read record", err)
+			log.DefaultLogger.Error("Internal Error 4? Failed to read record", err)
 		}
 		return org, iter.Close()
 	}
@@ -145,7 +145,7 @@ func (cass *CassandraClient) GetProject(orgId int64, name string) (model.Project
 		var rowValue model.ProjectSettings
 		err := scanner.Scan(&rowValue.Name, &rowValue.Title, &rowValue.City, &rowValue.Country, &rowValue.Timezone, &rowValue.Geolocation)
 		if err != nil {
-			log.DefaultLogger.Error("Internal Error? Failed to read record", err)
+			log.DefaultLogger.Error("Internal Error 5? Failed to read record", err)
 		}
 		return rowValue, iter.Close()
 	}
@@ -161,7 +161,7 @@ func (cass *CassandraClient) FindAllProjects(org int64) ([]model.ProjectSettings
 		var rowValue model.ProjectSettings
 		err := scanner.Scan(&rowValue.Name, &rowValue.Title, &rowValue.City, &rowValue.Country, &rowValue.Timezone, &rowValue.Geolocation)
 		if err != nil {
-			log.DefaultLogger.Error("Internal Error? Failed to read record", err)
+			log.DefaultLogger.Error("Internal Error 6? Failed to read record", err)
 		}
 		result = append(result, rowValue)
 	}
@@ -178,7 +178,7 @@ func (cass *CassandraClient) GetSubsystem(org int64, projectName string, subsyst
 		rowValue.Project = projectName
 		err := scanner.Scan(&rowValue.Name, &rowValue.Title, &rowValue.Locallocation)
 		if err != nil {
-			log.DefaultLogger.Error("Internal Error? Failed to read record", err)
+			log.DefaultLogger.Error("Internal Error 7? Failed to read record", err)
 		}
 		return rowValue, iter.Close()
 	}
@@ -195,7 +195,7 @@ func (cass *CassandraClient) FindAllSubsystems(org int64, projectName string) ([
 		rowValue.Project = projectName
 		err := scanner.Scan(&rowValue.Name, &rowValue.Title, &rowValue.Locallocation)
 		if err != nil {
-			log.DefaultLogger.Error("Internal Error? Failed to read record", err)
+			log.DefaultLogger.Error("Internal Error 8? Failed to read record", err)
 		}
 		result = append(result, rowValue)
 	}
@@ -288,7 +288,7 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 	var ttnv3 model.Ttnv3Datasource
 	var web model.WebDatasource
 	var mqtt model.MqttDatasource
-	var parameters model.ParametersDatasource
+	var parameters map[string]string
 	var proc model.Processing
 	err := scanner.Scan(&r.Project, &r.Subsystem, &r.Name, &r.Interval, &r.SourceType, &r.TimeToLive, &proc, &ttnv3, &web, &mqtt, &parameters)
 	log.DefaultLogger.Info(fmt.Sprintf("Datapoint: %+v", r))
@@ -303,11 +303,13 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 		case model.Mqtt:
 			r.Datasource = mqtt
 		case model.Parameters:
-			r.Datasource = parameters
+			var pds model.ParametersDatasource
+			pds.Parameters = parameters
+			r.Datasource = pds
 		}
 	}
 	if err != nil {
-		log.DefaultLogger.Error(fmt.Sprintf("Internal Error? Failed to read record: %s, %+v", err.Error(), err))
+		log.DefaultLogger.Error(fmt.Sprintf("Internal Error 9? Failed to read record: %s, %+v", err.Error(), err))
 	}
 	return r
 }
