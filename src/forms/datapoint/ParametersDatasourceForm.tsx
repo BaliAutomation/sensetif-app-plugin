@@ -19,9 +19,11 @@ export const ParametersDatasourceForm: FC<Props> = ({ds}) => {
     }
     let dsKeys = [];
     let dsVals = [];
+    let length = 0;
     for (let i in ds.parameters) {
         dsKeys.push(i);
         dsVals.push(ds.parameters[i]);
+        length += 1;
     }
     let keys: ArrayVector<string> = new ArrayVector<string>(dsKeys);
     let values: ArrayVector<string> = new ArrayVector<string>(dsVals);
@@ -41,7 +43,7 @@ export const ParametersDatasourceForm: FC<Props> = ({ds}) => {
                 values: values
             }
         ],
-        length: 0
+        length: length
     }
     return (
         <>
