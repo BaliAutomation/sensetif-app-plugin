@@ -3,11 +3,9 @@ import {ParametersDatasource} from '../../types';
 import {UseFormReturn} from 'react-hook-form';
 import {Table} from "@grafana/ui";
 import {
-    applyFieldOverrides,
     ArrayVector,
-    DataFrame,
     Field,
-    FieldType
+    FieldType, MutableDataFrame
 } from "@grafana/data";
 
 
@@ -48,24 +46,15 @@ export const ParametersDatasourceForm: FC<Props> = ({ds}, theme) => {
         },
         values: values
     };
-    let frame: DataFrame = {
-        fields: [ keyField, valueField ],
-        length: length
-    }
-    let frames = applyFieldOverrides({
-        data: [frame],
-        fieldConfig: {
-            overrides: [],
-            defaults: {},
-        },
-        theme,
-        replaceVariables: (value: string) => value,
-    });
-    let frameIdx = 0;
+    let frame = new MutableDataFrame(
+        {
+            fields: [keyField, valueField],
+            length: length
+        });
     return (
         <>
             <div>
-                <Table data={frames[frameIdx]} width={300} height={300} columnMinWidth={150} enablePagination={false}/>
+                <Table data={frame} width={300} height={300} columnMinWidth={150} enablePagination={false}/>
             </div>
         </>
     );
