@@ -42,7 +42,7 @@ export const ParametersDatasourceForm: FC<Props> = ({ds}, theme) => {
         name: "value",
         type: FieldType.string,
         config: {
-            writeable: true,
+            writeable: false,
         },
         values: values
     };
