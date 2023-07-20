@@ -12,7 +12,7 @@ import { StyledTable } from 'components/StyledTable';
 
 
 interface Props extends UseFormReturn<ParametersDatasource> {
-    ds?: ParametersDatasource;
+    ds: ParametersDatasource;
 }
 
 export const defaultValues: ParametersDatasource = {
@@ -20,20 +20,10 @@ export const defaultValues: ParametersDatasource = {
 };
 
 export const ParametersDatasourceForm: FC<Props> = ({ ds }, theme) => {
-    if (ds === undefined) {
-        return (<> </>);
-    }
-
-    type param = {
-        name: string;
-        value: string
-    }
-
     const data = Object.entries(ds.parameters).map(([k, v]) => ({
         name: k,
         value: v
-    } as param))
-
+    }))
 
     const columns = [
         {
