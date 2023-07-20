@@ -4,10 +4,10 @@ import { AlertErrorPayload, AlertPayload, AppEvents, DataQuery, PanelData, Panel
 import { css, cx } from '@emotion/css';
 // import { useStyles2, useTheme2 } from '@grafana/ui';
 import { Button, ConfirmModal, Icon, useStyles2 } from '@grafana/ui';
-import { InteractiveTable, UpdateValue } from './InteractiveTable';
 import {  TsPair } from 'types';
 import { updateTimeseriesValues } from 'utils/api';
 import { getAppEvents } from '@grafana/runtime';
+import { InteractiveTable, UpdateValue } from './InteractiveTable';
 
 interface Props extends PanelProps<SimpleOptions> {
 }

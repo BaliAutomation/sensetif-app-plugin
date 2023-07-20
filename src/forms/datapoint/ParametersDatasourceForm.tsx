@@ -1,12 +1,14 @@
-import React, {FC} from 'react';
-import {ParametersDatasource} from '../../types';
-import {UseFormReturn} from 'react-hook-form';
-import {Table} from "@grafana/ui";
+import React, { FC } from 'react';
+import { ParametersDatasource } from '../../types';
+import { UseFormReturn } from 'react-hook-form';
+
 import {
-    ArrayVector,
-    Field,
-    FieldType, MutableDataFrame
-} from "@grafana/data";
+    useReactTable,
+    getCoreRowModel,
+    getFilteredRowModel,
+} from '@tanstack/react-table'
+
+import { StyledTable } from 'components/StyledTable';
 
 
 interface Props extends UseFormReturn<ParametersDatasource> {
@@ -17,44 +19,45 @@ export const defaultValues: ParametersDatasource = {
     parameters: {}
 };
 
-export const ParametersDatasourceForm: FC<Props> = ({ds}, theme) => {
+export const ParametersDatasourceForm: FC<Props> = ({ ds }, theme) => {
     if (ds === undefined) {
         return (<> </>);
     }
-    let dsKeys = [];
-    let dsVals = [];
-    let length = 0;
-    for (let i in ds.parameters) {
-        dsKeys.push(i);
-        dsVals.push(ds.parameters[i]);
-        length += 1;
-    }
-    let keys: ArrayVector<string> = new ArrayVector<string>(dsKeys);
-    let values: ArrayVector<string> = new ArrayVector<string>(dsVals);
 
-    let keyField: Field<string> = {
-        name: "name",
-        type: FieldType.string,
-        config: {},
-        values: keys
-    };
-    let valueField: Field<string> = {
-        name: "value",
-        type: FieldType.string,
-        config: {
-            writeable: false,
-        },
-        values: values
-    };
-    let frame = new MutableDataFrame(
+    type param = {
+        name: string;
+        value: string
+    }
+
+    const data = Object.entries(ds.parameters).map(([k, v]) => ({
+        name: k,
+        value: v
+    } as param))
+
+
+    const columns = [
         {
-            fields: [keyField, valueField],
-            length: length
-        });
+            header: 'Name',
+            accessorKey: 'name',
+        },
+        {
+            header: 'Value',
+            accessorKey: 'value'
+        }
+    ]
+
+    const table = useReactTable({
+        data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        debugTable: true,
+    })
+
     return (
         <>
             <div>
-                <Table data={frame} width={300} height={300} columnMinWidth={150} enablePagination={false}/>
+                <StyledTable table={table} />
             </div>
         </>
     );
