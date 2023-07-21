@@ -60,7 +60,7 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 	to := query.TimeRange.To
 
 	response := backend.DataResponse{}
-	var model_ model.SensorRef
+	var model_ model.QueryRef
 	response.Error = JSON.Unmarshal(query.JSON, &model_)
 	if response.Error != nil {
 		return response

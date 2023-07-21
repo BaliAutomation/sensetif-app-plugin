@@ -18,6 +18,11 @@ export type datapoint = {
     title: string;
 }
 
+export type aggregation = {
+    name: string;
+    title: string;
+}
+
 export const request = (path: string, method: string, body: string, waitTime = 0) => {
     let srv = getBackendSrv();
     let request: Promise<any>;

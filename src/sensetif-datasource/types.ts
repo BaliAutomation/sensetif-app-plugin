@@ -4,7 +4,7 @@ export interface SensetifQuery extends DataQuery {
   project: string;
   subsystem: string;
   datapoint: string;
-
+  aggregation: string;
   channel?: string;
 }
 
@@ -12,7 +12,7 @@ export const defaultQuery: Partial<SensetifQuery> = {
   project: '',
   subsystem: '',
   datapoint: '',
-
+  aggregation: '',
   channel: 'sensetif-channel-default',
 };
 

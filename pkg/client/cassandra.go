@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -12,9 +13,9 @@ import (
 )
 
 type Cassandra interface {
-	QueryTimeseries(org int64, sensor model.SensorRef, from time.Time, to time.Time, maxValue int) []model.TsPair
-	QueryAlarmHistory(org int64, sensor model.SensorRef, from time.Time, to time.Time, maxValue int) ([]model.TsPair, error)
-	QueryAlarmStates(org int64, sensor model.SensorRef) ([]model.TsPair, error)
+	QueryTimeseries(org int64, sensor model.QueryRef, from time.Time, to time.Time, maxValue int) []model.TsPair
+	QueryAlarmHistory(org int64, sensor model.QueryRef, from time.Time, to time.Time, maxValue int) ([]model.TsPair, error)
+	QueryAlarmStates(org int64, sensor model.QueryRef) ([]model.TsPair, error)
 	FindAllProjects(org int64) ([]model.ProjectSettings, error)
 	FindAllSubsystems(org int64, projectName string) ([]model.SubsystemSettings, error)
 	FindAllDatapoints(org int64, projectName string, subsystemName string) ([]model.DatapointSettings, error)
@@ -66,15 +67,15 @@ func (cass *CassandraClient) Reinitialize() {
 	log.DefaultLogger.Info("Cassandra session: " + fmt.Sprintf("%+v", cass.session))
 }
 
-func (cass *CassandraClient) QueryTimeseries(org int64, sensor model.SensorRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
-	// log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + sensor.Project + "/" + sensor.Subsystem + "/" + sensor.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
+func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
+	// log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + query.Project + "/" + query.Subsystem + "/" + query.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
 	var result []model.TsPair
 	startYearMonth := from.Year()*12 + int(from.Month()) - 1
 	endYearMonth := to.Year()*12 + int(to.Month()) - 1
 	// log.DefaultLogger.Info(fmt.Sprintf("yearMonths:  start=%d, end=%d", startYearMonth, endYearMonth))
 
 	for yearmonth := endYearMonth; yearmonth >= startYearMonth; yearmonth-- {
-		iter := cass.createQuery(timeseriesTablename, tsQuery, org, sensor.Project, sensor.Subsystem, yearmonth, sensor.Datapoint, from, to)
+		iter := cass.createQuery(timeseriesTablename, tsQuery, org, query.Project, query.Subsystem, yearmonth, query.Datapoint, from, to)
 		scanner := iter.Scanner()
 		for scanner.Next() {
 			var rowValue model.TsPair
@@ -90,16 +91,16 @@ func (cass *CassandraClient) QueryTimeseries(org int64, sensor model.SensorRef, 
 			log.DefaultLogger.Error("Internal Error 2? Failed to read record", err)
 		}
 	}
-	return reduceSize(maxValues, result)
+	return reduceSize(maxValues, result, query.Aggregation)
 }
 
-// func (cass *CassandraClient) QueryAlarmHistory(org int64, sensor model.SensorRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
-func (cass *CassandraClient) QueryAlarmHistory(_ int64, _ model.SensorRef, _ time.Time, _ time.Time, _ int) ([]model.TsPair, error) {
+// func (cass *CassandraClient) QueryAlarmHistory(org int64, sensor model.QueryRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
+func (cass *CassandraClient) QueryAlarmHistory(_ int64, _ model.QueryRef, _ time.Time, _ time.Time, _ int) ([]model.TsPair, error) {
 	return make([]model.TsPair, 0), nil
 }
 
-// func (cass *CassandraClient) QueryAlarmStates(org int64, sensor model.SensorRef) []model.TsPair {
-func (cass *CassandraClient) QueryAlarmStates(_ int64, _ model.SensorRef) ([]model.TsPair, error) {
+// func (cass *CassandraClient) QueryAlarmStates(org int64, sensor model.QueryRef) []model.TsPair {
+func (cass *CassandraClient) QueryAlarmStates(_ int64, _ model.QueryRef) ([]model.TsPair, error) {
 	return make([]model.TsPair, 0), nil
 }
 
@@ -313,26 +314,91 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 	return r
 }
 
-func reduceSize(maxValues int, result []model.TsPair) []model.TsPair {
-	resultLength := len(result)
-	if resultLength > maxValues && resultLength > 0 && maxValues > 0 {
-		log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d", resultLength, maxValues))
-		// Grafana has a MaxDatapoints expectations that we need to deal with
-		var factor int
-		factor = resultLength/maxValues + 1
-		newSize := resultLength / factor
-		downsized := make([]model.TsPair, newSize, newSize)
-		resultIndex := resultLength - 1
-		for i := newSize - 1; i >= 0; i = i - 1 {
-			downsized[i] = result[resultIndex]
-			// TODO; Should we have some type of function for this reduction?? Average, Min, Max?
-			resultIndex = resultIndex - factor
+func reduceSize(maxValues int, data []model.TsPair, aggregation string) []model.TsPair {
+	resultLength := len(data)
+	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d", resultLength, maxValues))
+	var factor int
+	factor = resultLength/maxValues + 1
+	newSize := resultLength / factor
+	var downsized = make([]model.TsPair, newSize, newSize)
+	start := resultLength
+	for i := newSize - 1; i >= 0; i = i - 1 {
+		end := start - 1
+		start = start - factor
+		switch aggregation {
+		case "":
+			downsized[i] = downsizeBySample(data, start, end)
+		case "delta":
+			if start > 0 {
+				downsized[i] = downsizeByDelta(data, start-1, end)
+			}
+		case "min":
+			downsized[i] = downsizeByMin(data, start, end)
+		case "max":
+			downsized[i] = downsizeByMax(data, start, end)
+		case "sum":
+			downsized[i] = downsizeBySum(data, start, end)
+		case "average":
+			downsized[i] = downsizeByAverage(data, start, end)
 		}
-		// log.DefaultLogger.Info(fmt.Sprintf("Reduced to %d", len(downsized)))
-		return downsized
 	}
-	// log.DefaultLogger.Info(fmt.Sprintf("Returning %d datapoints", len(result)))
+	//log.DefaultLogger.Info(fmt.Sprintf("Reduced to %d", len(downsized)))
+	return downsized
+}
+
+func downsizeBySum(data []model.TsPair, start int, end int) model.TsPair {
+	var sum float64 = 0
+	for i := start; i < end; i++ {
+		sum = sum + data[i].Value
+	}
+	var result model.TsPair
+	result.TS = data[end-1].TS
+	result.Value = sum
 	return result
+}
+
+func downsizeByDelta(data []model.TsPair, start int, end int) model.TsPair {
+	var result model.TsPair
+	result.TS = data[end-1].TS
+	result.Value = data[end-1].Value - data[start].Value
+	return result
+}
+
+func downsizeByMin(data []model.TsPair, start int, end int) model.TsPair {
+	min := math.MaxFloat64
+	for i := start; i < end; i++ {
+		min = math.Min(min, data[i].Value)
+	}
+	var result model.TsPair
+	result.TS = data[end-1].TS
+	result.Value = min
+	return result
+}
+
+func downsizeByMax(data []model.TsPair, start int, end int) model.TsPair {
+	max := -math.MaxFloat64
+	for i := start; i < end; i++ {
+		max = math.Max(max, data[i].Value)
+	}
+	var result model.TsPair
+	result.TS = data[end-1].TS
+	result.Value = max
+	return result
+}
+
+func downsizeByAverage(data []model.TsPair, start int, end int) model.TsPair {
+	var sum float64 = 0
+	for i := start; i < end; i++ {
+		sum = sum + data[i].Value
+	}
+	var result model.TsPair
+	result.TS = data[end-1].TS
+	result.Value = sum / float64(end-start)
+	return result
+}
+
+func downsizeBySample(data []model.TsPair, start int, end int) model.TsPair {
+	return data[end-1]
 }
 
 const projectsTablename = "projects"

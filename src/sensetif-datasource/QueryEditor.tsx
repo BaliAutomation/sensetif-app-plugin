@@ -5,7 +5,7 @@ import { Select } from '@grafana/ui';
 import { DataSource } from './datasource';
 import { defaultQuery, SensetifDataSourceOptions, SensetifQuery } from './types';
 import { defaults } from 'lodash';
-import { datapoint, loadDatapoints, loadProjects, loadSubsystems, project, subsystem } from './api';
+import { aggregation, datapoint, loadDatapoints, loadProjects, loadSubsystems, project, subsystem } from './api';
 
 
 type Props = QueryEditorProps<DataSource, SensetifQuery, SensetifDataSourceOptions>;
@@ -20,15 +20,24 @@ interface State {
   projects: project[];
   subsystems: subsystem[];
   datapoints: datapoint[];
+  aggregations: aggregation[];
 }
 
 export class QueryEditor extends PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      aggregations: [
+        { name: "", title: "Sample" },
+        { name: "average", title: "Average" },
+        { name: "min", title: "Min" },
+        { name: "max", title: "Max" },
+        { name: "sum", title: "Sum" },
+        { name: "delta", title: "Delta" },
+      ],
       datapoints: [],
       subsystems: [],
-      projects: [],
+      projects: []
     };
   }
 
@@ -99,6 +108,17 @@ export class QueryEditor extends PureComponent<Props, State> {
     }
 
     onChange({ ...query, datapoint: datapoint.name });
+  };
+
+  onQueryAggregationChange = (aggregation: aggregation) => {
+    const { onChange, query } = this.props;
+
+    // selected the same datapoint
+    if (aggregation.name === query.aggregation) {
+      return
+    }
+
+    onChange({ ...query, aggregation: aggregation.name });
   };
 
   options = (values: WithNameAndTitle[]): Array<SelectableValue<WithNameAndTitle>> => values.map((p) => ({
@@ -173,15 +193,17 @@ export class QueryEditor extends PureComponent<Props, State> {
   render() {
     const defQuery = this.getDefaultQuery();
     const query = defaults(this.props.query, defQuery);
-    const { project: project, subsystem: subsystem, datapoint: datapoint } = query;
+    const { project: project, subsystem: subsystem, datapoint: datapoint, aggregation: aggregation } = query;
 
     const projectOptions = this.options(this.state.projects);
     const subsystemOptions = this.options(this.state.subsystems);
     const datapointOptions = this.options(this.state.datapoints);
+    const aggregationOptions = this.options(this.state.aggregations);
 
     const selectedProject = this.getOptionByName(project, this.state.projects)
     const selectedSubsystem = this.getOptionByName(subsystem, this.state.subsystems)
     const selectedDatapoint = this.getOptionByName(datapoint, this.state.datapoints)
+    const selectedAggregation = this.getOptionByName(aggregation, this.state.aggregations)
 
     return (
       <div className="gf-form">
@@ -208,6 +230,14 @@ export class QueryEditor extends PureComponent<Props, State> {
             options={datapointOptions}
             onChange={(val) => val.value?.name !== datapoint && this.onQueryDatapointChange(val.value!)}
             placeholder={'The Datapoint in the Subsystem'}
+          />
+        )}
+        {!project.startsWith("_") && !subsystem.startsWith("_") && (
+          <Select<aggregation>
+            value={selectedAggregation}
+            options={aggregationOptions}
+            placeholder={'The aggregation algorithm of the values, when queried.'}
+           onChange={(val) => val.value?.name !== datapoint && this.onQueryAggregationChange(val.value!)}
           />
         )}
       </div>

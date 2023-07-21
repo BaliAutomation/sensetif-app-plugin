@@ -14,6 +14,7 @@ export class DataSource extends DataSourceWithBackend<SensetifQuery, SensetifDat
       project: templateSrv.replace(query.project, scopedVars),
       subsystem: templateSrv.replace(query.subsystem, scopedVars),
       datapoint: templateSrv.replace(query.datapoint, scopedVars),
+      aggregation: templateSrv.replace(query.aggregation, scopedVars),
     };
   }
 }
