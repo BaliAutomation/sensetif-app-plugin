@@ -1,4 +1,4 @@
-module github.com/Sensetif/sensetif-datasource
+module github.com/Sensetif/sensetif-app-plugin
 
 go 1.18
 

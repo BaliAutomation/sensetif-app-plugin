@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Sensetif/sensetif-datasource/pkg/model"
+	"github.com/Sensetif/sensetif-app-plugin/pkg/model"
 	"github.com/gocql/gocql"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 )
@@ -67,11 +67,11 @@ func (cass *CassandraClient) Reinitialize() {
 }
 
 func (cass *CassandraClient) QueryTimeseries(org int64, sensor model.SensorRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
-	//log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + sensor.Project + "/" + sensor.Subsystem + "/" + sensor.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
+	// log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + sensor.Project + "/" + sensor.Subsystem + "/" + sensor.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
 	var result []model.TsPair
 	startYearMonth := from.Year()*12 + int(from.Month()) - 1
 	endYearMonth := to.Year()*12 + int(to.Month()) - 1
-	//log.DefaultLogger.Info(fmt.Sprintf("yearMonths:  start=%d, end=%d", startYearMonth, endYearMonth))
+	// log.DefaultLogger.Info(fmt.Sprintf("yearMonths:  start=%d, end=%d", startYearMonth, endYearMonth))
 
 	for yearmonth := endYearMonth; yearmonth >= startYearMonth; yearmonth-- {
 		iter := cass.createQuery(timeseriesTablename, tsQuery, org, sensor.Project, sensor.Subsystem, yearmonth, sensor.Datapoint, from, to)
@@ -93,19 +93,18 @@ func (cass *CassandraClient) QueryTimeseries(org int64, sensor model.SensorRef, 
 	return reduceSize(maxValues, result)
 }
 
-//func (cass *CassandraClient) QueryAlarmHistory(org int64, sensor model.SensorRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
+// func (cass *CassandraClient) QueryAlarmHistory(org int64, sensor model.SensorRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
 func (cass *CassandraClient) QueryAlarmHistory(_ int64, _ model.SensorRef, _ time.Time, _ time.Time, _ int) ([]model.TsPair, error) {
 	return make([]model.TsPair, 0), nil
 }
 
-//func (cass *CassandraClient) QueryAlarmStates(org int64, sensor model.SensorRef) []model.TsPair {
+// func (cass *CassandraClient) QueryAlarmStates(org int64, sensor model.SensorRef) []model.TsPair {
 func (cass *CassandraClient) QueryAlarmStates(_ int64, _ model.SensorRef) ([]model.TsPair, error) {
 	return make([]model.TsPair, 0), nil
 }
 
 func (cass *CassandraClient) GetCurrentLimits(orgId int64) (model.PlanLimits, error) {
-
-	//log.DefaultLogger.Info("GetCurrentLimits for " + strconv.FormatInt(orgId, 10))
+	// log.DefaultLogger.Info("GetCurrentLimits for " + strconv.FormatInt(orgId, 10))
 	iter := cass.createQuery(planlimitsTablename, planlimitsQuery, orgId)
 	scanner := iter.Scanner()
 	var limits model.PlanLimits
@@ -123,7 +122,7 @@ func (cass *CassandraClient) GetCurrentLimits(orgId int64) (model.PlanLimits, er
 
 func (cass *CassandraClient) GetOrganization(orgId int64) (model.OrganizationSettings, error) {
 	log.DefaultLogger.Info("getOrganization:  " + strconv.FormatInt(orgId, 10))
-	//SELECT name,email,stripecustomer,currentplan,address1,address2,zipcode,city,state,country FROM %s.%s WHERE orgid = ? AND DELETED = '1970-01-01 0:00:00+0000';"
+	// SELECT name,email,stripecustomer,currentplan,address1,address2,zipcode,city,state,country FROM %s.%s WHERE orgid = ? AND DELETED = '1970-01-01 0:00:00+0000';"
 	iter := cass.createQuery(organizationsTablename, organizationQuery, orgId)
 	scanner := iter.Scanner()
 	for scanner.Next() {
@@ -322,17 +321,17 @@ func reduceSize(maxValues int, result []model.TsPair) []model.TsPair {
 		var factor int
 		factor = resultLength/maxValues + 1
 		newSize := resultLength / factor
-		var downsized = make([]model.TsPair, newSize, newSize)
+		downsized := make([]model.TsPair, newSize, newSize)
 		resultIndex := resultLength - 1
 		for i := newSize - 1; i >= 0; i = i - 1 {
 			downsized[i] = result[resultIndex]
 			// TODO; Should we have some type of function for this reduction?? Average, Min, Max?
 			resultIndex = resultIndex - factor
 		}
-		//log.DefaultLogger.Info(fmt.Sprintf("Reduced to %d", len(downsized)))
+		// log.DefaultLogger.Info(fmt.Sprintf("Reduced to %d", len(downsized)))
 		return downsized
 	}
-	//log.DefaultLogger.Info(fmt.Sprintf("Returning %d datapoints", len(result)))
+	// log.DefaultLogger.Info(fmt.Sprintf("Returning %d datapoints", len(result)))
 	return result
 }
 
@@ -383,9 +382,10 @@ const tsQuery = "SELECT value,ts FROM %s.%s" +
 	" ts <= ?" +
 	";"
 
-//const keyValuesTablename = "keyvalues"
-//const keyValuesSelectQuery = "SELECT type, key, created, value FROM %s.%s WHERE orgid = ? AND type = ? AND key = '___ALL___' AND deleted = '1970-01-01 0:00:00+0000';\n"
-
-const journalTablename = "journals"
-const journalSelectAllQuery = "SELECT value,ts FROM %s.%s WHERE orgid = ? AND type = ? AND name = ?;"
-const journalSelectRangeQuery = "SELECT value,ts FROM %s.%s WHERE orgid = ? AND type = ? AND name = ? AND ts >= ? AND  ts <= ? ;"
+// const keyValuesTablename = "keyvalues"
+// const keyValuesSelectQuery = "SELECT type, key, created, value FROM %s.%s WHERE orgid = ? AND type = ? AND key = '___ALL___' AND deleted = '1970-01-01 0:00:00+0000';\n"
+const (
+	journalTablename        = "journals"
+	journalSelectAllQuery   = "SELECT value,ts FROM %s.%s WHERE orgid = ? AND type = ? AND name = ?;"
+	journalSelectRangeQuery = "SELECT value,ts FROM %s.%s WHERE orgid = ? AND type = ? AND name = ? AND ts >= ? AND  ts <= ? ;"
+)
