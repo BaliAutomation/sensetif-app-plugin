@@ -217,10 +217,14 @@ func (cass *CassandraClient) FindAllDatapoints(org int64, projectName string, su
 	log.DefaultLogger.Info("findAllDatapoints:  " + strconv.FormatInt(org, 10) + "/" + projectName + "/" + subsystemName)
 	result := make([]model.DatapointSettings, 0)
 	iter := cass.createQuery(datapointsTablename, datapointsQuery, org, projectName, subsystemName)
+	log.DefaultLogger.Info("1")
 	scanner := iter.Scanner()
 	for scanner.Next() {
+		log.DefaultLogger.Info("2")
 		datapoint := cass.deserializeDatapointRow(scanner)
+		log.DefaultLogger.Info("3")
 		result = append(result, datapoint)
+		log.DefaultLogger.Info("4")
 	}
 	log.DefaultLogger.Info(fmt.Sprintf("Found: %d datapoints", len(result)))
 	return result, iter.Close()
@@ -284,7 +288,7 @@ func (cass *CassandraClient) createQuery(tableName string, query string, args ..
 
 func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) model.DatapointSettings {
 	var r model.DatapointSettings
-	// project,subsystem,name,pollinterval,datasourcetype,timetolive,proc,ttnv3,web,mqtt
+	// project,subsystem,name,pollinterval,datasourcetype,timetolive,proc,ttnv3,web,mqtt,parameters
 	var ttnv3 model.Ttnv3Datasource
 	var web model.WebDatasource
 	var mqtt model.MqttDatasource
