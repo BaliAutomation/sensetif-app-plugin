@@ -90,29 +90,13 @@ func (p *Processing) UnmarshalUDT(name string, info gocql.TypeInfo, data []byte)
 			p.Scaling = FtoK
 		}
 	case "k":
-		if len(data) >= 8 {
-			p.K = Float64frombytes(data)
-		} else {
-			p.K = 1.0
-		}
+		p.K = Float64frombytes(data, 1.0)
 	case "m":
-		if len(data) >= 8 {
-			p.M = Float64frombytes(data)
-		} else {
-			p.M = 1.0
-		}
+		p.M = Float64frombytes(data, 0.0)
 	case "min":
-		if len(data) >= 8 {
-			p.Min = Float64frombytes(data)
-		} else {
-			p.Min = -math.MaxFloat64
-		}
+		p.Min = Float64frombytes(data, -math.MaxFloat64)
 	case "max":
-		if len(data) >= 8 {
-			p.Max = Float64frombytes(data)
-		} else {
-			p.Max = math.MaxFloat64
-		}
+		p.Max = Float64frombytes(data, math.MaxFloat64)
 	case "condition":
 		d := string(data)
 		p.Condition = d
@@ -123,10 +107,13 @@ func (p *Processing) UnmarshalUDT(name string, info gocql.TypeInfo, data []byte)
 	return nil
 }
 
-func Float64frombytes(bytes []byte) float64 {
-	bits := binary.BigEndian.Uint64(bytes)
-	float := math.Float64frombits(bits)
-	return float
+func Float64frombytes(bytes []byte, defaultValue float64) float64 {
+	if len(bytes) >= 8 {
+		bits := binary.BigEndian.Uint64(bytes)
+		float := math.Float64frombits(bits)
+		return float
+	}
+	return defaultValue
 }
 
 type ParametersDatasource struct {
