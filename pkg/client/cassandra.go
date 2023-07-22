@@ -325,6 +325,9 @@ func reduceSize(maxValues int, data []model.TsPair, aggregation string) []model.
 	for i := newSize - 1; i >= 0; i = i - 1 {
 		end := start - 1
 		start = start - factor
+		if end <= 0 || start <= 0 {
+			break
+		}
 		switch aggregation {
 		case "":
 			downsized[i] = downsizeBySample(data, start, end)
