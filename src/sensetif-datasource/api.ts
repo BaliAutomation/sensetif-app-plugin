@@ -5,22 +5,22 @@ const API_RESOURCES = '/api/plugins/sensetif-datasource/resources/';
 
 export type project = {
     name: string;
-    title: string;
+    title?: string;
 }
 
 export type subsystem = {
     name: string;
-    title: string;
+    title?: string;
 }
 
 export type datapoint = {
     name: string;
-    title: string;
+    title?: string;
 }
 
 export type aggregation = {
     name: string;
-    title: string;
+    title?: string;
 }
 
 export const request = (path: string, method: string, body: string, waitTime = 0) => {

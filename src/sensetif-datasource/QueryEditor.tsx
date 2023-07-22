@@ -7,13 +7,12 @@ import { defaultQuery, SensetifDataSourceOptions, SensetifQuery } from './types'
 import { defaults } from 'lodash';
 import { aggregation, datapoint, loadDatapoints, loadProjects, loadSubsystems, project, subsystem } from './api';
 
-
 type Props = QueryEditorProps<DataSource, SensetifQuery, SensetifDataSourceOptions>;
 
 // project/subsystem/datapoint implements that
 interface WithNameAndTitle {
   name: string;
-  title: string
+  title?: string
 }
 
 interface State {
@@ -122,7 +121,7 @@ export class QueryEditor extends PureComponent<Props, State> {
   };
 
   options = (values: WithNameAndTitle[]): Array<SelectableValue<WithNameAndTitle>> => values.map((p) => ({
-    label: p.title,
+    label: p.title ?? p.name,
     value: p
   }))
 
@@ -185,7 +184,7 @@ export class QueryEditor extends PureComponent<Props, State> {
   getOptionByName = (name: string, values: WithNameAndTitle[]): SelectableValue<WithNameAndTitle> => {
     const val = values.find(p => p.name === name)
     return {
-      label: val?.title,
+      label: val?.title ?? val?.name,
       value: val
     }
   }
