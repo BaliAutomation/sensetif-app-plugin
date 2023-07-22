@@ -323,85 +323,75 @@ func reduceSize(maxValues int, data []model.TsPair, aggregation string) []model.
 	var downsized = make([]model.TsPair, newSize, newSize)
 	start := resultLength
 	for i := newSize - 1; i >= 0; i = i - 1 {
-		end := start - 1
-		start = start - factor
+		end := start - 1       // points at last sample to be included in aggregation/calc
+		start = start - factor // points at first sample to be included in aggregation/calc
 		if end <= 0 || start <= 0 {
 			break
 		}
+		var value float64
 		switch aggregation {
 		case "":
-			downsized[i] = downsizeBySample(data, start, end)
+			value = downsizeBySample(data, start, end) // takes the last sample
 		case "delta":
 			if start > 0 {
-				downsized[i] = downsizeByDelta(data, start-1, end)
+				value = downsizeByDelta(data, start, end) // calcs the difference between last sample and previous last sample
 			}
 		case "min":
-			downsized[i] = downsizeByMin(data, start, end)
+			value = downsizeByMin(data, start, end) // minimum value within the range of values to be aggregated
 		case "max":
-			downsized[i] = downsizeByMax(data, start, end)
+			value = downsizeByMax(data, start, end) // maximum value within the range of values to be aggregated
 		case "sum":
-			downsized[i] = downsizeBySum(data, start, end)
+			value = downsizeBySum(data, start, end) // sum of all values within the range of values to be aggregated
 		case "average":
-			downsized[i] = downsizeByAverage(data, start, end)
+			value = downsizeByAverage(data, start, end) // average of the values being aggregated
+		default:
+			value = 0.0
 		}
+		downsized[i].TS = data[end].TS
+		downsized[i].Value = value
 	}
 	//log.DefaultLogger.Info(fmt.Sprintf("Reduced to %d", len(downsized)))
 	return downsized
 }
 
-func downsizeBySum(data []model.TsPair, start int, end int) model.TsPair {
-	var sum float64 = 0
-	for i := start; i < end; i++ {
+func downsizeBySum(data []model.TsPair, start int, end int) float64 {
+	sum := data[start].Value
+	for i := start + 1; i <= end; i++ {
 		sum = sum + data[i].Value
 	}
-	var result model.TsPair
-	result.TS = data[end-1].TS
-	result.Value = sum
-	return result
+	return sum
 }
 
-func downsizeByDelta(data []model.TsPair, start int, end int) model.TsPair {
-	var result model.TsPair
-	result.TS = data[end-1].TS
-	result.Value = data[end-1].Value - data[start].Value
-	return result
+func downsizeByDelta(data []model.TsPair, start int, end int) float64 {
+	return data[end].Value - data[start-1].Value
 }
 
-func downsizeByMin(data []model.TsPair, start int, end int) model.TsPair {
-	min := math.MaxFloat64
-	for i := start; i < end; i++ {
+func downsizeByMin(data []model.TsPair, start int, end int) float64 {
+	min := data[start].Value
+	for i := start + 1; i <= end; i++ {
 		min = math.Min(min, data[i].Value)
 	}
-	var result model.TsPair
-	result.TS = data[end-1].TS
-	result.Value = min
-	return result
+	return min
 }
 
-func downsizeByMax(data []model.TsPair, start int, end int) model.TsPair {
-	max := -math.MaxFloat64
-	for i := start; i < end; i++ {
+func downsizeByMax(data []model.TsPair, start int, end int) float64 {
+	max := data[start].Value
+	for i := start + 1; i <= end; i++ {
 		max = math.Max(max, data[i].Value)
 	}
-	var result model.TsPair
-	result.TS = data[end-1].TS
-	result.Value = max
-	return result
+	return max
 }
 
-func downsizeByAverage(data []model.TsPair, start int, end int) model.TsPair {
-	var sum float64 = 0
-	for i := start; i < end; i++ {
+func downsizeByAverage(data []model.TsPair, start int, end int) float64 {
+	sum := data[start].Value
+	for i := start + 1; i < end; i++ {
 		sum = sum + data[i].Value
 	}
-	var result model.TsPair
-	result.TS = data[end-1].TS
-	result.Value = sum / float64(end-start)
-	return result
+	return sum / float64(1+end-start)
 }
 
-func downsizeBySample(data []model.TsPair, start int, end int) model.TsPair {
-	return data[end-1]
+func downsizeBySample(data []model.TsPair, start int, end int) float64 {
+	return data[end].Value
 }
 
 const projectsTablename = "projects"
