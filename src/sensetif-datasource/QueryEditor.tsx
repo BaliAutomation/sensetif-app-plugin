@@ -237,7 +237,7 @@ export class QueryEditor extends PureComponent<Props, State> {
             value={selectedAggregation}
             options={aggregationOptions}
             placeholder={'The aggregation algorithm of the values, when queried.'}
-           onChange={(val) => val.value?.name !== datapoint && this.onQueryAggregationChange(val.value!)}
+            onChange={(val) => val.value?.name !== aggregation && this.onQueryAggregationChange(val.value!)}
           />
         )}
       </div>
