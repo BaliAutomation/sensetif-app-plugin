@@ -90,13 +90,29 @@ func (p *Processing) UnmarshalUDT(name string, info gocql.TypeInfo, data []byte)
 			p.Scaling = FtoK
 		}
 	case "k":
-		p.K = Float64frombytes(data)
+		if len(data) >= 8 {
+			p.K = Float64frombytes(data)
+		} else {
+			p.K = 1.0
+		}
 	case "m":
-		p.M = Float64frombytes(data)
+		if len(data) >= 8 {
+			p.M = Float64frombytes(data)
+		} else {
+			p.M = 1.0
+		}
 	case "min":
-		p.Min = Float64frombytes(data)
+		if len(data) >= 8 {
+			p.Min = Float64frombytes(data)
+		} else {
+			p.Min = -math.MaxFloat64
+		}
 	case "max":
-		p.Max = Float64frombytes(data)
+		if len(data) >= 8 {
+			p.Max = Float64frombytes(data)
+		} else {
+			p.Max = math.MaxFloat64
+		}
 	case "condition":
 		d := string(data)
 		p.Condition = d
