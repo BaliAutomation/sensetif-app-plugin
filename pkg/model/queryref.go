@@ -5,4 +5,5 @@ type QueryRef struct {
 	Subsystem   string
 	Datapoint   string
 	Aggregation string
+	TimeModel   string
 }

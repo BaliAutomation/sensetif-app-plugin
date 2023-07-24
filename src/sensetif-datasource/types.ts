@@ -5,6 +5,7 @@ export interface SensetifQuery extends DataQuery {
   subsystem: string;
   datapoint: string;
   aggregation: string;
+  timemodel: string;
   channel?: string;
 }
 

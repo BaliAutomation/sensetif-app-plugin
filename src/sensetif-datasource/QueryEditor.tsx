@@ -5,7 +5,16 @@ import { Select } from '@grafana/ui';
 import { DataSource } from './datasource';
 import { defaultQuery, SensetifDataSourceOptions, SensetifQuery } from './types';
 import { defaults } from 'lodash';
-import { aggregation, datapoint, loadDatapoints, loadProjects, loadSubsystems, project, subsystem } from './api';
+import {
+  aggregation,
+  datapoint,
+  loadDatapoints,
+  loadProjects,
+  loadSubsystems,
+  project,
+  subsystem,
+  timemodel
+} from './api';
 
 type Props = QueryEditorProps<DataSource, SensetifQuery, SensetifDataSourceOptions>;
 
@@ -20,6 +29,7 @@ interface State {
   subsystems: subsystem[];
   datapoints: datapoint[];
   aggregations: aggregation[];
+  timemodels: timemodel[];
 }
 
 export class QueryEditor extends PureComponent<Props, State> {
@@ -33,6 +43,12 @@ export class QueryEditor extends PureComponent<Props, State> {
         { name: "max", title: "Max" },
         { name: "sum", title: "Sum" },
         { name: "delta", title: "Delta" },
+      ],
+      timemodels: [
+        { name: "", title: "None" },
+        { name: "daily", title: "Daily" },
+        { name: "weekly", title: "Weekly" },
+        { name: "monthly", title: "Monthly" },
       ],
       datapoints: [],
       subsystems: [],
@@ -120,6 +136,17 @@ export class QueryEditor extends PureComponent<Props, State> {
     onChange({ ...query, aggregation: aggregation.name });
   };
 
+  onQueryTimemodelChange = (timemodel: timemodel) => {
+    const { onChange, query } = this.props;
+
+    // selected the same datapoint
+    if (timemodel.name === query.timemodel) {
+      return
+    }
+
+    onChange({ ...query, timemodel: timemodel.name });
+  };
+
   options = (values: WithNameAndTitle[]): Array<SelectableValue<WithNameAndTitle>> => values.map((p) => ({
     label: p.title ?? p.name,
     value: p
@@ -192,17 +219,19 @@ export class QueryEditor extends PureComponent<Props, State> {
   render() {
     const defQuery = this.getDefaultQuery();
     const query = defaults(this.props.query, defQuery);
-    const { project: project, subsystem: subsystem, datapoint: datapoint, aggregation: aggregation } = query;
+    const { project: project, subsystem: subsystem, datapoint: datapoint, aggregation: aggregation, timemodel: timemodel } = query;
 
     const projectOptions = this.options(this.state.projects);
     const subsystemOptions = this.options(this.state.subsystems);
     const datapointOptions = this.options(this.state.datapoints);
     const aggregationOptions = this.options(this.state.aggregations);
+    const timemodelOptions = this.options(this.state.timemodels);
 
     const selectedProject = this.getOptionByName(project, this.state.projects)
     const selectedSubsystem = this.getOptionByName(subsystem, this.state.subsystems)
     const selectedDatapoint = this.getOptionByName(datapoint, this.state.datapoints)
     const selectedAggregation = this.getOptionByName(aggregation, this.state.aggregations)
+    const selectedTimemodel = this.getOptionByName(aggregation, this.state.timemodels)
 
     return (
       <div className="gf-form">
@@ -237,6 +266,14 @@ export class QueryEditor extends PureComponent<Props, State> {
             options={aggregationOptions}
             placeholder={'The aggregation algorithm of the values, when queried.'}
             onChange={(val) => val.value?.name !== aggregation && this.onQueryAggregationChange(val.value!)}
+          />
+        )}
+        {!project.startsWith("_") && !subsystem.startsWith("_") && (
+          <Select<timemodel>
+            value={selectedTimemodel}
+            options={timemodelOptions}
+            placeholder={'The time model to use when aggregating.'}
+            onChange={(val) => val.value?.name !== timemodel && this.onQueryTimemodelChange(val.value!)}
           />
         )}
       </div>

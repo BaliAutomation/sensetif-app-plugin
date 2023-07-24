@@ -23,6 +23,11 @@ export type aggregation = {
     title?: string;
 }
 
+export type timemodel = {
+    name: string;
+    title?: string;
+}
+
 export const request = (path: string, method: string, body: string, waitTime = 0) => {
     let srv = getBackendSrv();
     let request: Promise<any>;

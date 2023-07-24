@@ -91,15 +91,13 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 			log.DefaultLogger.Error("Internal Error 2? Failed to read record", err)
 		}
 	}
-	return reduceSize(maxValues, result, query.Aggregation)
+	return reduceSize(maxValues, result, query.Aggregation, query.TimeModel)
 }
 
-// func (cass *CassandraClient) QueryAlarmHistory(org int64, sensor model.QueryRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
 func (cass *CassandraClient) QueryAlarmHistory(_ int64, _ model.QueryRef, _ time.Time, _ time.Time, _ int) ([]model.TsPair, error) {
 	return make([]model.TsPair, 0), nil
 }
 
-// func (cass *CassandraClient) QueryAlarmStates(org int64, sensor model.QueryRef) []model.TsPair {
 func (cass *CassandraClient) QueryAlarmStates(_ int64, _ model.QueryRef) ([]model.TsPair, error) {
 	return make([]model.TsPair, 0), nil
 }
@@ -314,7 +312,20 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 	return r
 }
 
-func reduceSize(maxValues int, data []model.TsPair, aggregation string) []model.TsPair {
+func reduceSize(maxValues int, data []model.TsPair, aggregation string, timeModel string) []model.TsPair {
+	switch timeModel {
+	case "daily":
+		return reduceInterval(data, daily, firstOfDay, aggregation)
+	case "weekly":
+		return reduceInterval(data, weekly, firstOfWeek, aggregation)
+	case "monthly":
+		return reduceInterval(data, monthly, firstOfMonth, aggregation)
+	default:
+		return reduceDefault(maxValues, data, aggregation)
+	}
+}
+
+func reduceDefault(maxValues int, data []model.TsPair, aggregation string) []model.TsPair {
 	resultLength := len(data)
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d", resultLength, maxValues))
 	var factor int
@@ -328,33 +339,105 @@ func reduceSize(maxValues int, data []model.TsPair, aggregation string) []model.
 		if end <= 0 || start <= 0 {
 			break
 		}
-		var value float64
-		switch aggregation {
-		case "":
-			value = downsizeBySample(data, start, end) // takes the last sample
-		case "delta":
-			if start > 0 {
-				value = downsizeByDelta(data, start, end) // calcs the difference between last sample and previous last sample
-			}
-		case "min":
-			value = downsizeByMin(data, start, end) // minimum value within the range of values to be aggregated
-		case "max":
-			value = downsizeByMax(data, start, end) // maximum value within the range of values to be aggregated
-		case "sum":
-			value = downsizeBySum(data, start, end) // sum of all values within the range of values to be aggregated
-		case "average":
-			value = downsizeByAverage(data, start, end) // average of the values being aggregated
-		default:
-			value = 0.0
-		}
 		downsized[i].TS = data[end].TS
-		downsized[i].Value = value
+		downsized[i].Value = aggregated(aggregation, data, start, end)
 	}
 	//log.DefaultLogger.Info(fmt.Sprintf("Reduced to %d", len(downsized)))
 	return downsized
 }
 
-func downsizeBySum(data []model.TsPair, start int, end int) float64 {
+func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) bool, startOfInterval func([]model.TsPair) int, aggregation string) []model.TsPair {
+	var daily []model.TsPair
+
+	if len(data) == 0 {
+		return daily
+	}
+	var currentDate time.Time
+	var end int
+	var start = startOfInterval(data)
+	for index, tsPair := range data {
+		if currentDate.IsZero() || inRange(tsPair, currentDate) {
+			if !currentDate.IsZero() {
+				aggregated := aggregated(aggregation, data, start, end)
+				daily = append(daily, model.TsPair{TS: currentDate, Value: aggregated})
+				start = index
+			}
+			currentDate = tsPair.TS
+		}
+		end = index
+	}
+	return daily
+}
+
+func firstOfDay(data []model.TsPair) int {
+	length := len(data)
+	var index int
+	for index < length {
+		if data[index].TS.Hour() == 0 {
+			return index
+		}
+	}
+	return 0
+}
+
+func firstOfWeek(data []model.TsPair) int {
+	length := len(data)
+	var index int
+	for index < length {
+		if data[index].TS.Weekday() == time.Monday {
+			return index
+		}
+	}
+	return 0
+}
+
+func firstOfMonth(data []model.TsPair) int {
+	length := len(data)
+	var index int
+	for index < length {
+		if data[index].TS.Day() == 1 {
+			return index
+		}
+	}
+	return 0
+}
+
+func daily(tsPair model.TsPair, currentDate time.Time) bool {
+	return tsPair.TS.Day() != currentDate.Day()
+}
+
+func weekly(tsPair model.TsPair, currentDate time.Time) bool {
+	return tsPair.TS.Weekday() != currentDate.Weekday()
+}
+
+func monthly(tsPair model.TsPair, currentDate time.Time) bool {
+	return tsPair.TS.Month() != currentDate.Month()
+}
+
+func aggregated(aggregation string, data []model.TsPair, start int, end int) float64 {
+	var value float64
+	switch aggregation {
+	case "":
+		value = lastSampleOf(data, start, end) // takes the last sample
+	case "delta":
+		if start > 0 {
+			value = deltaOf(data, start, end) // calcs the difference between last sample and previous last sample
+		}
+	case "min":
+		value = minimumOf(data, start, end) // minimum value within the range of values to be aggregated
+	case "max":
+		value = maximumOf(data, start, end) // maximum value within the range of values to be aggregated
+	case "sum":
+		value = sumOf(data, start, end) // sum of all values within the range of values to be aggregated
+	case "average":
+		value = averageOf(data, start, end) // average of the values being aggregated
+	default:
+		value = 0.0
+	}
+	return value
+}
+
+func sumOf(data []model.TsPair, start int, end int) float64 {
 	sum := data[start].Value
 	for i := start + 1; i <= end; i++ {
 		sum = sum + data[i].Value
@@ -362,11 +445,11 @@ func downsizeBySum(data []model.TsPair, start int, end int) float64 {
 	return sum
 }
 
-func downsizeByDelta(data []model.TsPair, start int, end int) float64 {
+func deltaOf(data []model.TsPair, start int, end int) float64 {
 	return data[end].Value - data[start-1].Value
 }
 
-func downsizeByMin(data []model.TsPair, start int, end int) float64 {
+func minimumOf(data []model.TsPair, start int, end int) float64 {
 	min := data[start].Value
 	for i := start + 1; i <= end; i++ {
 		min = math.Min(min, data[i].Value)
@@ -374,7 +457,7 @@ func downsizeByMin(data []model.TsPair, start int, end int) float64 {
 	return min
 }
 
-func downsizeByMax(data []model.TsPair, start int, end int) float64 {
+func maximumOf(data []model.TsPair, start int, end int) float64 {
 	max := data[start].Value
 	for i := start + 1; i <= end; i++ {
 		max = math.Max(max, data[i].Value)
@@ -382,7 +465,7 @@ func downsizeByMax(data []model.TsPair, start int, end int) float64 {
 	return max
 }
 
-func downsizeByAverage(data []model.TsPair, start int, end int) float64 {
+func averageOf(data []model.TsPair, start int, end int) float64 {
 	sum := data[start].Value
 	for i := start + 1; i < end; i++ {
 		sum = sum + data[i].Value
@@ -390,7 +473,7 @@ func downsizeByAverage(data []model.TsPair, start int, end int) float64 {
 	return sum / float64(1+end-start)
 }
 
-func downsizeBySample(data []model.TsPair, start int, end int) float64 {
+func lastSampleOf(data []model.TsPair, start int, end int) float64 {
 	return data[end].Value
 }
 
