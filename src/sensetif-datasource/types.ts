@@ -14,6 +14,7 @@ export const defaultQuery: Partial<SensetifQuery> = {
   subsystem: '',
   datapoint: '',
   aggregation: '',
+  timemodel: '',
   channel: 'sensetif-channel-default',
 };
 
