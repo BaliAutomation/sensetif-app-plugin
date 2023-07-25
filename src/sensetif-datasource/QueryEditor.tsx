@@ -127,23 +127,17 @@ export class QueryEditor extends PureComponent<Props, State> {
 
   onQueryAggregationChange = (aggregation: aggregation) => {
     const { onChange, query } = this.props;
-
-    // selected the same datapoint
     if (aggregation.name === query.aggregation) {
       return
     }
-
     onChange({ ...query, aggregation: aggregation.name });
   };
 
   onQueryTimemodelChange = (timemodel: timemodel) => {
     const { onChange, query } = this.props;
-
-    // selected the same datapoint
     if (timemodel.name === query.timemodel) {
       return
     }
-
     onChange({ ...query, timemodel: timemodel.name });
   };
 
