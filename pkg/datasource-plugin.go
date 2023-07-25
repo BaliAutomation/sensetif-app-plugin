@@ -80,6 +80,7 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 		frame = formatTimeseriesQuery(queryName, timeseries, frame)
 	}
 	response.Frames = append(response.Frames, frame)
+	log.DefaultLogger.Info("Niclas5")
 	return response
 }
 
