@@ -68,7 +68,7 @@ func (cass *CassandraClient) Reinitialize() {
 }
 
 func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
-	// log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + query.Project + "/" + query.Subsystem + "/" + query.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
+	log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + query.Project + "/" + query.Subsystem + "/" + query.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
 	var result []model.TsPair
 	startYearMonth := from.Year()*12 + int(from.Month()) - 1
 	endYearMonth := to.Year()*12 + int(to.Month()) - 1
@@ -91,6 +91,7 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 			log.DefaultLogger.Error("Internal Error 2? Failed to read record", err)
 		}
 	}
+	log.DefaultLogger.Info("Niclas4")
 	return reduceSize(maxValues, result, query.Aggregation, query.TimeModel)
 }
 
