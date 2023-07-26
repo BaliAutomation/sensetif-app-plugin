@@ -329,10 +329,10 @@ func reduceSize(maxValues int, data []model.TsPair, aggregation string, timeMode
 
 func reduceDefault(maxValues int, data []model.TsPair, aggregation string) []model.TsPair {
 	resultLength := len(data)
-	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d", resultLength, maxValues))
 	var factor int
 	factor = resultLength/maxValues + 1
 	newSize := resultLength / factor
+	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d, by %d", resultLength, maxValues, factor))
 	var downsized = make([]model.TsPair, newSize, newSize)
 	start := resultLength
 	for i := newSize - 1; i >= 0; i = i - 1 {
@@ -375,8 +375,7 @@ func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) b
 
 func firstOfDay(data []model.TsPair) int {
 	length := len(data)
-	var index int
-	for index < length {
+	for index := 0; index < length; index++ {
 		if data[index].TS.Hour() == 0 {
 			return index
 		}
@@ -386,8 +385,7 @@ func firstOfDay(data []model.TsPair) int {
 
 func firstOfWeek(data []model.TsPair) int {
 	length := len(data)
-	var index int
-	for index < length {
+	for index := 0; index < length; index++ {
 		if data[index].TS.Weekday() == time.Monday {
 			return index
 		}
@@ -397,8 +395,7 @@ func firstOfWeek(data []model.TsPair) int {
 
 func firstOfMonth(data []model.TsPair) int {
 	length := len(data)
-	var index int
-	for index < length {
+	for index := 0; index < length; index++ {
 		if data[index].TS.Day() == 1 {
 			return index
 		}
