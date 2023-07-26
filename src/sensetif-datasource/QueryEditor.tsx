@@ -225,7 +225,7 @@ export class QueryEditor extends PureComponent<Props, State> {
     const selectedSubsystem = this.getOptionByName(subsystem, this.state.subsystems)
     const selectedDatapoint = this.getOptionByName(datapoint, this.state.datapoints)
     const selectedAggregation = this.getOptionByName(aggregation, this.state.aggregations)
-    const selectedTimemodel = this.getOptionByName(aggregation, this.state.timemodels)
+    const selectedTimemodel = this.getOptionByName(timemodel, this.state.timemodels)
 
     return (
       <div className="gf-form">
@@ -262,7 +262,7 @@ export class QueryEditor extends PureComponent<Props, State> {
             onChange={(val) => val.value?.name !== aggregation && this.onQueryAggregationChange(val.value!)}
           />
         )}
-        {!project.startsWith("_") && !subsystem.startsWith("_") && (
+        {!project.startsWith("_") && !subsystem.startsWith("_") && aggregation !== "" (
           <Select<timemodel>
             value={selectedTimemodel}
             options={timemodelOptions}
