@@ -61,12 +61,10 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 
 	response := backend.DataResponse{}
 	var model_ model.QueryRef
-	log.DefaultLogger.Info("Niclas1")
 	response.Error = JSON.Unmarshal(query.JSON, &model_)
 	if response.Error != nil {
 		return response
 	}
-	log.DefaultLogger.Info("Niclas2")
 	var frame *data.Frame
 	if model_.Project == "_" {
 		projects, _ := sds.cassandraClient.FindAllProjects(orgId)
@@ -75,12 +73,10 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 		// alarmStates := sds.cassandraClient.QueryAlarmStates(orgId, model_)
 		// frame = FormatAlarmsQuery(queryName, alarmStates)
 	} else {
-		log.DefaultLogger.Info("Niclas3")
 		timeseries := sds.cassandraClient.QueryTimeseries(orgId, model_, from, to, maxValues)
 		frame = formatTimeseriesQuery(queryName, timeseries, frame)
 	}
 	response.Frames = append(response.Frames, frame)
-	log.DefaultLogger.Info("Niclas5")
 	return response
 }
 

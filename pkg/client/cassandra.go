@@ -69,6 +69,8 @@ func (cass *CassandraClient) Reinitialize() {
 
 func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
 	log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + query.Project + "/" + query.Subsystem + "/" + query.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
+	project, _ := cass.GetProject(org, query.Project)
+	timezone := project.Timezone
 	var result []model.TsPair
 	startYearMonth := from.Year()*12 + int(from.Month()) - 1
 	endYearMonth := to.Year()*12 + int(to.Month()) - 1
@@ -89,10 +91,10 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 		err := iter.Close()
 		if err != nil {
 			log.DefaultLogger.Error("Internal Error 2? Failed to read record", err)
+			return result
 		}
 	}
-	log.DefaultLogger.Info("Niclas4")
-	return reduceSize(maxValues, result, query.Aggregation, query.TimeModel)
+	return reduceSize(maxValues, result, query.Aggregation, query.TimeModel, timezone)
 }
 
 func (cass *CassandraClient) QueryAlarmHistory(_ int64, _ model.QueryRef, _ time.Time, _ time.Time, _ int) ([]model.TsPair, error) {
@@ -313,15 +315,15 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 	return r
 }
 
-func reduceSize(maxValues int, data []model.TsPair, aggregation string, timeModel string) []model.TsPair {
+func reduceSize(maxValues int, data []model.TsPair, aggregation string, timeModel string, timezone string) []model.TsPair {
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %s", timeModel))
 	switch timeModel {
 	case "daily":
-		return reduceInterval(data, daily, firstOfDay, aggregation)
+		return reduceInterval(data, daily, firstOfDay, aggregation, timezone)
 	case "weekly":
-		return reduceInterval(data, weekly, firstOfWeek, aggregation)
+		return reduceInterval(data, weekly, firstOfWeek, aggregation, timezone)
 	case "monthly":
-		return reduceInterval(data, monthly, firstOfMonth, aggregation)
+		return reduceInterval(data, monthly, firstOfMonth, aggregation, timezone)
 	default:
 		return reduceDefault(maxValues, data, aggregation)
 	}
@@ -348,7 +350,7 @@ func reduceDefault(maxValues int, data []model.TsPair, aggregation string) []mod
 	return downsized
 }
 
-func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) bool, startOfInterval func([]model.TsPair) int, aggregation string) []model.TsPair {
+func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) bool, startOfInterval func([]model.TsPair, string) int, aggregation string, timezone string) []model.TsPair {
 	var daily []model.TsPair
 
 	dataLength := len(data)
@@ -358,7 +360,7 @@ func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) b
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
 	var currentDate time.Time
 	var end int
-	var start = startOfInterval(data)
+	var start = startOfInterval(data, timezone)
 	for index, tsPair := range data {
 		if currentDate.IsZero() || inRange(tsPair, currentDate) {
 			if !currentDate.IsZero() {
@@ -373,17 +375,26 @@ func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) b
 	return daily
 }
 
-func firstOfDay(data []model.TsPair) int {
+func firstOfDay(data []model.TsPair, timezone string) int {
 	length := len(data)
 	for index := 0; index < length; index++ {
-		if data[index].TS.Hour() == 0 {
+		if data[index].TS.In(createLocation(timezone)).Hour() == 0 {
 			return index
 		}
 	}
 	return 0
 }
 
-func firstOfWeek(data []model.TsPair) int {
+func createLocation(timezone string) *time.Location {
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		log.DefaultLogger.Error(fmt.Sprintf("Timezone does not exist: %s", timezone))
+		return time.UTC
+	}
+	return loc
+}
+
+func firstOfWeek(data []model.TsPair, timezone string) int {
 	length := len(data)
 	for index := 0; index < length; index++ {
 		if data[index].TS.Weekday() == time.Monday {
@@ -393,7 +404,7 @@ func firstOfWeek(data []model.TsPair) int {
 	return 0
 }
 
-func firstOfMonth(data []model.TsPair) int {
+func firstOfMonth(data []model.TsPair, timezone string) int {
 	length := len(data)
 	for index := 0; index < length; index++ {
 		if data[index].TS.Day() == 1 {
