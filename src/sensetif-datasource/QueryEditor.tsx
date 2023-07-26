@@ -262,7 +262,7 @@ export class QueryEditor extends PureComponent<Props, State> {
             onChange={(val) => val.value?.name !== aggregation && this.onQueryAggregationChange(val.value!)}
           />
         )}
-        {!project.startsWith("_") && !subsystem.startsWith("_") && aggregation !== "" (
+        {!project.startsWith("_") && !subsystem.startsWith("_") && aggregation !== "" && (
           <Select<timemodel>
             value={selectedTimemodel}
             options={timemodelOptions}
