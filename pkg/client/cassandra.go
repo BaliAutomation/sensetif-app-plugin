@@ -70,7 +70,8 @@ func (cass *CassandraClient) Reinitialize() {
 func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, from time.Time, to time.Time, maxValues int) []model.TsPair {
 	log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + query.Project + "/" + query.Subsystem + "/" + query.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
 	project, _ := cass.GetProject(org, query.Project)
-	timezone := project.Timezone
+	location := createLocation(project.Timezone)
+
 	var result []model.TsPair
 	startYearMonth := from.Year()*12 + int(from.Month()) - 1
 	endYearMonth := to.Year()*12 + int(to.Month()) - 1
@@ -94,7 +95,7 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 			return result
 		}
 	}
-	return reduceSize(maxValues, result, query.Aggregation, query.TimeModel, timezone)
+	return reduceSize(maxValues, result, query.Aggregation, query.TimeModel, location)
 }
 
 func (cass *CassandraClient) QueryAlarmHistory(_ int64, _ model.QueryRef, _ time.Time, _ time.Time, _ int) ([]model.TsPair, error) {
@@ -315,15 +316,15 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 	return r
 }
 
-func reduceSize(maxValues int, data []model.TsPair, aggregation string, timeModel string, timezone string) []model.TsPair {
+func reduceSize(maxValues int, data []model.TsPair, aggregation string, timeModel string, location *time.Location) []model.TsPair {
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %s", timeModel))
 	switch timeModel {
 	case "daily":
-		return reduceInterval(data, daily, firstOfDay, aggregation, timezone)
+		return reduceInterval(data, daily, firstOfDay, aggregation, location)
 	case "weekly":
-		return reduceInterval(data, weekly, firstOfWeek, aggregation, timezone)
+		return reduceInterval(data, weekly, firstOfWeek, aggregation, location)
 	case "monthly":
-		return reduceInterval(data, monthly, firstOfMonth, aggregation, timezone)
+		return reduceInterval(data, monthly, firstOfMonth, aggregation, location)
 	default:
 		return reduceDefault(maxValues, data, aggregation)
 	}
@@ -350,7 +351,7 @@ func reduceDefault(maxValues int, data []model.TsPair, aggregation string) []mod
 	return downsized
 }
 
-func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) bool, startOfInterval func([]model.TsPair, string) int, aggregation string, timezone string) []model.TsPair {
+func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time, *time.Location) bool, startOfInterval func([]model.TsPair, *time.Location) int, aggregation string, location *time.Location) []model.TsPair {
 	var daily []model.TsPair
 
 	dataLength := len(data)
@@ -360,9 +361,9 @@ func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) b
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
 	var currentDate time.Time
 	var end int
-	var start = startOfInterval(data, timezone)
+	var start = startOfInterval(data, location)
 	for index, tsPair := range data {
-		if currentDate.IsZero() || inRange(tsPair, currentDate) {
+		if currentDate.IsZero() || inRange(tsPair, currentDate, location) {
 			if !currentDate.IsZero() {
 				aggregated := aggregated(aggregation, data, start, end)
 				daily = append(daily, model.TsPair{TS: currentDate, Value: aggregated})
@@ -375,14 +376,46 @@ func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time) b
 	return daily
 }
 
-func firstOfDay(data []model.TsPair, timezone string) int {
+func firstOfDay(data []model.TsPair, location *time.Location) int {
 	length := len(data)
 	for index := 0; index < length; index++ {
-		if data[index].TS.In(createLocation(timezone)).Hour() == 0 {
+		if data[index].TS.In(location).Hour() == 0 {
 			return index
 		}
 	}
 	return 0
+}
+
+func firstOfWeek(data []model.TsPair, location *time.Location) int {
+	length := len(data)
+	for index := 0; index < length; index++ {
+		if data[index].TS.In(location).Weekday() == time.Monday {
+			return index
+		}
+	}
+	return 0
+}
+
+func firstOfMonth(data []model.TsPair, location *time.Location) int {
+	length := len(data)
+	for index := 0; index < length; index++ {
+		if data[index].TS.In(location).Day() == 1 {
+			return index
+		}
+	}
+	return 0
+}
+
+func daily(tsPair model.TsPair, currentDate time.Time, location *time.Location) bool {
+	return tsPair.TS.In(location).Day() != currentDate.In(location).Day()
+}
+
+func weekly(tsPair model.TsPair, currentDate time.Time, location *time.Location) bool {
+	return tsPair.TS.In(location).Weekday() != currentDate.In(location).Weekday()
+}
+
+func monthly(tsPair model.TsPair, currentDate time.Time, location *time.Location) bool {
+	return tsPair.TS.In(location).Month() != currentDate.In(location).Month()
 }
 
 func createLocation(timezone string) *time.Location {
@@ -392,38 +425,6 @@ func createLocation(timezone string) *time.Location {
 		return time.UTC
 	}
 	return loc
-}
-
-func firstOfWeek(data []model.TsPair, timezone string) int {
-	length := len(data)
-	for index := 0; index < length; index++ {
-		if data[index].TS.Weekday() == time.Monday {
-			return index
-		}
-	}
-	return 0
-}
-
-func firstOfMonth(data []model.TsPair, timezone string) int {
-	length := len(data)
-	for index := 0; index < length; index++ {
-		if data[index].TS.Day() == 1 {
-			return index
-		}
-	}
-	return 0
-}
-
-func daily(tsPair model.TsPair, currentDate time.Time) bool {
-	return tsPair.TS.Day() != currentDate.Day()
-}
-
-func weekly(tsPair model.TsPair, currentDate time.Time) bool {
-	return tsPair.TS.Weekday() != currentDate.Weekday()
-}
-
-func monthly(tsPair model.TsPair, currentDate time.Time) bool {
-	return tsPair.TS.Month() != currentDate.Month()
 }
 
 func aggregated(aggregation string, data []model.TsPair, start int, end int) float64 {
