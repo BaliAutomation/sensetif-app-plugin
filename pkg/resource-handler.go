@@ -57,6 +57,7 @@ var links = []Link{
 
 	// Import API
 	{Method: "POST", Fn: handler.ImportLink2WebFvc1, Pattern: MustCompile(`^/_import/fvc1$`)},
+	{Method: "POST", Fn: handler.ImportEon, Pattern: MustCompile(`^/_import/eon$`)},
 	{Method: "POST", Fn: handler.ImportTtnv3App, Pattern: MustCompile(`^/_import/ttnv3$`)},
 
 	// Limits API
