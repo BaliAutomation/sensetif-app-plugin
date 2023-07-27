@@ -411,7 +411,9 @@ func daily(tsPair model.TsPair, currentDate time.Time, location *time.Location) 
 }
 
 func weekly(tsPair model.TsPair, currentDate time.Time, location *time.Location) bool {
-	return tsPair.TS.In(location).Weekday() != currentDate.In(location).Weekday()
+	_, tsWeek := tsPair.TS.In(location).ISOWeek()
+	_, currentWeek := currentDate.In(location).ISOWeek()
+	return tsWeek != currentWeek
 }
 
 func monthly(tsPair model.TsPair, currentDate time.Time, location *time.Location) bool {
