@@ -488,7 +488,7 @@ func averageOf(data []model.TsPair, start int, end int) float64 {
 	return sum / float64(1+end-start)
 }
 
-func lastSampleOf(data []model.TsPair, start int, end int) float64 {
+func lastSampleOf(data []model.TsPair, _ int, end int) float64 {
 	return data[end].Value
 }
 
@@ -520,7 +520,7 @@ const planlimitsTablename = "planlimits"
 
 const timeseriesTablename = "timeseries"
 
-const alarmsTablename = "alarms"
+//const alarmsTablename = "alarms"
 
 const tsQuery = "SELECT value,ts FROM %s.%s" +
 	" WHERE" +
