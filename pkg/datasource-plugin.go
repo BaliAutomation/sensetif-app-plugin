@@ -76,6 +76,8 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 		timeseries := sds.cassandraClient.QueryTimeseries(orgId, model_, from, to, maxValues)
 		frame = formatTimeseriesQuery(queryName, timeseries, frame)
 	}
+
+	frame.RefID = query.RefID
 	response.Frames = append(response.Frames, frame)
 	return response
 }
