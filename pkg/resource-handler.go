@@ -108,11 +108,10 @@ func (p *ResourceHandler) CallResource(ctx context.Context, request *backend.Cal
 	return notFound("", sender)
 }
 
-func Health(_ int64, _ []string, body []byte, _ *client.Clients) (*backend.CallResourceResponse, error) {
-	body = []byte{}
+func Health(_ int64, _ []string, _ []byte, _ *client.Clients) (*backend.CallResourceResponse, error) {
 	return &backend.CallResourceResponse{
 		Status: http.StatusOK,
-		Body:   body,
+		Body:   []byte{},
 	}, nil
 }
 

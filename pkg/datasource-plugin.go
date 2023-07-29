@@ -74,7 +74,7 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 		// frame = FormatAlarmsQuery(queryName, alarmStates)
 	} else {
 		timeseries := sds.cassandraClient.QueryTimeseries(orgId, model_, from, to, maxValues)
-		frame = formatTimeseriesQuery(queryName, timeseries, frame)
+		frame = formatTimeseriesQuery(queryName, timeseries)
 	}
 
 	frame.RefID = query.RefID
@@ -82,18 +82,18 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 	return response
 }
 
-func formatTimeseriesQuery(queryName string, timeseries []model.TsPair, frame *data.Frame) *data.Frame {
+func formatTimeseriesQuery(queryName string, timeseries []model.TsPair) *data.Frame {
 	times := []time.Time{}
 	values := []float64{}
 	for _, t := range timeseries {
 		times = append(times, t.TS)
 		values = append(values, t.Value)
 	}
-	frame = data.NewFrame(queryName,
+
+	return data.NewFrame(queryName,
 		data.NewField("Time", nil, times),
 		data.NewField("Value", nil, values),
 	)
-	return frame
 }
 
 func formatProjectsQuery(queryName string, projects []model.ProjectSettings) *data.Frame {
@@ -108,12 +108,12 @@ func formatProjectsQuery(queryName string, projects []model.ProjectSettings) *da
 		longs = append(longs, lng)
 		titles = append(titles, t.Title)
 	}
-	frame := data.NewFrame(queryName,
+
+	return data.NewFrame(queryName,
 		data.NewField("Name", nil, titles),
 		data.NewField("latitude", nil, lats),
 		data.NewField("longitude", nil, longs),
 	)
-	return frame
 }
 
 func (sds *SensetifDatasource) CheckHealth(_ context.Context, _ *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
