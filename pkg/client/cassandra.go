@@ -346,6 +346,7 @@ func reduceDefault(maxValues int, data []model.TsPair, aggregation string) []mod
 		}
 		downsized[i].TS = data[end].TS
 		downsized[i].Value = aggregated(aggregation, data, start, end)
+		log.DefaultLogger.Info(fmt.Sprintf("Sample: %+v", downsized[i]))
 	}
 	//log.DefaultLogger.Info(fmt.Sprintf("Reduced to %d", len(downsized)))
 	return downsized
