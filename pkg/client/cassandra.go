@@ -317,7 +317,7 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 }
 
 func reduceSize(maxValues int, data []model.TsPair, aggregation string, timeModel string, location *time.Location) []model.TsPair {
-	log.DefaultLogger.Info(fmt.Sprintf("Reducing %s", timeModel))
+	log.DefaultLogger.Info(fmt.Sprintf("Reducing to %s", timeModel))
 	switch timeModel {
 	case "daily":
 		return reduceInterval(data, daily, firstOfDay, aggregation, location)
