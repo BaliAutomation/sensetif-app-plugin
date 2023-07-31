@@ -12,7 +12,7 @@ COPY ./pkg ./pkg
 
 ENV GOOS=linux
 ENV GOARCH=amd64
-RUN go build -o ./dist/gpx_sensetif-datasource_linux_amd64 ./pkg
+RUN go build -o ./gpx_sensetif-datasource_linux_amd64 ./pkg
 
 FROM scratch AS export-stage
-COPY --from=plugin /app/dist/gpx_sensetif-datasource_linux_amd64 .
+COPY --from=plugin /app/gpx_sensetif-datasource_linux_amd64 ./sensetif-datasource/
