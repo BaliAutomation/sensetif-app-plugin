@@ -336,19 +336,17 @@ func reduceDefault(maxValues int, data []model.TsPair, aggregation string) []mod
 	factor = resultLength/maxValues + 1
 	newSize := resultLength / factor
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d, by %d", resultLength, maxValues, factor))
-	var downsized = make([]model.TsPair, newSize, newSize)
+	var downsized = []model.TsPair{}
 	start := resultLength
 	for i := newSize - 1; i >= 0; i = i - 1 {
 		end := start - 1       // points at last sample to be included in aggregation/calc
 		start = start - factor // points at first sample to be included in aggregation/calc
-		if end <= 0 || start <= 0 {
-			break
+		value, err := aggregated(aggregation, data, start, end)
+		if err == nil {
+			pair := model.TsPair{TS: data[end].TS, Value: value}
+			downsized = append(downsized, pair)
 		}
-		downsized[i].TS = data[end].TS
-		downsized[i].Value = aggregated(aggregation, data, start, end)
-		log.DefaultLogger.Info(fmt.Sprintf("Sample: %+v", downsized[i]))
 	}
-	//log.DefaultLogger.Info(fmt.Sprintf("Reduced to %d", len(downsized)))
 	return downsized
 }
 
@@ -366,8 +364,10 @@ func reduceInterval(data []model.TsPair, inRange func(model.TsPair, time.Time, *
 	for index, tsPair := range data {
 		if currentDate.IsZero() || inRange(tsPair, currentDate, location) {
 			if !currentDate.IsZero() {
-				aggregated := aggregated(aggregation, data, start, end)
-				daily = append(daily, model.TsPair{TS: currentDate, Value: aggregated})
+				aggregated, err := aggregated(aggregation, data, start, end)
+				if err == nil {
+					daily = append(daily, model.TsPair{TS: currentDate, Value: aggregated})
+				}
 				start = index
 			}
 			currentDate = tsPair.TS
@@ -430,7 +430,8 @@ func createLocation(timezone string) *time.Location {
 	return loc
 }
 
-func aggregated(aggregation string, data []model.TsPair, start int, end int) float64 {
+func aggregated(aggregation string, data []model.TsPair, start int, end int) (float64, error) {
+
 	var value float64
 	switch aggregation {
 	case "":
@@ -438,6 +439,8 @@ func aggregated(aggregation string, data []model.TsPair, start int, end int) flo
 	case "delta":
 		if start > 0 {
 			value = deltaOf(data, start, end) // calcs the difference between last sample and previous last sample
+		} else {
+			return 0, model.ErrNotFound
 		}
 	case "min":
 		value = minimumOf(data, start, end) // minimum value within the range of values to be aggregated
@@ -450,7 +453,7 @@ func aggregated(aggregation string, data []model.TsPair, start int, end int) flo
 	default:
 		value = 0.0
 	}
-	return value
+	return value, nil
 }
 
 func sumOf(data []model.TsPair, start int, end int) float64 {
