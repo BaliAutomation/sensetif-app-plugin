@@ -86,6 +86,7 @@ func formatTimeseriesQuery(queryName string, timeseries []model.TsPair) *data.Fr
 	times := []time.Time{}
 	values := []float64{}
 	for _, t := range timeseries {
+		log.DefaultLogger.Info(fmt.Sprintf("Sample: %+v", t))
 		times = append(times, t.TS)
 		values = append(values, t.Value)
 	}
