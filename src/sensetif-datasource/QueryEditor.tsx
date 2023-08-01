@@ -141,18 +141,44 @@ export class QueryEditor extends PureComponent<Props, State> {
     onChange({ ...query, timemodel: timemodel.name });
   };
 
-  options = (values: WithNameAndTitle[]): Array<SelectableValue<WithNameAndTitle>> => values.map((p) => ({
-    label: p.title ?? p.name,
-    value: p
-  }))
+  onProjectOptionAdded = (value: string) => {
+    const project = { name: value }
+    this.setState({
+      projects: [...this.state.projects, project]
+    })
+
+    this.onQueryProjectChange(project)
+  }
+
+  onSubsystemOptionAdded = (value: string) => {
+    const subsystem = { name: value }
+    this.setState({
+      subsystems: [...this.state.subsystems, subsystem]
+    })
+
+    this.onQuerySubsystemChange(subsystem)
+  }
+
+  onDatapointOptionAdded = (value: string) => {
+    const datapoint = { name: value }
+    this.setState({
+      datapoints: [...this.state.datapoints, datapoint]
+    })
+
+    this.onQueryDatapointChange(datapoint)
+  }
+
+  makeOption = (value: WithNameAndTitle): SelectableValue<WithNameAndTitle> => {
+    return {
+      label: value.title ?? value.name,
+      value: value
+    }
+  }
 
   reloadProjects = async () => {
     try {
       const projects = await loadProjects();
-
-      this.setState({
-        projects: projects,
-      });
+      this.setState({ projects: projects });
     } catch (e) {
       console.warn('loading projects', e)
     }
@@ -165,10 +191,7 @@ export class QueryEditor extends PureComponent<Props, State> {
 
     try {
       const subsystems = await loadSubsystems(query.project);
-
-      this.setState({
-        subsystems: subsystems,
-      });
+      this.setState({ subsystems: subsystems });
     } catch (e) {
       console.warn('loading subsystems', e)
     }
@@ -181,10 +204,7 @@ export class QueryEditor extends PureComponent<Props, State> {
 
     try {
       const datapoints = await loadDatapoints(query.project, query.subsystem);
-
-      this.setState({
-        datapoints: datapoints,
-      });
+      this.setState({ datapoints: datapoints });
     } catch (e) {
       console.warn('loading datapoints', e)
     }
@@ -201,71 +221,65 @@ export class QueryEditor extends PureComponent<Props, State> {
     return result;
   };
 
-
-  getOptionByName = (name: string, values: WithNameAndTitle[]): SelectableValue<WithNameAndTitle> => {
-    const val = values.find(p => p.name === name)
-    return {
-      label: val?.title ?? val?.name,
-      value: val
-    }
-  }
-
   render() {
     const defQuery = this.getDefaultQuery();
     const query = defaults(this.props.query, defQuery);
-    const { project: project, subsystem: subsystem, datapoint: datapoint, aggregation: aggregation, timemodel: timemodel } = query;
+    const { project, subsystem, datapoint, aggregation, timemodel } = query;
 
-    const projectOptions = this.options(this.state.projects);
-    const subsystemOptions = this.options(this.state.subsystems);
-    const datapointOptions = this.options(this.state.datapoints);
-    const aggregationOptions = this.options(this.state.aggregations);
-    const timemodelOptions = this.options(this.state.timemodels);
+    const findByName = (values: WithNameAndTitle[], name: string) => {
+      let out = values.find((v) => v.name === name)
+      if (out !== undefined) {
+        return {
+          label: out.title ?? out.name,
+          value: out
+        }
+      }
 
-    const selectedProject = this.getOptionByName(project, this.state.projects)
-    const selectedSubsystem = this.getOptionByName(subsystem, this.state.subsystems)
-    const selectedDatapoint = this.getOptionByName(datapoint, this.state.datapoints)
-    const selectedAggregation = this.getOptionByName(aggregation, this.state.aggregations)
-    const selectedTimemodel = this.getOptionByName(timemodel, this.state.timemodels)
+      return {label: name, value: {name: name}}
+    }
 
     return (
       <div className="gf-form">
         <Select<project>
-          value={selectedProject}
+          value={findByName(this.state.projects, query.project)}
           allowCustomValue
-          options={projectOptions}
+          onCreateOption={(val) => { this.onProjectOptionAdded(val) }}
+          options={this.state.projects.map(this.makeOption)}
           onChange={(val) => this.onQueryProjectChange(val.value!)}
           placeholder={'The project to be queried'}
         />
         {!project.startsWith("_") && (
           <Select<subsystem>
-            value={selectedSubsystem}
+            value={findByName(this.state.subsystems, query.subsystem)}
             allowCustomValue
-            options={subsystemOptions}
+            onCreateOption={(val) => { this.onSubsystemOptionAdded(val) }}
+            options={this.state.subsystems.map(this.makeOption)}
             onChange={(val) => val.value?.name !== subsystem && this.onQuerySubsystemChange(val.value!)}
             placeholder={'The Subsystem within the project to be queried'}
           />
         )}
         {!project.startsWith("_") && !subsystem.startsWith("_") && (
           <Select<datapoint>
-            value={selectedDatapoint}
+            value={findByName(this.state.datapoints, query.datapoint)}
             allowCustomValue
-            options={datapointOptions}
+            onCreateOption={(val) => { this.onDatapointOptionAdded(val) }}
+            options={this.state.datapoints.map(this.makeOption)}
             onChange={(val) => val.value?.name !== datapoint && this.onQueryDatapointChange(val.value!)}
             placeholder={'The Datapoint in the Subsystem'}
           />
         )}
         {!project.startsWith("_") && !subsystem.startsWith("_") && (
           <Select<aggregation>
-            value={selectedAggregation}
-            options={aggregationOptions}
+            value={findByName(this.state.aggregations, query.aggregation)}
+            options={this.state.aggregations.map(this.makeOption)}
             placeholder={'The aggregation algorithm of the values, when queried.'}
             onChange={(val) => val.value?.name !== aggregation && this.onQueryAggregationChange(val.value!)}
           />
         )}
         {!project.startsWith("_") && !subsystem.startsWith("_") && aggregation !== "" && (
           <Select<timemodel>
-            value={selectedTimemodel}
-            options={timemodelOptions}
+            value={findByName(this.state.timemodels, query.timemodel)}
+            options={this.state.timemodels.map(this.makeOption)}
             placeholder={'The time model to use when aggregating.'}
             onChange={(val) => val.value?.name !== timemodel && this.onQueryTimemodelChange(val.value!)}
           />
