@@ -1,6 +1,6 @@
 {
   "name": "sensetif-app-plugin",
-  "version": "1.2.4",
+  "version": "1.2.7",
   "description": "Sensetif",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
