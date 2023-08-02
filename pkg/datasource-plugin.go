@@ -82,10 +82,10 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 	return response
 }
 
-func formatTimeseriesQuery(queryName string, timeseries []model.TsPair) *data.Frame {
+func formatTimeseriesQuery(queryName string, timeseries *[]model.TsPair) *data.Frame {
 	times := []time.Time{}
 	values := []float64{}
-	for _, t := range timeseries {
+	for _, t := range *timeseries {
 		times = append(times, t.TS)
 		values = append(values, t.Value)
 	}
