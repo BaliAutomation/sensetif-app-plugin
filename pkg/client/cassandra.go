@@ -366,10 +366,9 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	for index, tsPair := range *data {
 		if currentDate.IsZero() || inRange(&tsPair, &currentDate, location) {
 			if !currentDate.IsZero() {
-
 				aggregated, err := aggregated(aggregation, data, start, end)
 				if err == nil {
-					result = append(result, model.TsPair{TS: align(&currentDate), Value: aggregated})
+					result = append(result, model.TsPair{TS: align(&tsPair.TS), Value: aggregated})
 				}
 				start = index
 			}
