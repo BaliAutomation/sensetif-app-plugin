@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Sensetif/sensetif-app-plugin/pkg/model"
@@ -95,7 +96,7 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 			return &result
 		}
 	}
-	return reduceSize(maxValues, &result, query.Aggregation, query.TimeModel, location)
+	return reduceSize(maxValues, &result, strings.TrimSpace(query.Aggregation), query.TimeModel, location)
 }
 
 func (cass *CassandraClient) QueryAlarmHistory(_ int64, _ model.QueryRef, _ time.Time, _ time.Time, _ int) ([]model.TsPair, error) {
@@ -320,15 +321,19 @@ func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeMod
 	if len(timeModel) > 0 {
 		log.DefaultLogger.Info(fmt.Sprintf("Reducing to %s", timeModel))
 	}
-	switch timeModel {
-	case "daily":
-		return reduceInterval(data, daily, firstOfDay, alignDay, aggregation, location)
-	case "weekly":
-		return reduceInterval(data, weekly, firstOfWeek, alignWeek, aggregation, location)
-	case "monthly":
-		return reduceInterval(data, monthly, firstOfMonth, alignMonth, aggregation, location)
-	default:
+	if aggregation == "" || aggregation == "sample" {
 		return reduceDefault(maxValues, data, aggregation, alignSample)
+	} else {
+		switch timeModel {
+		case "daily":
+			return reduceInterval(data, daily, firstOfDay, alignDay, aggregation, location)
+		case "weekly":
+			return reduceInterval(data, weekly, firstOfWeek, alignWeek, aggregation, location)
+		case "monthly":
+			return reduceInterval(data, monthly, firstOfMonth, alignMonth, aggregation, location)
+		default:
+			return reduceDefault(maxValues, data, aggregation, alignSample)
+		}
 	}
 }
 
