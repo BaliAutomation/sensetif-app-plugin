@@ -27,7 +27,7 @@ export const ConfirmationModal = ({
   let [datapointsOptions, setDatapointsOptions] = useState<Array<SelectableValue<payloadField>>>([]);
   let [datapointsToImport, setDatapointsToImport] = useState<payloadField[]>([]);
   let [devicesToImport, setDevicesToImport] = useState<matchingDevice[]>([]);
-  let [selectedFport, setSelectedFport] = useState<number>();
+  let [selectedFport, setSelectedFport] = useState<number>(Number(Object.keys(allDevices[selectedDevice].payload!.fPorts!)[0]));
 
   useEffect(() => {
     const matchingDatapoints = getSupportedDatapoints(allDevices, selectedDevice, selectedFport)
