@@ -39,18 +39,16 @@ func (sds *SensetifDatasource) QueryData(_ context.Context, req *backend.QueryDa
 	return response, nil
 }
 
-type queryModel struct {
-	Format     string `json:"format"`
-	Parameters string `json:"parameters"`
-}
-
 func (sds *SensetifDatasource) query(queryName string, orgId int64, query backend.DataQuery) backend.DataResponse {
-	response := backend.DataResponse{}
-	var qm queryModel
-	response.Error = JSON.Unmarshal(query.JSON, &qm)
-	if response.Error != nil {
-		return response
+	var qm struct {
+		Format     string `json:"format"`
+		Parameters string `json:"parameters"`
 	}
+
+	if err := JSON.Unmarshal(query.JSON, &qm); err != nil {
+		return backend.ErrDataResponse(backend.StatusBadRequest, fmt.Sprintf("unmarshal query: %v", err))
+	}
+
 	maxValues := int(query.MaxDataPoints)
 	return sds.executeTimeseriesQuery(queryName, maxValues, qm.Parameters, orgId, query)
 }
@@ -59,27 +57,28 @@ func (sds *SensetifDatasource) executeTimeseriesQuery(queryName string, maxValue
 	from := query.TimeRange.From
 	to := query.TimeRange.To
 
-	response := backend.DataResponse{}
-	var model_ model.QueryRef
-	response.Error = JSON.Unmarshal(query.JSON, &model_)
-	if response.Error != nil {
-		return response
+	var model model.QueryRef
+	if err := JSON.Unmarshal(query.JSON, &model); err != nil {
+		return backend.ErrDataResponse(backend.StatusBadRequest, fmt.Sprintf("unmarshal query: %v", err))
 	}
+
 	var frame *data.Frame
-	if model_.Project == "_" {
+	if model.Project == "_" {
 		projects, _ := sds.cassandraClient.FindAllProjects(orgId)
 		frame = formatProjectsQuery(queryName, projects)
-	} else if model_.Project == "_alarms" {
+	} else if model.Project == "_alarms" {
 		// alarmStates := sds.cassandraClient.QueryAlarmStates(orgId, model_)
 		// frame = FormatAlarmsQuery(queryName, alarmStates)
 	} else {
-		timeseries := sds.cassandraClient.QueryTimeseries(orgId, model_, from, to, maxValues)
+		timeseries := sds.cassandraClient.QueryTimeseries(orgId, model, from, to, maxValues)
 		frame = formatTimeseriesQuery(queryName, timeseries)
 	}
 
 	frame.RefID = query.RefID
-	response.Frames = append(response.Frames, frame)
-	return response
+
+	return backend.DataResponse{
+		Frames: data.Frames{frame},
+	}
 }
 
 func formatTimeseriesQuery(queryName string, timeseries *[]model.TsPair) *data.Frame {
