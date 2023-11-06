@@ -18,16 +18,19 @@ type ResourceHandler struct {
 	Clients *client.Clients
 }
 
+type HandlerFn func(orgId int64, req handler.ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error)
+
 type Link struct {
 	Pattern *Regexp
 	Method  string
-	Fn      func(orgId int64, params []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error)
+	Fn      HandlerFn
 }
 
 const (
-	projectRegexName   = `[a-zA-Z][a-zA-Z0-9_.\-]*`
-	subsystemRegexName = `[a-zA-Z][a-zA-Z0-9_.\-]*`
-	datapointRegexName = `[a-zA-Z][a-zA-Z0-9_.\-$\[\]]*`
+	fileRequestRegexName = "__/"
+	projectRegexName     = `[a-zA-Z][a-zA-Z0-9_.\-]*`
+	subsystemRegexName   = `[a-zA-Z][a-zA-Z0-9_.\-]*`
+	datapointRegexName   = `[a-zA-Z][a-zA-Z0-9_.\-$\[\]]*`
 )
 
 var links = []Link{
@@ -76,21 +79,24 @@ var links = []Link{
 	{Method: "PUT", Fn: handler.UpdateTimeseries, Pattern: MustCompile(`^_timeseries/(` + projectRegexName + `)/(` + subsystemRegexName + `)/(` + datapointRegexName + `)$`)},
 }
 
-//goland:noinspection GoUnusedParameter
-func (p *ResourceHandler) CallResource(ctx context.Context, request *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
-	log.DefaultLogger.Info(fmt.Sprintf("URL: %s; PATH: %s, Method: %s", request.URL, request.Path, request.Method))
-	err2, found := handleFileRequests(request, sender)
-	if found {
-		return err2
-	}
+func (p *ResourceHandler) CallResource(_ context.Context, request *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
 	orgId := request.PluginContext.OrgID
-	log.DefaultLogger.Info(fmt.Sprintf("URL: %s; PATH: %s, Method: %s, OrgId: %d", request.URL, request.Path, request.Method, orgId))
+	log.DefaultLogger.With("OrgId", orgId).With("URL", request.URL).With("PATH", request.Path).With("Method", request.Method).Info("CallResource()")
+
+	if isFileRequest(request) {
+		return handleFileRequests(request, sender)
+	}
 
 	for _, link := range links {
 		if link.Method == request.Method {
 			parameters := link.Pattern.FindStringSubmatch(request.URL)
 			if len(parameters) >= 1 {
-				result, err := link.Fn(orgId, parameters, request.Body, p.Clients)
+				resourceRequest := handler.ResourceRequest{
+					Params: parameters,
+					Body:   request.Body,
+				}
+
+				result, err := link.Fn(orgId, resourceRequest, p.Clients)
 				if err == nil {
 					log.DefaultLogger.Info(fmt.Sprintf("Result: %s", string(result.Body)))
 					if result.Body == nil {
@@ -109,29 +115,30 @@ func (p *ResourceHandler) CallResource(ctx context.Context, request *backend.Cal
 	return notFound("", sender)
 }
 
-func Health(_ int64, _ []string, _ []byte, _ *client.Clients) (*backend.CallResourceResponse, error) {
+func Health(_ int64, _ handler.ResourceRequest, _ *client.Clients) (*backend.CallResourceResponse, error) {
 	return &backend.CallResourceResponse{
 		Status: http.StatusOK,
 		Body:   []byte{},
 	}, nil
 }
 
-func handleFileRequests(request *backend.CallResourceRequest, sender backend.CallResourceResponseSender) (error, bool) {
-	if strings.Index(request.Path, "__/") == 0 {
-		filename := strings.TrimLeft(request.Path, "__/")
-		content, err := HandleFile(filename)
-		if err != nil {
-			log.DefaultLogger.Error("Could not read file: " + filename + " : " + err.Error())
-			return err, true
-		}
-		err = sender.Send(content)
-		if err != nil {
-			log.DefaultLogger.Error("could not write content to the client. " + err.Error())
-			return err, true
-		}
-		return nil, true
+func isFileRequest(request *backend.CallResourceRequest) bool {
+	return strings.Index(request.Path, fileRequestRegexName) == 0
+}
+
+func handleFileRequests(request *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
+	filename := strings.TrimLeft(request.Path, fileRequestRegexName)
+	content, err := HandleFile(filename)
+	if err != nil {
+		log.DefaultLogger.Error("Could not read file: " + filename + " : " + err.Error())
+		return err
 	}
-	return nil, false
+	err = sender.Send(content)
+	if err != nil {
+		log.DefaultLogger.Error("could not write content to the client. " + err.Error())
+		return err
+	}
+	return nil
 }
 
 func notFound(message string, sender backend.CallResourceResponseSender) error {

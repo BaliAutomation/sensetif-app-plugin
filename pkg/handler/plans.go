@@ -34,8 +34,7 @@ type SessionProxy struct {
 	Id string `json:"id"`
 }
 
-//goland:noinspection GoUnusedParameter
-func CurrentLimits(orgId int64, parameters []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func CurrentLimits(orgId int64, _ ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	limits, _ := clients.Cassandra.GetCurrentLimits(orgId)
 	limitsInJson, err := json.Marshal(limits)
 	if err != nil {
@@ -52,8 +51,7 @@ func CurrentLimits(orgId int64, parameters []string, body []byte, clients *clien
 	}, nil
 }
 
-//goland:noinspection GoUnusedParameter
-func ListPlans(orgId int64, parameters []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func ListPlans(orgId int64, _ ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("ListPlans()")
 
 	productPrices := map[string][]stripe.Price{}
@@ -91,13 +89,13 @@ func ListPlans(orgId int64, parameters []string, body []byte, clients *client.Cl
 	}, nil
 }
 
-func CheckOut(orgId int64, parameters []string, body []byte, _ *client.Clients) (*backend.CallResourceResponse, error) {
+func CheckOut(orgId int64, req ResourceRequest, _ *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("CheckOut(" + strconv.FormatInt(orgId, 10) + ")")
-	log.DefaultLogger.Info(fmt.Sprintf("Parameters: %+v", parameters))
-	log.DefaultLogger.Info(fmt.Sprintf("Body: %s", string(body)))
+	log.DefaultLogger.Info(fmt.Sprintf("Parameters: %+v", req.Params))
+	log.DefaultLogger.Info(fmt.Sprintf("Body: %s", string(req.Body)))
 
 	var pricing PlanPricing
-	err := json.Unmarshal(body, &pricing)
+	err := json.Unmarshal(req.Body, &pricing)
 	if err != nil {
 		return nil, err
 	}
@@ -154,9 +152,9 @@ func CheckOut(orgId int64, parameters []string, body []byte, _ *client.Clients) 
 	}
 }
 
-func CheckOutSuccess(orgId int64 /*parameters*/, _ []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func CheckOutSuccess(orgId int64, req ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	var sessionProxy SessionProxy
-	err := json.Unmarshal(body, &sessionProxy)
+	err := json.Unmarshal(req.Body, &sessionProxy)
 	if err != nil {
 		return nil, err
 	}
@@ -200,10 +198,10 @@ func CheckOutSuccess(orgId int64 /*parameters*/, _ []string, body []byte, client
 	}, nil
 }
 
-func CheckOutCancelled(orgId int64 /* parameters */, _ []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func CheckOutCancelled(orgId int64, req ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("CheckOutCancelled(" + strconv.FormatInt(orgId, 10) + ")")
 	var sessionProxy SessionProxy
-	err := json.Unmarshal(body, &sessionProxy)
+	err := json.Unmarshal(req.Body, &sessionProxy)
 	if err != nil {
 		return nil, err
 	}

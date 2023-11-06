@@ -11,8 +11,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 )
 
-//goland:noinspection GoUnusedParameter
-func GetOrganization(orgId int64, params []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func GetOrganization(orgId int64, _ ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("GetOrganization")
 	organization, err := clients.Cassandra.GetOrganization(orgId)
 	if err != nil {

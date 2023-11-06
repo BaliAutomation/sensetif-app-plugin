@@ -12,8 +12,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 )
 
-//goland:noinspection GoUnusedParameter
-func ListProjects(orgId int64, params []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func ListProjects(orgId int64, _ ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("ListProjects()")
 	projects, err := clients.Cassandra.FindAllProjects(orgId)
 	if err != nil {
@@ -31,10 +30,9 @@ func ListProjects(orgId int64, params []string, body []byte, clients *client.Cli
 	}, nil
 }
 
-//goland:noinspection GoUnusedParameter
-func GetProject(orgId int64, params []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func GetProject(orgId int64, req ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("GetProject()")
-	project, err := clients.Cassandra.GetProject(orgId, params[1])
+	project, err := clients.Cassandra.GetProject(orgId, req.Params[1])
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", model.ErrUnprocessableEntity, err.Error())
 	}
@@ -48,26 +46,24 @@ func GetProject(orgId int64, params []string, body []byte, clients *client.Clien
 	}, nil
 }
 
-//goland:noinspection GoUnusedParameter
-func UpdateProject(orgId int64, params []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func UpdateProject(orgId int64, req ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("UpdateProject()")
 	key := "2:" + strconv.FormatInt(orgId, 10) + ":updateProject"
 	log.DefaultLogger.Info(fmt.Sprintf("%+v", *clients.Pulsar))
-	clients.Pulsar.Send(model.ConfigurationTopic, key, body)
+	clients.Pulsar.Send(model.ConfigurationTopic, key, req.Body)
 	return &backend.CallResourceResponse{
 		Status: http.StatusAccepted,
 	}, nil
 }
 
-//goland:noinspection GoUnusedParameter
-func DeleteProject(orgId int64, params []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func DeleteProject(orgId int64, req ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("DeleteProject()")
-	if len(params) < 2 {
-		return nil, fmt.Errorf("%w: missing params: \"%v\"", model.ErrBadRequest, params)
+	if len(req.Params) < 2 {
+		return nil, fmt.Errorf("%w: missing params: \"%v\"", model.ErrBadRequest, req.Params)
 	}
 	key := "2:" + strconv.FormatInt(orgId, 10) + ":deleteProject"
 	data, err := json.Marshal(map[string]string{
-		"project": params[1],
+		"project": req.Params[1],
 	})
 	if err == nil {
 		clients.Pulsar.Send(model.ConfigurationTopic, key, data)
@@ -80,11 +76,10 @@ func DeleteProject(orgId int64, params []string, body []byte, clients *client.Cl
 	}, nil
 }
 
-//goland:noinspection GoUnusedParameter
-func RenameProject(orgId int64, params []string, body []byte, clients *client.Clients) (*backend.CallResourceResponse, error) {
+func RenameProject(orgId int64, req ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("RenameProject()")
 	key := "2:" + strconv.FormatInt(orgId, 10) + ":renameProject"
-	clients.Pulsar.Send(model.ConfigurationTopic, key, body)
+	clients.Pulsar.Send(model.ConfigurationTopic, key, req.Body)
 	return &backend.CallResourceResponse{
 		Status: http.StatusAccepted,
 	}, nil
