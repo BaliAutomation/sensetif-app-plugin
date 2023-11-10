@@ -56,16 +56,16 @@ func (cass *CassandraClient) IsHealthy() bool {
 }
 
 func (cass *CassandraClient) Reinitialize() {
-	log.DefaultLogger.Info("Re-initialize Cassandra session: " + fmt.Sprintf("%+v", cass.session) + "," + fmt.Sprintf("%+v", cass.clusterConfig))
+	log.DefaultLogger.Info("Re-initialize Cassandra session: %+v, %+v", cass.session, cass.clusterConfig)
 	if cass.session != nil {
 		cass.session.Close()
 	}
 	cass.session, cass.err = cass.clusterConfig.CreateSession()
 	if cass.err != nil {
-		log.DefaultLogger.Error("Unable to create Cassandra session: " + fmt.Sprintf("%+v", cass.err))
+		log.DefaultLogger.Error("Unable to create Cassandra session: %+v", cass.err)
 	}
 	cass.ctx = context.Background()
-	log.DefaultLogger.Info("Cassandra session: " + fmt.Sprintf("%+v", cass.session))
+	log.DefaultLogger.Info("Cassandra session: %+v", cass.session)
 }
 
 func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, from time.Time, to time.Time, maxValues int) *[]model.TsPair {
@@ -76,7 +76,7 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 	var result []model.TsPair
 	startYearMonth := from.Year()*12 + int(from.Month()) - 1
 	endYearMonth := to.Year()*12 + int(to.Month()) - 1
-	// log.DefaultLogger.Info(fmt.Sprintf("yearMonths:  start=%d, end=%d", startYearMonth, endYearMonth))
+	// log.DefaultLogger.Info("yearMonths:  start=%d, end=%d", startYearMonth, endYearMonth))
 
 	for yearmonth := endYearMonth; yearmonth >= startYearMonth; yearmonth-- {
 		iter := cass.createQuery(timeseriesTablename, tsQuery, org, query.Project, query.Subsystem, yearmonth, query.Datapoint, from, to)
@@ -168,7 +168,7 @@ func (cass *CassandraClient) FindAllProjects(org int64) ([]model.ProjectSettings
 		}
 		result = append(result, rowValue)
 	}
-	log.DefaultLogger.Info(fmt.Sprintf("Found: %d projects", len(result)))
+	log.DefaultLogger.Info("Found: %d projects", len(result))
 	return result, iter.Close()
 }
 
@@ -202,7 +202,7 @@ func (cass *CassandraClient) FindAllSubsystems(org int64, projectName string) ([
 		}
 		result = append(result, rowValue)
 	}
-	log.DefaultLogger.Info(fmt.Sprintf("Found: %d subsystems", len(result)))
+	log.DefaultLogger.Info("Found: %d subsystems", len(result))
 	return result, iter.Close()
 }
 
@@ -225,7 +225,7 @@ func (cass *CassandraClient) FindAllDatapoints(org int64, projectName string, su
 		datapoint := cass.deserializeDatapointRow(scanner)
 		result = append(result, datapoint)
 	}
-	log.DefaultLogger.Info(fmt.Sprintf("Found: %d datapoints", len(result)))
+	log.DefaultLogger.Info("Found: %d datapoints", len(result))
 	return result, iter.Close()
 }
 
@@ -241,7 +241,7 @@ func (cass *CassandraClient) SelectAllInJournal(org int64, journaltype string, j
 		entry := model.JournalEntry{}
 		err := scanner.Scan(&entry.Value, &entry.Added)
 		if err != nil {
-			log.DefaultLogger.Error(fmt.Sprintf("Unable to read Cassandra row(s) for %s (%s)", journalname, journaltype))
+			log.DefaultLogger.Error("Unable to read Cassandra row(s) for %s (%s)", journalname, journaltype)
 			return model.Journal{}, err
 		}
 		result.Entries = append(result.Entries, entry)
@@ -261,7 +261,7 @@ func (cass *CassandraClient) SelectRangeInJournal(org int64, journaltype string,
 		entry := model.JournalEntry{}
 		err := scanner.Scan(&entry.Value, &entry.Added)
 		if err != nil {
-			log.DefaultLogger.Error(fmt.Sprintf("Unable to read Cassandra row(s) for %s (%s)", journalname, journaltype))
+			log.DefaultLogger.Error("Unable to read Cassandra row(s) for %s (%s)", journalname, journaltype)
 			return model.Journal{}, err
 		}
 		result.Entries = append(result.Entries, entry)
@@ -294,8 +294,8 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 	var parameters map[string]string
 	var proc model.Processing
 	err := scanner.Scan(&r.Project, &r.Subsystem, &r.Name, &r.Interval, &r.SourceType, &r.TimeToLive, &proc, &ttnv3, &web, &mqtt, &parameters)
-	log.DefaultLogger.Info(fmt.Sprintf("Datapoint: %+v", r))
-	log.DefaultLogger.Info(fmt.Sprintf("Processing: %+v", proc))
+	log.DefaultLogger.Info("Datapoint: %+v", r)
+	log.DefaultLogger.Info("Processing: %+v", proc)
 	r.Proc = proc
 	if err == nil {
 		switch r.SourceType {
@@ -312,14 +312,14 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 		}
 	}
 	if err != nil {
-		log.DefaultLogger.Error(fmt.Sprintf("Internal Error 9? Failed to read record: %s, %+v", err.Error(), err))
+		log.DefaultLogger.Error("Internal Error 9? Failed to read record: %s, %+v", err.Error(), err)
 	}
 	return r
 }
 
 func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeModel string, location *time.Location) *[]model.TsPair {
 	if len(timeModel) > 0 {
-		log.DefaultLogger.Info(fmt.Sprintf("Reducing to %s", timeModel))
+		log.DefaultLogger.Info("Reducing to %s", timeModel)
 	}
 	if aggregation == "" || aggregation == "sample" {
 		return reduceDefault(maxValues, data, aggregation, alignSample)
@@ -342,8 +342,8 @@ func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string, alig
 	var factor int
 	factor = resultLength/maxValues + 1
 	newSize := resultLength / factor
-	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d, by %d", resultLength, maxValues, factor))
-	var downsized = []model.TsPair{}
+	log.DefaultLogger.Info("Reducing datapoints from %d to %d, by %d", resultLength, maxValues, factor)
+	downsized := []model.TsPair{}
 	start := resultLength
 	for i := newSize - 1; i >= 0; i = i - 1 {
 		end := start - 1       // points at last sample to be included in aggregation/calc
@@ -364,10 +364,10 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	if dataLength == 0 {
 		return &result
 	}
-	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
+	log.DefaultLogger.Info("Reducing %d datapoint to %s", dataLength, aggregation)
 	var currentDate time.Time
 	var end int
-	var start = startOfInterval(data, location)
+	start := startOfInterval(data, location)
 	for index, tsPair := range *data {
 		if currentDate.IsZero() || inRange(&tsPair, &currentDate, location) {
 			if !currentDate.IsZero() {
@@ -456,14 +456,13 @@ func monthly(tsPair *model.TsPair, currentDate *time.Time, location *time.Locati
 func createLocation(timezone string) *time.Location {
 	loc, err := time.LoadLocation(timezone)
 	if err != nil {
-		log.DefaultLogger.Error(fmt.Sprintf("Timezone does not exist: %s", timezone))
+		log.DefaultLogger.Error("Timezone does not exist: %s", timezone)
 		return time.UTC
 	}
 	return loc
 }
 
 func aggregated(aggregation string, data *[]model.TsPair, start int, end int) (float64, error) {
-
 	var value float64
 	switch aggregation {
 	case "":
@@ -556,8 +555,7 @@ const planlimitsTablename = "planlimits"
 
 const timeseriesTablename = "timeseries"
 
-//const alarmsTablename = "alarms"
-
+// const alarmsTablename = "alarms"
 const tsQuery = "SELECT value,ts FROM %s.%s" +
 	" WHERE" +
 	" orgId = ?" +
