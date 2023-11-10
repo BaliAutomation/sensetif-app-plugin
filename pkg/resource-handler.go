@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	. "regexp"
 	"strings"
@@ -83,6 +82,7 @@ func (p *ResourceHandler) CallResource(_ context.Context, request *backend.CallR
 	orgId := request.PluginContext.OrgID
 	log.DefaultLogger.With("OrgId", orgId).With("URL", request.URL).With("PATH", request.Path).With("Method", request.Method).Info("CallResource()")
 
+	log.DefaultLogger.Info("plugin ctx: %v", request.PluginContext)
 	if isFileRequest(request) {
 		return handleFileRequests(request, sender)
 	}
@@ -98,7 +98,7 @@ func (p *ResourceHandler) CallResource(_ context.Context, request *backend.CallR
 
 				result, err := link.Fn(orgId, resourceRequest, p.Clients)
 				if err == nil {
-					log.DefaultLogger.Info(fmt.Sprintf("Result: %s", string(result.Body)))
+					log.DefaultLogger.Info("Result: %s", string(result.Body))
 					if result.Body == nil {
 						result.Body = []byte("{}") // Maybe we always need to return a json body?
 					}
