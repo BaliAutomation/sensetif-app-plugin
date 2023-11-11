@@ -11,7 +11,8 @@ import (
 )
 
 type StreamHandler struct {
-	pulsar *client.PulsarClient
+	pulsar    *client.PulsarClient
+	cassandra *client.CassandraClient
 }
 
 func CreateStreamHandler(pulsarClient *client.PulsarClient) StreamHandler {
@@ -37,7 +38,7 @@ func (h *StreamHandler) SubscribeStream(ctx context.Context, req *backend.Subscr
 			Status: backend.SubscribeStreamStatusOK,
 		}, nil
 	}
-	log.DefaultLogger.Error("SubscribeStream requested unknown resource type: %s", req.Path)
+	log.DefaultLogger.Error(fmt.Sprintf("SubscribeStream requested unknown resource type: %s", req.Path))
 	return &backend.SubscribeStreamResponse{
 		Status: backend.SubscribeStreamStatusNotFound,
 	}, nil
@@ -67,5 +68,5 @@ func (h *StreamHandler) RunStream(ctx context.Context, req *backend.RunStreamReq
 	if req.Path == "_alarms/history" {
 		return h.RunAlarmsHistoryStream(ctx, sender, orgId)
 	}
-	return fmt.Errorf("unknown request")
+	return fmt.Errorf("Unknown request.")
 }

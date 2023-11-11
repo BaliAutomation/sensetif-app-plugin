@@ -61,7 +61,7 @@ func ListPlans(orgId int64, _ ResourceRequest, clients *client.Clients) (*backen
 		}
 	}
 	p, _ := json.Marshal(productPrices)
-	log.DefaultLogger.Info("Plans: %s", p)
+	log.DefaultLogger.Info(fmt.Sprintf("Plans: %s", p))
 	organization, err := clients.Cassandra.GetOrganization(orgId)
 	if err != nil {
 		log.DefaultLogger.Error("Unable to read organization.")
@@ -81,7 +81,7 @@ func ListPlans(orgId int64, _ ResourceRequest, clients *client.Clients) (*backen
 	}
 
 	plansInJson, _ := json.Marshal(result)
-	log.DefaultLogger.Info("Products: %s", plansInJson)
+	log.DefaultLogger.Info(fmt.Sprintf("Products: %s", plansInJson))
 	return &backend.CallResourceResponse{
 		Status:  http.StatusOK,
 		Headers: make(map[string][]string),
@@ -91,8 +91,8 @@ func ListPlans(orgId int64, _ ResourceRequest, clients *client.Clients) (*backen
 
 func CheckOut(orgId int64, req ResourceRequest, _ *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("CheckOut(" + strconv.FormatInt(orgId, 10) + ")")
-	log.DefaultLogger.Info("Parameters: %+v", req.Params)
-	log.DefaultLogger.Info("Body: %s", string(req.Body))
+	log.DefaultLogger.Info(fmt.Sprintf("Parameters: %+v", req.Params))
+	log.DefaultLogger.Info(fmt.Sprintf("Body: %s", string(req.Body)))
 
 	var pricing PlanPricing
 	err := json.Unmarshal(req.Body, &pricing)
@@ -136,14 +136,14 @@ func CheckOut(orgId int64, req ResourceRequest, _ *client.Clients) (*backend.Cal
 	log.DefaultLogger.Info("Calling Stripe")
 	sess, err := session.New(params)
 	if err != nil {
-		log.DefaultLogger.Error("Strip error: %+v", err)
+		log.DefaultLogger.Error(fmt.Sprintf("Strip error: %+v", err), err)
 		return &backend.CallResourceResponse{
 			Status:  http.StatusBadRequest,
 			Headers: make(map[string][]string),
 			Body:    []byte("{\"message\": \"Unable to establish Stripe session. Please try again later.\"}"),
 		}, nil
 	} else {
-		log.DefaultLogger.Info("Session: %+v", sess)
+		log.DefaultLogger.Info(fmt.Sprintf("Session: %+v", sess))
 		log.DefaultLogger.Info("Redirect browser to: " + sess.URL)
 		return &backend.CallResourceResponse{
 			Status: http.StatusOK,
@@ -168,11 +168,12 @@ func CheckOutSuccess(orgId int64, req ResourceRequest, clients *client.Clients) 
 		}, nil
 	}
 	log.DefaultLogger.Info("CheckOutSuccess() Session=" + stripeSession.ID + ", Subscription=" + stripeSession.Subscription.ID)
-	log.DefaultLogger.Info("Subscription for %d. Valid %d days. From %d to %d",
-		orgId,
-		stripeSession.Subscription.DaysUntilDue,
-		stripeSession.Subscription.CurrentPeriodStart,
-		stripeSession.Subscription.CurrentPeriodEnd,
+	log.DefaultLogger.Info(
+		fmt.Sprintf("Subscription for %d. Valid %d days. From %d to %d",
+			orgId,
+			stripeSession.Subscription.DaysUntilDue,
+			stripeSession.Subscription.CurrentPeriodStart,
+			stripeSession.Subscription.CurrentPeriodEnd),
 	)
 	paymentInfo := SubscriptionInfo{
 		Customer:        stripeSession.Customer.ID,
