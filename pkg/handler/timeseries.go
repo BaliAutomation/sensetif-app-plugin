@@ -45,7 +45,6 @@ func UpdateTimeseries(orgId int64, req ResourceRequest, clients *client.Clients)
 		msgjson, err2 := json.Marshal(message)
 		if err2 == nil {
 			clients.Pulsar.Send(model.TimeseriesTopic, key, msgjson)
-			log.DefaultLogger.Info("Update sent for: %d:%s/%s/%s = %f", orgId, req.Params[1], req.Params[2], req.Params[3], tspair.Value)
 		}
 	}
 	return &backend.CallResourceResponse{

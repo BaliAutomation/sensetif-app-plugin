@@ -15,3 +15,5 @@ const PaymentErrorTopic = "payment_errors"
 const TimeseriesTopic = "timeseries"
 
 const NotificationTopics = NotificationNamespace + "/notifications-"
+
+const ScriptsTopic = "scripts"

@@ -16,6 +16,7 @@ import { ResourcesPage } from './Resources';
 import { Subsystems } from './Subsystems';
 import { Succeeded } from './Succeeded';
 import { ImportProject } from './ImportProject';
+import { Scripts } from './Scripts';
 
 export type PageID =
   | 'projects'
@@ -35,6 +36,7 @@ export type PageID =
   | 'succeeded'
   | 'cancelled'
   | 'resources'
+  | 'scripts'
   | 'new_thingsnetwork_application'
   | 'edit_thingsnetwork_application';
 
@@ -169,5 +171,11 @@ export const pages: PageDefinition[] = [
     icon: 'fa cloud',
     id: 'edit_thingsnetwork_application',
     text: ' Things Network',
+  },
+  {
+    component: Scripts,
+    icon: 'fa TODO',
+    id: 'scripts',
+    text: ' Scripts',
   },
 ];

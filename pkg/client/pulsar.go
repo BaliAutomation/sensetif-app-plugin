@@ -32,19 +32,24 @@ func (p *PulsarClient) CreateReader(topic string, earliest bool) pulsar.Reader {
 		StartMessageID: start,
 	})
 	if err != nil {
-		log.DefaultLogger.Error("Failed to create Pulsar Reader for %q: %v", topic, err)
+		log.DefaultLogger.With("error", err).With("topic", topic).Error("Failed to create Pulsar Reader")
 	}
 	return reader
 }
 
 func (p *PulsarClient) Send(topic string, key string, value []byte) pulsar.MessageID {
+	logger := log.DefaultLogger.
+		With("topic", topic).
+		With("key", key).
+		With("value", value)
+
 	topic = model.MainNamespace + "/" + topic
 	parts, e := p.client.TopicPartitions(topic)
 	if e != nil {
-		log.DefaultLogger.Error("Failed to create a producer for topic %s - Error=%+v", topic, e)
+		logger.With("error", e).Error("Failed to create a producer")
 		return nil
 	} else {
-		log.DefaultLogger.Info("Partitions of %s : %+v", topic, parts)
+		logger.With("parts", parts).Info("Topic partitions")
 	}
 	producer := p.getOrCreateProducer(topic)
 	if producer == nil {
@@ -54,12 +59,14 @@ func (p *PulsarClient) Send(topic string, key string, value []byte) pulsar.Messa
 		Payload: value,
 		Key:     key,
 	}
+
 	msgId, err := producer.Send(context.Background(), message)
 	if err != nil {
-		log.DefaultLogger.Error("Failed to send a message: %s\n%s : %+v\n", err, message.Key, message.Value)
+		logger.Error("Failed to send a message")
 	} else {
-		log.DefaultLogger.Info("Sent message on topic %s with key %s. Id: %s. Data: %+v\n", producer.Topic(), message.Key, msgId, string(message.Payload))
+		logger.Info("Sent message")
 	}
+
 	return msgId
 }
 
@@ -73,10 +80,10 @@ func (p *PulsarClient) getOrCreateProducer(topic string) pulsar.Producer {
 		}
 		producer, err = p.client.CreateProducer(options)
 		if err != nil {
-			log.DefaultLogger.Error("Failed to create a producer for topic %s - Error=%+v", topic, err)
+			log.DefaultLogger.With("error", err).With("topic", topic).Error("Failed to create a producer")
 			return nil
 		} else {
-			log.DefaultLogger.Info("Created a new producer for topic %s", topic)
+			log.DefaultLogger.With("topic", topic).Info("Created a new producer")
 		}
 		p.producers[topic] = producer
 	}
@@ -95,7 +102,7 @@ func (p *PulsarClient) InitializePulsar(pulsarHosts string, clientId string) {
 		log.DefaultLogger.Error("Failed to initialize Pulsar: " + err.Error())
 		return
 	} else {
-		log.DefaultLogger.Info("Connecting %s to Pulsar cluster %s.", clientId, pulsarHosts)
+		log.DefaultLogger.With("clientId", clientId).With("hosts", pulsarHosts).Info("Connecting to Pulsar")
 	}
 	defer p.client.Close()
 }

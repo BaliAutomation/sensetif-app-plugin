@@ -56,16 +56,16 @@ func (cass *CassandraClient) IsHealthy() bool {
 }
 
 func (cass *CassandraClient) Reinitialize() {
-	log.DefaultLogger.Info("Re-initialize Cassandra session: %+v, %+v", cass.session, cass.clusterConfig)
+	log.DefaultLogger.With("sesson", cass.session).With("config", cass.clusterConfig).Info("Re-initialize Cassandra session")
 	if cass.session != nil {
 		cass.session.Close()
 	}
 	cass.session, cass.err = cass.clusterConfig.CreateSession()
 	if cass.err != nil {
-		log.DefaultLogger.Error("Unable to create Cassandra session: %+v", cass.err)
+		log.DefaultLogger.With("error", cass.err).Error("Unable to create Cassandra session")
 	}
 	cass.ctx = context.Background()
-	log.DefaultLogger.Info("Cassandra session: %+v", cass.session)
+	log.DefaultLogger.With("session", cass.session).Info("Cassandra session")
 }
 
 func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, from time.Time, to time.Time, maxValues int) *[]model.TsPair {
@@ -168,7 +168,7 @@ func (cass *CassandraClient) FindAllProjects(org int64) ([]model.ProjectSettings
 		}
 		result = append(result, rowValue)
 	}
-	log.DefaultLogger.Info("Found: %d projects", len(result))
+	log.DefaultLogger.With("count", len(result)).Info("Found projects", len(result))
 	return result, iter.Close()
 }
 
@@ -202,7 +202,7 @@ func (cass *CassandraClient) FindAllSubsystems(org int64, projectName string) ([
 		}
 		result = append(result, rowValue)
 	}
-	log.DefaultLogger.Info("Found: %d subsystems", len(result))
+	log.DefaultLogger.With("count", len(result)).Info("Found subsystems", len(result))
 	return result, iter.Close()
 }
 
@@ -217,7 +217,7 @@ func (cass *CassandraClient) GetDatapoint(org int64, projectName string, subsyst
 }
 
 func (cass *CassandraClient) FindAllDatapoints(org int64, projectName string, subsystemName string) ([]model.DatapointSettings, error) {
-	log.DefaultLogger.Info("findAllDatapoints:  " + strconv.FormatInt(org, 10) + "/" + projectName + "/" + subsystemName)
+	log.DefaultLogger.With("org", org).With("project", projectName).With("subsystem", subsystemName).Info("findAllDatapoints()")
 	result := make([]model.DatapointSettings, 0)
 	iter := cass.createQuery(datapointsTablename, datapointsQuery, org, projectName, subsystemName)
 	scanner := iter.Scanner()
@@ -225,12 +225,14 @@ func (cass *CassandraClient) FindAllDatapoints(org int64, projectName string, su
 		datapoint := cass.deserializeDatapointRow(scanner)
 		result = append(result, datapoint)
 	}
-	log.DefaultLogger.Info("Found: %d datapoints", len(result))
+	log.DefaultLogger.With("count", len(result)).Info("Found datapoints")
 	return result, iter.Close()
 }
 
 func (cass *CassandraClient) SelectAllInJournal(org int64, journaltype string, journalname string) (model.Journal, error) {
-	log.DefaultLogger.Info("SelectAllInJournal:  " + strconv.FormatInt(org, 10) + "/" + journaltype + "/" + journalname)
+	logger := log.DefaultLogger.With("org", org).With("journalname", journalname).With("journaltype", journaltype)
+
+	logger.Info("SelectAllInJournal()")
 	result := model.Journal{
 		Type: journaltype,
 		Name: journalname,
@@ -241,7 +243,7 @@ func (cass *CassandraClient) SelectAllInJournal(org int64, journaltype string, j
 		entry := model.JournalEntry{}
 		err := scanner.Scan(&entry.Value, &entry.Added)
 		if err != nil {
-			log.DefaultLogger.Error("Unable to read Cassandra row(s) for %s (%s)", journalname, journaltype)
+			logger.Error("Unable to read Cassandra row(s)")
 			return model.Journal{}, err
 		}
 		result.Entries = append(result.Entries, entry)
@@ -250,7 +252,9 @@ func (cass *CassandraClient) SelectAllInJournal(org int64, journaltype string, j
 }
 
 func (cass *CassandraClient) SelectRangeInJournal(org int64, journaltype string, journalname string, from time.Time, to time.Time) (model.Journal, error) {
-	log.DefaultLogger.Info("SelectAllInJournal:  " + strconv.FormatInt(org, 10) + "/" + journaltype + "/" + journalname)
+	logger := log.DefaultLogger.With("org", org).With("journaltype", journaltype).With("journalname", journalname)
+
+	logger.Info("SelectAllInJournal()")
 	result := model.Journal{
 		Type: journaltype,
 		Name: journalname,
@@ -261,7 +265,7 @@ func (cass *CassandraClient) SelectRangeInJournal(org int64, journaltype string,
 		entry := model.JournalEntry{}
 		err := scanner.Scan(&entry.Value, &entry.Added)
 		if err != nil {
-			log.DefaultLogger.Error("Unable to read Cassandra row(s) for %s (%s)", journalname, journaltype)
+			logger.With("error", err).Error("Unable to read Cassandra row(s)")
 			return model.Journal{}, err
 		}
 		result.Entries = append(result.Entries, entry)
@@ -294,8 +298,8 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 	var parameters map[string]string
 	var proc model.Processing
 	err := scanner.Scan(&r.Project, &r.Subsystem, &r.Name, &r.Interval, &r.SourceType, &r.TimeToLive, &proc, &ttnv3, &web, &mqtt, &parameters)
-	log.DefaultLogger.Info("Datapoint: %+v", r)
-	log.DefaultLogger.Info("Processing: %+v", proc)
+	log.DefaultLogger.Info(fmt.Sprintf("Datapoint: %+v", r))
+	log.DefaultLogger.Info(fmt.Sprintf("Processing: %+v", proc))
 	r.Proc = proc
 	if err == nil {
 		switch r.SourceType {
@@ -312,14 +316,14 @@ func (cass *CassandraClient) deserializeDatapointRow(scanner gocql.Scanner) mode
 		}
 	}
 	if err != nil {
-		log.DefaultLogger.Error("Internal Error 9? Failed to read record: %s, %+v", err.Error(), err)
+		log.DefaultLogger.With("error", err).Error("Internal Error 9? Failed to read record")
 	}
 	return r
 }
 
 func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeModel string, location *time.Location) *[]model.TsPair {
 	if len(timeModel) > 0 {
-		log.DefaultLogger.Info("Reducing to %s", timeModel)
+		log.DefaultLogger.Info(fmt.Sprintf("Reducing to %s", timeModel))
 	}
 	if aggregation == "" || aggregation == "sample" {
 		return reduceDefault(maxValues, data, aggregation, alignSample)
@@ -339,10 +343,9 @@ func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeMod
 
 func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string, align func(*time.Time) time.Time) *[]model.TsPair {
 	resultLength := len(*data)
-	var factor int
-	factor = resultLength/maxValues + 1
+	factor := resultLength/maxValues + 1
 	newSize := resultLength / factor
-	log.DefaultLogger.Info("Reducing datapoints from %d to %d, by %d", resultLength, maxValues, factor)
+	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d, by %d", resultLength, maxValues, factor))
 	downsized := []model.TsPair{}
 	start := resultLength
 	for i := newSize - 1; i >= 0; i = i - 1 {
@@ -364,7 +367,7 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	if dataLength == 0 {
 		return &result
 	}
-	log.DefaultLogger.Info("Reducing %d datapoint to %s", dataLength, aggregation)
+	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
 	var currentDate time.Time
 	var end int
 	start := startOfInterval(data, location)
@@ -456,7 +459,7 @@ func monthly(tsPair *model.TsPair, currentDate *time.Time, location *time.Locati
 func createLocation(timezone string) *time.Location {
 	loc, err := time.LoadLocation(timezone)
 	if err != nil {
-		log.DefaultLogger.Error("Timezone does not exist: %s", timezone)
+		log.DefaultLogger.With("timezone", timezone).Error("Timezone does not exist")
 		return time.UTC
 	}
 	return loc

@@ -18,7 +18,7 @@ func (h *StreamHandler) SubscribeNotificationsStream(orgId int64) (*backend.Subs
 	threeHoursAgo := time.Now().Add(-180 * time.Minute)
 	seekError := reader.SeekByTime(threeHoursAgo)
 	if seekError != nil {
-		log.DefaultLogger.Error("Unable to seek one hour back: %+v", seekError)
+		log.DefaultLogger.With("error", seekError).Error("Unable to seek one hour back")
 	}
 	var result []byte
 	var count int32 = 0
@@ -38,13 +38,13 @@ func (h *StreamHandler) SubscribeNotificationsStream(orgId int64) (*backend.Subs
 	result = append(result, ']')
 	initialData, err := backend.NewInitialData(result)
 	if err == nil {
-		log.DefaultLogger.Info("Sending %d messages", count)
+		log.DefaultLogger.Info("Sending messages", "count", count)
 		return &backend.SubscribeStreamResponse{
 			Status:      backend.SubscribeStreamStatusOK,
 			InitialData: initialData,
 		}, nil
 	}
-	log.DefaultLogger.Error("Error in creating InitialData to be sent to client; %+v", err)
+	log.DefaultLogger.With("error", err).Error("Error in creating InitialData to be sent to client")
 	log.DefaultLogger.Error("Error in: \n" + string(result))
 	return &backend.SubscribeStreamResponse{
 		Status:      backend.SubscribeStreamStatusPermissionDenied,
@@ -60,7 +60,7 @@ func (h *StreamHandler) RunNotificationsStream(ctx context.Context, sender *back
 	threeHoursAgo := time.Now().Add(-180 * time.Minute)
 	seekError := reader.SeekByTime(threeHoursAgo)
 	if seekError != nil {
-		log.DefaultLogger.Error("Unable to seek one hour back: %+v", seekError)
+		log.DefaultLogger.With("error", seekError).Error("Unable to seek one hour back")
 	}
 
 	for {
@@ -72,12 +72,12 @@ func (h *StreamHandler) RunNotificationsStream(ctx context.Context, sender *back
 			return ctx.Err()
 		}
 		if err != nil {
-			log.DefaultLogger.Error("Couldn't get the message via reader.Next(): %+v", err)
+			log.DefaultLogger.With("error", err).Error("Couldn't get the message via reader.Next()")
 			continue
 		}
 		err = sender.SendJSON(msg.Payload())
 		if err != nil {
-			log.DefaultLogger.Error("Couldn't send frame: %v", err)
+			log.DefaultLogger.With("error", err).Error("Couldn't send frame")
 			return err
 		}
 	}

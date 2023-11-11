@@ -71,6 +71,9 @@ var links = []Link{
 	{Method: "POST", Fn: handler.CheckOutSuccess, Pattern: MustCompile(`^_checkout/success$`)},
 	{Method: "POST", Fn: handler.CheckOutCancelled, Pattern: MustCompile(`^_checkout/cancelled$`)},
 
+	// Scripts API
+	{Method: "PUT", Fn: handler.UpdateScript, Pattern: MustCompile(`^_scripts$`)},
+
 	// Organizations API
 	{Method: "GET", Fn: handler.GetOrganization, Pattern: MustCompile(`^_organization$`)},
 
@@ -82,7 +85,6 @@ func (p *ResourceHandler) CallResource(_ context.Context, request *backend.CallR
 	orgId := request.PluginContext.OrgID
 	log.DefaultLogger.With("OrgId", orgId).With("URL", request.URL).With("PATH", request.Path).With("Method", request.Method).Info("CallResource()")
 
-	log.DefaultLogger.Info("plugin ctx: %v", request.PluginContext)
 	if isFileRequest(request) {
 		return handleFileRequests(request, sender)
 	}
@@ -98,13 +100,13 @@ func (p *ResourceHandler) CallResource(_ context.Context, request *backend.CallR
 
 				result, err := link.Fn(orgId, resourceRequest, p.Clients)
 				if err == nil {
-					log.DefaultLogger.Info("Result: %s", string(result.Body))
+					log.DefaultLogger.Info("CallResource Result", "result", string(result.Body))
 					if result.Body == nil {
 						result.Body = []byte("{}") // Maybe we always need to return a json body?
 					}
 					sendErr := sender.Send(result)
 					if sendErr != nil {
-						log.DefaultLogger.Error("could not write response to the client. " + sendErr.Error())
+						log.DefaultLogger.With("error", sendErr).Error("could not write response to the client")
 						return sendErr
 					}
 					return nil

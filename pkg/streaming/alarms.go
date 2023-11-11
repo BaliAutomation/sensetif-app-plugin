@@ -56,13 +56,13 @@ func (h *StreamHandler) RunAlarmsHistoryStream(ctx context.Context, sender *back
 			return ctx.Err()
 		}
 		if err != nil {
-			log.DefaultLogger.Error("Couldn't get the message via reader.Next(): %+v", err)
+			log.DefaultLogger.With("error", err).Error("Couldn't get the message via reader.Next()")
 			continue
 		}
 		notification := Notification{}
 		err = json.Unmarshal(msg.Payload(), &notification)
 		if err != nil {
-			log.DefaultLogger.Error("Could not unmarshall json: %v", err)
+			log.DefaultLogger.With("error", err).Error("Could not unmarshall json")
 			continue
 		}
 		labelFrame.Fields[0].Set(0, notification.Time)
@@ -76,7 +76,7 @@ func (h *StreamHandler) RunAlarmsHistoryStream(ctx context.Context, sender *back
 		log.DefaultLogger.Info("Sending notification.")
 		err = sender.SendFrame(labelFrame, data.IncludeAll)
 		if err != nil {
-			log.DefaultLogger.Error("Couldn't send frame: %v", err)
+			log.DefaultLogger.With("error", err).Error("Couldn't send frame")
 			return err
 		}
 	}

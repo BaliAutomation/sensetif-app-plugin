@@ -37,7 +37,7 @@ func (h *StreamHandler) SubscribeStream(ctx context.Context, req *backend.Subscr
 			Status: backend.SubscribeStreamStatusOK,
 		}, nil
 	}
-	log.DefaultLogger.Error("SubscribeStream requested unknown resource type: %s", req.Path)
+	log.DefaultLogger.Error("SubscribeStream requested unknown resource type", "path", req.Path)
 	return &backend.SubscribeStreamResponse{
 		Status: backend.SubscribeStreamStatusNotFound,
 	}, nil

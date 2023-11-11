@@ -12,14 +12,14 @@ import {
   TsPair,
   FetchDevicesResponse,
   FetchMessageResponse,
-  msgResult
+  msgResult,
+  Script
 } from 'types';
 import { API_RESOURCES } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 200;
 
-
-const request = async <T>(path: string, method: string, body: string, waitTime = 0) => {
+const request = async <T>(path: string, method: string, body: string, waitTime = 0): Promise<any> => {
   logInfo('Request: ' + method + ' ' + path);
   const srv = getBackendSrv();
   let request: Promise<T>;
@@ -39,10 +39,8 @@ const request = async <T>(path: string, method: string, body: string, waitTime =
       break;
   }
 
-
-
   // return sleep(waitTime)
-  return new Promise<T>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     request
       .then((r) =>
         setTimeout(() => {
@@ -157,6 +155,10 @@ export const cancelled = (sessionId: string) =>
 // The Things Network
 export const getResource = (projectName: string, resourceName: string) =>
   request<ResourceSettings>(projectName + '/_resources/' + resourceName, 'GET', '', 20);
+
+// Scripts
+export const updateScript = (script: Script) =>
+  request<string>('_scripts', 'PUT', JSON.stringify(script), 100);
 
 // Datapoint Manual Update of Value
 export const updateTimeseriesValues = ({

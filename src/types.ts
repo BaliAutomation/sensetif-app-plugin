@@ -298,3 +298,10 @@ export type FetchMessageResponse = {
   messages: msgResult[];
   error?: Error;
 };
+
+
+export type Script = {
+  code: string;
+  language: string;
+  name: string;
+}
