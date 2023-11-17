@@ -283,6 +283,20 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
               </Field>
             )}
           </HorizontalGroup>
+
+          <HorizontalGroup>
+             {/*TODO: There should be a Script Picker at this point, rather than textfield*/}
+            <Field
+                label="Condition"
+                invalid={!!errors.proc && !!errors.proc.condition}
+                error={errors.proc ? errors.proc.condition && errors.proc.condition.message : undefined}
+            >
+              <Input
+                  {...register('proc.condition')}
+                  placeholder="condition"
+              />
+            </Field>
+          </HorizontalGroup>
         </FieldSet>
 
         <FieldSet label="Datasource">
