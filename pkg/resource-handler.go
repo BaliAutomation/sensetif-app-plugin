@@ -72,6 +72,7 @@ var links = []Link{
 	{Method: "POST", Fn: handler.CheckOutCancelled, Pattern: MustCompile(`^_checkout/cancelled$`)},
 
 	// Scripts API
+	{Method: "GET", Fn: handler.ListScripts, Pattern: MustCompile(`^_scripts$`)},
 	{Method: "PUT", Fn: handler.UpdateScript, Pattern: MustCompile(`^_scripts$`)},
 
 	// Organizations API

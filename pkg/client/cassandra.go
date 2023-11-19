@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 	"strconv"
@@ -169,6 +170,43 @@ func (cass *CassandraClient) FindAllProjects(org int64) ([]model.ProjectSettings
 		result = append(result, rowValue)
 	}
 	log.DefaultLogger.With("count", len(result)).Info("Found projects", len(result))
+	return result, iter.Close()
+}
+
+func (cass *CassandraClient) FindAllScripts(org int64) ([]model.Script, error) {
+	kvs, err := cass.findAllKeyValues(org, "scripts")
+	if err != nil {
+		return nil, fmt.Errorf("find `script` key values: %w", err)
+	}
+
+	out := make([]model.Script, 0, len(kvs))
+	for _, kv := range kvs {
+		fmt.Println("value:: ", kv)
+		var script model.Script
+		if err := json.Unmarshal([]byte(kv.Value), &script); err != nil {
+			return nil, fmt.Errorf("unmarshal script: %w", err)
+		}
+
+		out = append(out, script)
+	}
+
+	return out, nil
+}
+
+func (cass *CassandraClient) findAllKeyValues(org int64, valueType string) ([]model.KeyValue, error) {
+	log.DefaultLogger.Info("findAllKeyValues:  " + strconv.FormatInt(org, 10))
+	result := make([]model.KeyValue, 0)
+	iter := cass.createQuery(keyValuesTablename, keyValuesSelectQuery, org, valueType)
+	scanner := iter.Scanner()
+	for scanner.Next() {
+		var rowValue model.KeyValue
+		err := scanner.Scan(&rowValue.Type, &rowValue.Key, &rowValue.Created, &rowValue.Value)
+		if err != nil {
+			log.DefaultLogger.Error("Internal Error 6? Failed to read record", err)
+		}
+		result = append(result, rowValue)
+	}
+	log.DefaultLogger.With("count", len(result)).Info("Found values", len(result))
 	return result, iter.Close()
 }
 
@@ -576,8 +614,15 @@ const tsQuery = "SELECT value,ts FROM %s.%s" +
 	" ts <= ?" +
 	";"
 
-// const keyValuesTablename = "keyvalues"
-// const keyValuesSelectQuery = "SELECT type, key, created, value FROM %s.%s WHERE orgid = ? AND type = ? AND key = '___ALL___' AND deleted = '1970-01-01 0:00:00+0000';\n"
+const (
+	keyValuesTablename   = "keyvalues"
+	keyValuesSelectQuery = `SELECT type, key, created, value FROM %s.%s 
+		WHERE orgid = ?
+		AND type = ?
+		AND deleted = '1970-01-01 0:00:00+0000'
+		ALLOW FILTERING;`
+)
+
 const (
 	journalTablename        = "journals"
 	journalSelectAllQuery   = "SELECT value,ts FROM %s.%s WHERE orgid = ? AND type = ? AND name = ?;"

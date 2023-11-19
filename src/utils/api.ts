@@ -160,6 +160,9 @@ export const getResource = (projectName: string, resourceName: string) =>
 export const updateScript = (script: Script) =>
   request<string>('_scripts', 'PUT', JSON.stringify(script), 100);
 
+export const listScripts = () =>
+  request<Script>('_scripts', 'GET', '');
+
 // Datapoint Manual Update of Value
 export const updateTimeseriesValues = ({
   projectName,
@@ -223,7 +226,7 @@ export const fetchUplinkMessage = async (
 
   const fields = [
     'up.uplink_message.decoded_payload',
-    'up.uplink_message.f_port', 
+    'up.uplink_message.f_port',
     'up.uplink_message.rx_metadata'
   ]
 
