@@ -33,11 +33,11 @@ interface Props {
   datapoint?: DatapointSettings;
   onSubmit: (data: DatapointSettings, event?: React.BaseSyntheticEvent) => void | Promise<void>;
   onCancel: () => void;
-  projectName: string;
-  subsystemName: string;
+  projectTitle: string;
+  subsystemTitle: string;
 }
 
-export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName, onSubmit, onCancel }) => {
+export const DatapointForm: FC<Props> = ({ datapoint, projectTitle, subsystemTitle, onSubmit, onCancel }) => {
   const numericInputStyle = css`
     /* hides spin buttons */
 
@@ -126,8 +126,8 @@ export const DatapointForm: FC<Props> = ({ datapoint, projectName, subsystemName
   return (
     <form onSubmit={handleSubmit(onValid, onInvalid)}>
       <>
-        <Label>Project: {projectName}</Label>
-        <Label>Subsystem: {subsystemName}</Label>
+        <Label>Project: {projectTitle}</Label>
+        <Label>Subsystem: {subsystemTitle}</Label>
         <br />
         <FieldSet label="Datapoint">
           <Field label="Name" invalid={!!errors.name} error={errors.name && errors.name.message}>

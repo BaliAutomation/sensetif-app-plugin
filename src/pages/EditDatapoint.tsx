@@ -60,10 +60,13 @@ export const EditDatapoint: FC<AppRootProps> = ({ query }) => {
   }
   return (
     <>
+      {/* TODO: projectName and subsystemName SHOULD use their Title rather than Name. But that will incur 2 extra queries to backend,
+                so perhaps wait with this until there is a solid client-side caching for project/subsystem defintions.
+      */}
       <DatapointForm
         datapoint={datapoint}
-        subsystemName={subsystemName}
-        projectName={projectName}
+        subsystemTitle={subsystemName}
+        projectTitle={projectName}
         onSubmit={(data) => updateDatapoint(data)}
         onCancel={() => goToDatapoints(projectName, subsystemName)}
       />

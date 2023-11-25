@@ -11,8 +11,8 @@ export const AddDatapoint: FC<AppRootProps> = ({ query }) => {
   return (
     <>
       <DatapointForm
-        projectName={projectName}
-        subsystemName={subsystemName}
+        projectTitle={projectName}
+        subsystemTitle={subsystemName}
         onSubmit={(datapoint) => {
           upsertDatapoint(projectName, subsystemName, datapoint).then(() => goToDatapoints(projectName, subsystemName));
         }}
