@@ -83,6 +83,7 @@ export const Subsystems: FC<AppRootProps> = ({ query }) => {
         }}
         onDelete={(subsystem) => removeSubsystem(subsystem.name)}
         getTitle={(subsystem) => subsystem.title}
+        getSubtitle={(subsystem) => subsystem.name + (subsystem.locallocation ? ", " + subsystem.locallocation : '')}
       />
     </>
   );

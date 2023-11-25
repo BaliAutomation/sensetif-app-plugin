@@ -76,6 +76,7 @@ export const Datapoints: FC<AppRootProps> = ({ query, path, meta }) => {
         }}
         onDelete={(point) => removeDatapoint(point.name)}
         getTitle={(point) => point.name}
+        getSubtitle={(point) => point.datasourcetype}
       />
     </>
   );
