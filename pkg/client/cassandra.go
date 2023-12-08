@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -73,7 +74,6 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 	log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + query.Project + "/" + query.Subsystem + "/" + query.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
 	project, _ := cass.GetProject(org, query.Project)
 	location := createLocation(project.Timezone)
-
 	var result []model.TsPair
 	startYearMonth := from.Year()*12 + int(from.Month()) - 1
 	endYearMonth := to.Year()*12 + int(to.Month()) - 1
@@ -97,6 +97,16 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 			return &result
 		}
 	}
+	slices.SortFunc(result, func(a, b model.TsPair) int {
+		if a.TS == b.TS {
+			return 0
+		}
+		if a.TS.Before(b.TS) {
+			return -1
+		}
+		return 1
+	})
+
 	return reduceSize(maxValues, &result, strings.TrimSpace(query.Aggregation), query.TimeModel, location)
 }
 
@@ -445,7 +455,7 @@ func alignSample(t *time.Time) time.Time {
 
 func firstOfDay(data *[]model.TsPair, location *time.Location) int {
 	length := len(*data)
-	for index := length; index >= 0; index++ {
+	for index := 0; index < length; index++ {
 		if (*data)[index].TS.In(location).Hour() == 0 {
 			return index
 		}
@@ -455,7 +465,7 @@ func firstOfDay(data *[]model.TsPair, location *time.Location) int {
 
 func firstOfWeek(data *[]model.TsPair, location *time.Location) int {
 	length := len(*data)
-	for index := length - 1; index >= 0; index++ {
+	for index := 0; index < length; index++ {
 		if (*data)[index].TS.In(location).Weekday() == time.Monday {
 			return index
 		}
@@ -465,7 +475,7 @@ func firstOfWeek(data *[]model.TsPair, location *time.Location) int {
 
 func firstOfMonth(data *[]model.TsPair, location *time.Location) int {
 	length := len(*data)
-	for index := length - 1; index >= 0; index++ {
+	for index := 0; index < length; index++ {
 		if (*data)[index].TS.In(location).Day() == 1 {
 			return index
 		}
