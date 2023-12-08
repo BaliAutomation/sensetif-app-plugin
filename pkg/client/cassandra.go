@@ -445,7 +445,7 @@ func alignSample(t *time.Time) time.Time {
 
 func firstOfDay(data *[]model.TsPair, location *time.Location) int {
 	length := len(*data)
-	for index := 0; index < length; index++ {
+	for index := length; index >= 0; index++ {
 		if (*data)[index].TS.In(location).Hour() == 0 {
 			return index
 		}
@@ -455,7 +455,7 @@ func firstOfDay(data *[]model.TsPair, location *time.Location) int {
 
 func firstOfWeek(data *[]model.TsPair, location *time.Location) int {
 	length := len(*data)
-	for index := 0; index < length; index++ {
+	for index := length - 1; index >= 0; index++ {
 		if (*data)[index].TS.In(location).Weekday() == time.Monday {
 			return index
 		}
@@ -465,7 +465,7 @@ func firstOfWeek(data *[]model.TsPair, location *time.Location) int {
 
 func firstOfMonth(data *[]model.TsPair, location *time.Location) int {
 	length := len(*data)
-	for index := 0; index < length; index++ {
+	for index := length - 1; index >= 0; index++ {
 		if (*data)[index].TS.In(location).Day() == 1 {
 			return index
 		}
