@@ -15,7 +15,7 @@ import (
 
 type Cassandra interface {
 	QueryTimeseries(org int64, sensor model.QueryRef, from time.Time, to time.Time, maxValue int) *[]model.TsPair
-	QueryKeyValue(org int64, typename string, key string) (model.KeyValuesEntry, error)
+	QueryKeyValues(org int64, typename string, key string) (model.KeyValuesEntry, error)
 	QueryAllKeyValues(org int64, typename string) ([]model.KeyValuesEntry, error)
 	QueryAlarmStates(org int64, sensor model.QueryRef) ([]model.TsPair, error)
 	FindAllProjects(org int64) ([]model.ProjectSettings, error)
