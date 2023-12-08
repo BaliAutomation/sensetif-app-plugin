@@ -393,22 +393,29 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	var end int
 	var start = startOfInterval(data, location)
 	var currentDate = (*data)[start].TS
-	log.DefaultLogger.Info(fmt.Sprintf("Start at %d, %d-%d-%d", start, currentDate.Year(), currentDate.Month(), currentDate.Day()))
+	printDebug("Start at %d, %d-%d-%d", start, 0.0, currentDate, location)
 	for index := start; index < len(*data); index++ {
 		tsPair := (*data)[index]
 		if inRange(&tsPair, &currentDate, location) {
 			aggregated, err := aggregated(aggregation, data, start, end)
 			if err == nil {
-				log.DefaultLogger.Info(fmt.Sprintf("Adding %f at %d, %d-%d-%d", aggregated, start, currentDate.Year(), currentDate.Month(), currentDate.Day()))
-				result = append(result, model.TsPair{TS: align(&currentDate), Value: aggregated})
+				printDebug("Adding at %d, %d-%d-%d", start, 0.0, currentDate, location)
+				log.DefaultLogger.Info(fmt.Sprintf("Value=%f", aggregated))
+				atLocation := currentDate.In(location)
+				result = append(result, model.TsPair{TS: align(&atLocation).In(time.UTC), Value: aggregated})
 			}
 			start = index
 			currentDate = align(&tsPair.TS)
-			log.DefaultLogger.Info(fmt.Sprintf("Pos at %d, %d-%d-%d", start, currentDate.Year(), currentDate.Month(), currentDate.Day()))
+			printDebug("Pos at %d, %d-%d-%d", start, 0.0, currentDate, location)
 		}
 		end = index
 	}
 	return &result
+}
+
+func printDebug(format string, index int, value float64, currentDate time.Time, location *time.Location) {
+	localized := currentDate.In(location)
+	log.DefaultLogger.Info(fmt.Sprintf(format, index, localized.Year(), localized.Month(), localized.Day()))
 }
 
 func alignDay(t *time.Time) time.Time {
@@ -431,8 +438,8 @@ func alignMonth(t *time.Time) time.Time {
 
 func alignSample(t *time.Time) time.Time {
 	year, month, day := t.Date()
-	hour, min, _ := t.Clock()
-	alignTo5Min := min - (min % 5) // align on 5 minutes points.
+	hour, minute, _ := t.Clock()
+	alignTo5Min := minute - (minute % 5) // align on 5 minutes points.
 	return time.Date(year, month, day, hour, alignTo5Min, 0, 0, t.Location())
 }
 
