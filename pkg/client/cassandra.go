@@ -390,22 +390,18 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 		return &result
 	}
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
-	var currentDate time.Time
 	var end int
 	var start = startOfInterval(data, location)
+	var currentDate = (*data)[start].TS
 	for index := start; index < len(*data); index++ {
 		tsPair := (*data)[index]
-		if currentDate.IsZero() {
-			currentDate = tsPair.TS
-		} else {
-			if inRange(&tsPair, &currentDate, location) {
-				aggregated, err := aggregated(aggregation, data, start, end)
-				if err == nil {
-					result = append(result, model.TsPair{TS: align(&tsPair.TS), Value: aggregated})
-				}
-				start = index
-				currentDate = tsPair.TS
+		if inRange(&tsPair, &currentDate, location) {
+			aggregated, err := aggregated(aggregation, data, start, end)
+			if err == nil {
+				result = append(result, model.TsPair{TS: align(&currentDate), Value: aggregated})
 			}
+			start = index
+			currentDate = tsPair.TS
 		}
 		end = index
 	}
