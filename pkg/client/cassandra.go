@@ -15,7 +15,8 @@ import (
 
 type Cassandra interface {
 	QueryTimeseries(org int64, sensor model.QueryRef, from time.Time, to time.Time, maxValue int) *[]model.TsPair
-	QueryAlarmHistory(org int64, sensor model.QueryRef, from time.Time, to time.Time, maxValue int) ([]model.TsPair, error)
+	QueryKeyValue(org int64, typename string, key string) (model.KeyValuesEntry, error)
+	QueryAllKeyValues(org int64, typename string) ([]model.KeyValuesEntry, error)
 	QueryAlarmStates(org int64, sensor model.QueryRef) ([]model.TsPair, error)
 	FindAllProjects(org int64) ([]model.ProjectSettings, error)
 	FindAllSubsystems(org int64, projectName string) ([]model.SubsystemSettings, error)
@@ -99,8 +100,32 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 	return reduceSize(maxValues, &result, strings.TrimSpace(query.Aggregation), query.TimeModel, location)
 }
 
-func (cass *CassandraClient) QueryAlarmHistory(_ int64, _ model.QueryRef, _ time.Time, _ time.Time, _ int) ([]model.TsPair, error) {
-	return make([]model.TsPair, 0), nil
+func (cass *CassandraClient) QueryKeyValues(orgid int64, valuetype string, name string) (model.KeyValuesEntry, error) {
+	iter := cass.createQuery(keyvaluesTablename, keyvaluesQuery, orgid, valuetype, name)
+	scanner := iter.Scanner()
+	var keyValue model.KeyValuesEntry
+	scanner.Next()
+	err := scanner.Scan(&keyValue.OrgId, &keyValue.Type, &keyValue.Key, &keyValue.Value)
+	if err != nil {
+		log.DefaultLogger.Error("Internal Error 1? Failed to read record", err)
+	}
+	return keyValue, err
+}
+
+func (cass *CassandraClient) QueryAllKeyValues(orgid int64, valuetype string) ([]model.KeyValuesEntry, error) {
+	iter := cass.createQuery(keyvaluesTablename, keyvaluesQueryAll, orgid, valuetype)
+	scanner := iter.Scanner()
+	var keyValues = make([]model.KeyValuesEntry, 0)
+	for scanner.Next() {
+		var keyValue model.KeyValuesEntry
+		err := scanner.Scan(&keyValue.OrgId, &keyValue.Type, &keyValue.Key, &keyValue.Value)
+		if err != nil {
+			log.DefaultLogger.Error("Internal Error 1? Failed to read record", err)
+			return keyValues, err
+		}
+		keyValues = append(keyValues, keyValue)
+	}
+	return keyValues, nil
 }
 
 func (cass *CassandraClient) QueryAlarmStates(_ int64, _ model.QueryRef) ([]model.TsPair, error) {
@@ -322,7 +347,7 @@ func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeMod
 		log.DefaultLogger.Info(fmt.Sprintf("Reducing to %s", timeModel))
 	}
 	if aggregation == "" || aggregation == "sample" {
-		return reduceDefault(maxValues, data, aggregation, alignSample)
+		return reduceDefault(maxValues, data, "")
 	} else {
 		switch timeModel {
 		case "daily":
@@ -332,12 +357,12 @@ func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeMod
 		case "monthly":
 			return reduceInterval(data, monthly, firstOfMonth, alignMonth, aggregation, location)
 		default:
-			return reduceDefault(maxValues, data, aggregation, alignSample)
+			return reduceDefault(maxValues, data, aggregation)
 		}
 	}
 }
 
-func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string, align func(*time.Time) time.Time) *[]model.TsPair {
+func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string) *[]model.TsPair {
 	resultLength := len(*data)
 	var factor int
 	factor = resultLength/maxValues + 1
@@ -368,16 +393,19 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	var currentDate time.Time
 	var end int
 	var start = startOfInterval(data, location)
-	for index, tsPair := range *data {
-		if currentDate.IsZero() || inRange(&tsPair, &currentDate, location) {
-			if !currentDate.IsZero() {
+	for index := start; index < len(*data); index++ {
+		tsPair := (*data)[index]
+		if currentDate.IsZero() {
+			currentDate = tsPair.TS
+		} else {
+			if inRange(&tsPair, &currentDate, location) {
 				aggregated, err := aggregated(aggregation, data, start, end)
 				if err == nil {
 					result = append(result, model.TsPair{TS: align(&tsPair.TS), Value: aggregated})
 				}
 				start = index
+				currentDate = tsPair.TS
 			}
-			currentDate = tsPair.TS
 		}
 		end = index
 	}
@@ -550,13 +578,17 @@ const datapointQuery = "SELECT project,subsystem,name,pollinterval,datasourcetyp
 
 const datapointsQuery = "SELECT project,subsystem,name,pollinterval,datasourcetype,timetolive,proc,ttnv3,web,mqtt,parameters FROM %s.%s WHERE orgid = ? AND project = ? AND subsystem = ? AND DELETED = '1970-01-01 0:00:00+0000' ALLOW FILTERING;"
 
+const keyvaluesQuery = "SELECT orgid,type,key,value FROM %s.%s WHERE orgid = ? AND type = ? AND key = ? AND DELETED = '1970-01-01 0:00:00+0000' ALLOW FILTERING;"
+
+const keyvaluesQueryAll = "SELECT orgid,type,key,value FROM %s.%s WHERE orgid = ? AND type = ? AND DELETED = '1970-01-01 0:00:00+0000' ALLOW FILTERING;"
+
+const keyvaluesTablename = "keyvalues"
+
 const planlimitsQuery = "SELECT orgid,created,maxdatapoints,maxstorage,minpollinterval FROM  %s.%s WHERE orgid = 5 AND deleted = '1970-01-01 00:00:00.000000+0000' ALLOW FILTERING;"
 
 const planlimitsTablename = "planlimits"
 
 const timeseriesTablename = "timeseries"
-
-//const alarmsTablename = "alarms"
 
 const tsQuery = "SELECT value,ts FROM %s.%s" +
 	" WHERE" +
