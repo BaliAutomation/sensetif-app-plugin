@@ -393,18 +393,18 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	var end int
 	var start = startOfInterval(data, location)
 	var currentDate = (*data)[start].TS
-	log.DefaultLogger.Info(fmt.Sprintf("Start at %d, %s", start, currentDate.Format("yyyy-MM-dd HH:mm")))
+	log.DefaultLogger.Info(fmt.Sprintf("Start at %d, %d-%d-%d", start, currentDate.Year(), currentDate.Month(), currentDate.Day()))
 	for index := start; index < len(*data); index++ {
 		tsPair := (*data)[index]
 		if inRange(&tsPair, &currentDate, location) {
 			aggregated, err := aggregated(aggregation, data, start, end)
 			if err == nil {
-				log.DefaultLogger.Info(fmt.Sprintf("Adding for %s", currentDate.Format("yyyy-MM-dd HH:mm")))
+				log.DefaultLogger.Info(fmt.Sprintf("Adding %f at %d, %d-%d-%d", aggregated, start, currentDate.Year(), currentDate.Month(), currentDate.Day()))
 				result = append(result, model.TsPair{TS: align(&currentDate), Value: aggregated})
 			}
 			start = index
 			currentDate = align(&tsPair.TS)
-			log.DefaultLogger.Info(fmt.Sprintf("Pos at %d, %s", start, currentDate.Format("yyyy-MM-dd HH:mm")))
+			log.DefaultLogger.Info(fmt.Sprintf("Pos at %d, %d-%d-%d", start, currentDate.Year(), currentDate.Month(), currentDate.Day()))
 		}
 		end = index
 	}
