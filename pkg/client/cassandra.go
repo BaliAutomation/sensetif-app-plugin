@@ -403,29 +403,30 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	var end int
 	var start = startOfInterval(data, location)
 	var currentDate = (*data)[start].TS
-	printDebug("Start at %d, %d-%d-%d", start, 0.0, currentDate, location)
+	printDebug("Start at %d, %d-%d-%d", start, currentDate, location)
 	for index := start; index < len(*data); index++ {
+		printDebug("Looking at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 		tsPair := (*data)[index]
 		if inRange(&tsPair, &currentDate, location) {
 			aggregated, err := aggregated(aggregation, data, start, end)
 			if err == nil {
-				printDebug("Adding at %d, %d-%d-%d", start, 0.0, currentDate, location)
+				printDebug("Adding at %d, %d-%d-%d", start, currentDate, location)
 				log.DefaultLogger.Info(fmt.Sprintf("Value=%f", aggregated))
 				atLocation := currentDate.In(location)
 				result = append(result, model.TsPair{TS: align(&atLocation).In(time.UTC), Value: aggregated})
 			}
 			start = index
 			currentDate = align(&tsPair.TS)
-			printDebug("Pos at %d, %d-%d-%d", start, 0.0, currentDate, location)
+			printDebug("Pos at %d, %d-%d-%d", start, currentDate, location)
 		}
 		end = index
 	}
 	return &result
 }
 
-func printDebug(format string, index int, value float64, currentDate time.Time, location *time.Location) {
+func printDebug(format string, index int, currentDate time.Time, location *time.Location) {
 	localized := currentDate.In(location)
-	log.DefaultLogger.Info(fmt.Sprintf(format, index, localized.Year(), localized.Month(), localized.Day()))
+	log.DefaultLogger.Info(fmt.Sprintf(format, index, localized.Year(), localized.Month(), localized.Day(), localized.Hour(), localized.Minute()))
 }
 
 func alignDay(t *time.Time) time.Time {
