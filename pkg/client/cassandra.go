@@ -206,7 +206,6 @@ func (cass *CassandraClient) FindAllScripts(org int64) ([]model.Script, error) {
 
 	out := make([]model.Script, 0, len(kvs))
 	for _, kv := range kvs {
-		fmt.Println("value:: ", kv)
 		var script model.Script
 		if err := json.Unmarshal([]byte(kv.Value), &script); err != nil {
 			return nil, fmt.Errorf("unmarshal script: %w", err)
