@@ -378,7 +378,7 @@ func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string) *[]m
 	factor = resultLength/maxValues + 1
 	newSize := resultLength / factor
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d, by %d", resultLength, maxValues, factor))
-	var downsized = []model.TsPair{}
+	var downsized []model.TsPair
 	start := resultLength
 	for i := newSize - 1; i >= 0; i = i - 1 {
 		end := start - 1       // points at last sample to be included in aggregation/calc
@@ -513,24 +513,24 @@ func deltaOf(data *[]model.TsPair, start int, end int) float64 {
 }
 
 func minimumOf(data *[]model.TsPair, start int, end int) float64 {
-	min := (*data)[start].Value
+	minimumValue := (*data)[start].Value
 	for i := start + 1; i <= end; i++ {
-		min = math.Min(min, (*data)[i].Value)
+		minimumValue = math.Min(minimumValue, (*data)[i].Value)
 	}
-	return min
+	return minimumValue
 }
 
 func maximumOf(data *[]model.TsPair, start int, end int) float64 {
-	max := (*data)[start].Value
+	maximumValue := (*data)[start].Value
 	for i := start + 1; i <= end; i++ {
-		max = math.Max(max, (*data)[i].Value)
+		maximumValue = math.Max(maximumValue, (*data)[i].Value)
 	}
-	return max
+	return maximumValue
 }
 
 func averageOf(data *[]model.TsPair, start int, end int) float64 {
 	sum := (*data)[start].Value
-	for i := start + 1; i < end; i++ {
+	for i := start + 1; i <= end; i++ {
 		sum = sum + (*data)[i].Value
 	}
 	return sum / float64(1+end-start)
