@@ -506,6 +506,9 @@ func sumOf(data *[]model.TsPair, start int, end int) float64 {
 }
 
 func deltaOf(data *[]model.TsPair, start int, end int) float64 {
+	if start == 0 {
+		return (*data)[end].Value - (*data)[start].Value
+	}
 	return (*data)[end].Value - (*data)[start-1].Value
 }
 
