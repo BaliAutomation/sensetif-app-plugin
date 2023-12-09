@@ -482,11 +482,7 @@ func aggregated(aggregation string, data *[]model.TsPair, start int, end int) (f
 	case "":
 		value = lastSampleOf(data, start, end) // takes the last sample
 	case "delta":
-		if start > 0 {
-			value = deltaOf(data, start, end) // calcs the difference between last sample and previous last sample
-		} else {
-			return 0, model.ErrNotFound
-		}
+		value = deltaOf(data, start, end) // calcs the difference between last sample and previous last sample
 	case "min":
 		value = minimumOf(data, start, end) // minimum value within the range of values to be aggregated
 	case "max":
