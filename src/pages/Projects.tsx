@@ -62,7 +62,7 @@ export const Projects: FC<AppRootProps> = ({ query, path, meta }) => {
         onClick={(project) => goToSubsystems(project.name)}
         onEdit={(project) => goToEditProject(project.name)}
         onDelete={(project) => removeProject(project.name)}
-        getSubtitle={(project) => (project.city ? project.city : 'Not specified')}
+        getSubtitle={(project) => project.name + ", " + (project.city ? project.city : 'Not specified')}
         getTitle={(project) => project.title}
       />
     </>
