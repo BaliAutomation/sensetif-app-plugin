@@ -403,21 +403,21 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	var end int
 	var start = startOfInterval(data, location)
 	var currentDate = (*data)[start].TS
-	printDebug("Start at %d, %d-%d-%d", start, currentDate, location)
+	printDebug("Start at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 	for index := start; index < len(*data); index++ {
-		printDebug("Looking at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 		tsPair := (*data)[index]
+		printDebug("Looking at %d, %d-%02d-%02d %02d:%02d", index, tsPair.TS, location)
 		if inRange(&tsPair, &currentDate, location) {
 			aggregated, err := aggregated(aggregation, data, start, end)
 			if err == nil {
-				printDebug("Adding at %d, %d-%d-%d", start, currentDate, location)
+				printDebug("Adding at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 				log.DefaultLogger.Info(fmt.Sprintf("Value=%f", aggregated))
 				atLocation := currentDate.In(location)
 				result = append(result, model.TsPair{TS: align(&atLocation).In(time.UTC), Value: aggregated})
 			}
 			start = index
 			currentDate = align(&tsPair.TS)
-			printDebug("Pos at %d, %d-%d-%d", start, currentDate, location)
+			printDebug("Pos at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 		}
 		end = index
 	}
@@ -467,7 +467,9 @@ func firstOfDay(data *[]model.TsPair, location *time.Location) int {
 func firstOfWeek(data *[]model.TsPair, location *time.Location) int {
 	length := len(*data)
 	for index := 0; index < length; index++ {
-		if (*data)[index].TS.In(location).Weekday() == time.Monday {
+		ts := (*data)[index].TS
+		printDebug("Start??? at %d, %d-%02d-%02d %02d:%02d", index, ts, location)
+		if ts.In(location).Weekday() == time.Monday {
 			return index
 		}
 	}
@@ -477,7 +479,9 @@ func firstOfWeek(data *[]model.TsPair, location *time.Location) int {
 func firstOfMonth(data *[]model.TsPair, location *time.Location) int {
 	length := len(*data)
 	for index := 0; index < length; index++ {
-		if (*data)[index].TS.In(location).Day() == 1 {
+		ts := (*data)[index].TS
+		printDebug("Start??? at %d, %d-%02d-%02d %02d:%02d", index, ts, location)
+		if ts.In(location).Day() == 1 {
 			return index
 		}
 	}
