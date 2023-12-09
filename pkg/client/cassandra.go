@@ -361,11 +361,11 @@ func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeMod
 	} else {
 		switch timeModel {
 		case "daily":
-			return reduceInterval(data, daily, firstOfDay, alignDay, aggregation, location)
+			return reduceInterval(data, daily, alignDay, aggregation, location)
 		case "weekly":
-			return reduceInterval(data, weekly, firstOfWeek, alignWeek, aggregation, location)
+			return reduceInterval(data, weekly, alignWeek, aggregation, location)
 		case "monthly":
-			return reduceInterval(data, monthly, firstOfMonth, alignMonth, aggregation, location)
+			return reduceInterval(data, monthly, alignMonth, aggregation, location)
 		default:
 			return reduceDefault(maxValues, data, aggregation)
 		}
@@ -392,7 +392,7 @@ func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string) *[]m
 	return &downsized
 }
 
-func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time, *time.Location) bool, startOfInterval func(*[]model.TsPair, *time.Location) int, align func(*time.Time) time.Time, aggregation string, location *time.Location) *[]model.TsPair {
+func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time, *time.Location) bool, align func(*time.Time) time.Time, aggregation string, location *time.Location) *[]model.TsPair {
 	var result []model.TsPair
 
 	dataLength := len(*data)
@@ -401,19 +401,17 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	}
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
 	var end int
-	var start = startOfInterval(data, location)
-	var currentDate = (*data)[start].TS
+	var currentDate = (*data)[0].TS
+	start := 0
 	printDebug("Start at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
-	for index := start; index < len(*data); index++ {
+	for index := 0; index < len(*data); index++ {
 		tsPair := (*data)[index]
-		printDebug("Looking at %d, %d-%02d-%02d %02d:%02d", index, tsPair.TS, location)
 		if inRange(&tsPair, &currentDate, location) {
 			aggregated, err := aggregated(aggregation, data, start, end)
 			if err == nil {
+				result = append(result, model.TsPair{TS: currentDate, Value: aggregated})
 				printDebug("Adding at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 				log.DefaultLogger.Info(fmt.Sprintf("Value=%f", aggregated))
-				atLocation := currentDate.In(location)
-				result = append(result, model.TsPair{TS: align(&atLocation).In(time.UTC), Value: aggregated})
 			}
 			start = index
 			currentDate = align(&tsPair.TS)
@@ -452,40 +450,6 @@ func alignSample(t *time.Time) time.Time {
 	hour, minute, _ := t.Clock()
 	alignTo5Min := minute - (minute % 5) // align on 5 minutes points.
 	return time.Date(year, month, day, hour, alignTo5Min, 0, 0, t.Location())
-}
-
-func firstOfDay(data *[]model.TsPair, location *time.Location) int {
-	length := len(*data)
-	for index := 0; index < length; index++ {
-		if (*data)[index].TS.In(location).Hour() == 0 {
-			return index
-		}
-	}
-	return 0
-}
-
-func firstOfWeek(data *[]model.TsPair, location *time.Location) int {
-	length := len(*data)
-	for index := 0; index < length; index++ {
-		ts := (*data)[index].TS
-		printDebug("Start??? at %d, %d-%02d-%02d %02d:%02d", index, ts, location)
-		if ts.In(location).Weekday() == time.Monday {
-			return index
-		}
-	}
-	return 0
-}
-
-func firstOfMonth(data *[]model.TsPair, location *time.Location) int {
-	length := len(*data)
-	for index := 0; index < length; index++ {
-		ts := (*data)[index].TS
-		printDebug("Start??? at %d, %d-%02d-%02d %02d:%02d", index, ts, location)
-		if ts.In(location).Day() == 1 {
-			return index
-		}
-	}
-	return 0
 }
 
 func daily(tsPair *model.TsPair, currentDate *time.Time, location *time.Location) bool {
