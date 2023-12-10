@@ -464,7 +464,15 @@ func weekly(tsPair *model.TsPair, currentDate *time.Time, location *time.Locatio
 }
 
 func monthly(tsPair *model.TsPair, currentDate *time.Time, location *time.Location) bool {
-	return tsPair.TS.In(location).Month() != currentDate.In(location).Month()
+	t1 := tsPair.TS.In(location)
+	t2 := currentDate.In(location)
+	change := t1.Month() != t2.Month()
+	if change {
+		log.DefaultLogger.Info(fmt.Sprintf("New Month: %d-%02d-%02d %02d:%02d, %d-%02d-%02d %02d:%02d",
+			t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(),
+			t2.Year(), t2.Month(), t2.Day(), t2.Hour(), t2.Minute()))
+	}
+	return change
 }
 
 func createLocation(timezone string) *time.Location {
