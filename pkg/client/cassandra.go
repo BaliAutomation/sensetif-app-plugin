@@ -357,7 +357,7 @@ func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeMod
 		log.DefaultLogger.Info(fmt.Sprintf("Reducing to %s", timeModel))
 	}
 	if aggregation == "" || aggregation == "sample" {
-		return reduceDefault(maxValues, data, "")
+		return reduceDefault(maxValues, data, "", location)
 	} else {
 		switch timeModel {
 		case "daily":
@@ -367,12 +367,12 @@ func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeMod
 		case "monthly":
 			return reduceInterval(data, monthly, alignMonth, aggregation, location)
 		default:
-			return reduceDefault(maxValues, data, aggregation)
+			return reduceDefault(maxValues, data, aggregation, location)
 		}
 	}
 }
 
-func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string) *[]model.TsPair {
+func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string, location *time.Location) *[]model.TsPair {
 	resultLength := len(*data)
 	var factor int
 	factor = resultLength/maxValues + 1
@@ -385,14 +385,14 @@ func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string) *[]m
 		start = start - factor // points at first sample to be included in aggregation/calc
 		value, err := aggregated(aggregation, data, start, end)
 		if err == nil {
-			pair := model.TsPair{TS: alignSample(&(*data)[end].TS), Value: value}
+			pair := model.TsPair{TS: alignSample(&(*data)[end].TS, location), Value: value}
 			downsized = append(downsized, pair)
 		}
 	}
 	return &downsized
 }
 
-func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time, *time.Location) bool, align func(*time.Time) time.Time, aggregation string, location *time.Location) *[]model.TsPair {
+func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time, *time.Location) bool, align func(*time.Time, *time.Location) time.Time, aggregation string, location *time.Location) *[]model.TsPair {
 	var result []model.TsPair
 
 	dataLength := len(*data)
@@ -414,7 +414,7 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 				log.DefaultLogger.Info(fmt.Sprintf("Value=%f", aggregated))
 			}
 			start = index
-			currentDate = align(&tsPair.TS)
+			currentDate = align(&tsPair.TS, location)
 			printDebug("Pos at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 		}
 		end = index
@@ -427,25 +427,26 @@ func printDebug(format string, index int, currentDate time.Time, location *time.
 	log.DefaultLogger.Info(fmt.Sprintf(format, index, localized.Year(), localized.Month(), localized.Day(), localized.Hour(), localized.Minute()))
 }
 
-func alignDay(t *time.Time) time.Time {
+func alignDay(t *time.Time, location *time.Location) time.Time {
 	year, month, day := t.Date()
-	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+	return time.Date(year, month, day, 0, 0, 0, 0, location)
 }
 
-func alignWeek(t *time.Time) time.Time {
-	weekday := int(t.Weekday())
+func alignWeek(t *time.Time, location *time.Location) time.Time {
+	weekday := int(t.In(location).Weekday())
 	daysToSubtract := (6 + weekday) % 7
 	previousMonday := t.AddDate(0, 0, -daysToSubtract)
 	previousMondayMidnight := time.Date(previousMonday.Year(), previousMonday.Month(), previousMonday.Day(), 0, 0, 0, 0, previousMonday.Location())
 	return previousMondayMidnight
 }
 
-func alignMonth(t *time.Time) time.Time {
+func alignMonth(t *time.Time, location *time.Location) time.Time {
 	year, month, _ := t.Date()
-	return time.Date(year, month, 1, 0, 0, 0, 0, t.Location())
+	aligned := time.Date(year, month, 1, 0, 0, 0, 0, location)
+	return aligned
 }
 
-func alignSample(t *time.Time) time.Time {
+func alignSample(t *time.Time, location *time.Location) time.Time {
 	year, month, day := t.Date()
 	hour, minute, _ := t.Clock()
 	alignTo5Min := minute - (minute % 5) // align on 5 minutes points.
