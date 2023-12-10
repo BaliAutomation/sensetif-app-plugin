@@ -416,6 +416,11 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 		}
 		end = index
 	}
+	// Add the last time period too, even though incomplete.
+	aggregated, err := aggregated(aggregation, data, start, end)
+	if err == nil {
+		result = append(result, model.TsPair{TS: currentDate, Value: aggregated})
+	}
 	return &result
 }
 
