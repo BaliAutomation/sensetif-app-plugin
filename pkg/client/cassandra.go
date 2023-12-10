@@ -409,7 +409,6 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 			aggregated, err := aggregated(aggregation, data, start, end)
 			if err == nil {
 				result = append(result, model.TsPair{TS: currentDate, Value: aggregated})
-				log.DefaultLogger.Info(fmt.Sprintf("Value=%f", aggregated))
 			}
 			start = index
 			currentDate = align(&tsPair.TS, location)
