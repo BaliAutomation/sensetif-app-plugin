@@ -429,7 +429,7 @@ func printDebug(format string, index int, currentDate time.Time, location *time.
 }
 
 func alignDay(t *time.Time, location *time.Location) time.Time {
-	year, month, day := t.Date()
+	year, month, day := t.In(location).Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, location)
 }
 
@@ -442,17 +442,18 @@ func alignWeek(t *time.Time, location *time.Location) time.Time {
 }
 
 func alignMonth(t *time.Time, location *time.Location) time.Time {
-	year, month, _ := t.Date()
+	year, month, _ := t.In(location).Date()
 	aligned := time.Date(year, month, 1, 0, 0, 0, 0, location)
 	log.DefaultLogger.Info(fmt.Sprintf("Aligning: %s -> %s", t, aligned))
 	return aligned
 }
 
 func alignSample(t *time.Time, location *time.Location) time.Time {
-	year, month, day := t.Date()
-	hour, minute, _ := t.Clock()
+	localTime := t.In(location)
+	year, month, day := localTime.Date()
+	hour, minute, _ := localTime.Clock()
 	alignTo5Min := minute - (minute % 5) // align on 5 minutes points.
-	return time.Date(year, month, day, hour, alignTo5Min, 0, 0, t.Location())
+	return time.Date(year, month, day, hour, alignTo5Min, 0, 0, location)
 }
 
 func daily(tsPair *model.TsPair, currentDate *time.Time, location *time.Location) bool {
