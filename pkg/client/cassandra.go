@@ -401,7 +401,8 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	}
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
 	var end int
-	var currentDate = (*data)[0].TS.In(location)
+	localTimeFirst := (*data)[0].TS.In(location)
+	var currentDate = align(&localTimeFirst, location)
 	start := 0
 	for index := 0; index < len(*data); index++ {
 		tsPair := (*data)[index]
@@ -418,27 +419,30 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	return &result
 }
 
-func alignDay(t *time.Time, location *time.Location) time.Time {
-	year, month, day := t.In(location).Date()
+func alignDay(tm *time.Time, location *time.Location) time.Time {
+	localTime := tm.In(location)
+	year, month, day := localTime.Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, location)
 }
 
-func alignWeek(t *time.Time, location *time.Location) time.Time {
-	weekday := int(t.In(location).Weekday())
+func alignWeek(tm *time.Time, location *time.Location) time.Time {
+	localTime := tm.In(location)
+	weekday := int(localTime.Weekday())
 	daysToSubtract := (6 + weekday) % 7
-	previousMonday := t.AddDate(0, 0, -daysToSubtract)
+	previousMonday := localTime.AddDate(0, 0, -daysToSubtract)
 	previousMondayMidnight := time.Date(previousMonday.Year(), previousMonday.Month(), previousMonday.Day(), 0, 0, 0, 0, previousMonday.Location())
 	return previousMondayMidnight
 }
 
-func alignMonth(t *time.Time, location *time.Location) time.Time {
-	year, month, _ := t.In(location).Date()
+func alignMonth(tm *time.Time, location *time.Location) time.Time {
+	localTime := tm.In(location)
+	year, month, _ := localTime.Date()
 	aligned := time.Date(year, month, 1, 0, 0, 0, 0, location)
 	return aligned
 }
 
-func alignSample(t *time.Time, location *time.Location) time.Time {
-	localTime := t.In(location)
+func alignSample(tm *time.Time, location *time.Location) time.Time {
+	localTime := tm.In(location)
 	year, month, day := localTime.Date()
 	hour, minute, _ := localTime.Clock()
 	alignTo5Min := minute - (minute % 5) // align on 5 minutes points.
@@ -482,7 +486,7 @@ func aggregated(aggregation string, data *[]model.TsPair, start int, end int) (f
 	case "min":
 		value = minimumOf(data, start, end) // minimum value within the range of values to be aggregated
 	case "max":
-		value = maximumOf(data, start, end) // maximum value within the range of values to be aggregated
+		value = maximumOf(data, start, end) // maximum valuee within the range of values to be aggregated
 	case "sum":
 		value = sumOf(data, start, end) // sum of all values within the range of values to be aggregated
 	case "average":
