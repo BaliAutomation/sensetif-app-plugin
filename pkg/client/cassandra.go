@@ -401,7 +401,7 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	}
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
 	var end int
-	var currentDate = (*data)[0].TS
+	var currentDate = (*data)[0].TS.In(location)
 	start := 0
 	printDebug("Start at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 	for index := 0; index < len(*data); index++ {
@@ -415,6 +415,7 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 			}
 			start = index
 			currentDate = align(&tsPair.TS, location)
+			printDebug("Sample at %d, %d-%02d-%02d %02d:%02d", start, tsPair.TS, location)
 			printDebug("Pos at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 		}
 		end = index
@@ -443,6 +444,7 @@ func alignWeek(t *time.Time, location *time.Location) time.Time {
 func alignMonth(t *time.Time, location *time.Location) time.Time {
 	year, month, _ := t.Date()
 	aligned := time.Date(year, month, 1, 0, 0, 0, 0, location)
+	log.DefaultLogger.Info(fmt.Sprintf("Aligning: %s -> %s", t, aligned))
 	return aligned
 }
 
