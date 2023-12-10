@@ -403,29 +403,20 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 	var end int
 	var currentDate = (*data)[0].TS.In(location)
 	start := 0
-	printDebug("Start at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 	for index := 0; index < len(*data); index++ {
 		tsPair := (*data)[index]
 		if inRange(&tsPair, &currentDate, location) {
 			aggregated, err := aggregated(aggregation, data, start, end)
 			if err == nil {
 				result = append(result, model.TsPair{TS: currentDate, Value: aggregated})
-				printDebug("Adding at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 				log.DefaultLogger.Info(fmt.Sprintf("Value=%f", aggregated))
 			}
 			start = index
 			currentDate = align(&tsPair.TS, location)
-			printDebug("Sample at %d, %d-%02d-%02d %02d:%02d", start, tsPair.TS, location)
-			printDebug("Pos at %d, %d-%02d-%02d %02d:%02d", start, currentDate, location)
 		}
 		end = index
 	}
 	return &result
-}
-
-func printDebug(format string, index int, currentDate time.Time, location *time.Location) {
-	localized := currentDate.In(location)
-	log.DefaultLogger.Info(fmt.Sprintf(format, index, localized.Year(), localized.Month(), localized.Day(), localized.Hour(), localized.Minute()))
 }
 
 func alignDay(t *time.Time, location *time.Location) time.Time {
@@ -444,7 +435,6 @@ func alignWeek(t *time.Time, location *time.Location) time.Time {
 func alignMonth(t *time.Time, location *time.Location) time.Time {
 	year, month, _ := t.In(location).Date()
 	aligned := time.Date(year, month, 1, 0, 0, 0, 0, location)
-	log.DefaultLogger.Info(fmt.Sprintf("Aligning: %s -> %s", t, aligned))
 	return aligned
 }
 
@@ -470,11 +460,6 @@ func monthly(tsPair *model.TsPair, currentDate *time.Time, location *time.Locati
 	t1 := tsPair.TS.In(location)
 	t2 := currentDate.In(location)
 	change := t1.Month() != t2.Month()
-	if change {
-		log.DefaultLogger.Info(fmt.Sprintf("New Month: %d-%02d-%02d %02d:%02d, %d-%02d-%02d %02d:%02d",
-			t1.Year(), t1.Month(), t1.Day(), t1.Hour(), t1.Minute(),
-			t2.Year(), t2.Month(), t2.Day(), t2.Hour(), t2.Minute()))
-	}
 	return change
 }
 
