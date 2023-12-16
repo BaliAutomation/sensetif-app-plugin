@@ -299,9 +299,12 @@ export type FetchMessageResponse = {
   error?: Error;
 };
 
+export type KV = {key: string, value: string}
 
 export type Script = {
   code: string;
   language: string;
   name: string;
+  description?: string;
+  params: KV[];
 }
