@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -16,7 +17,7 @@ import (
 
 type Cassandra interface {
 	QueryTimeseries(org int64, sensor model.QueryRef, from time.Time, to time.Time, maxValue int) *[]model.TsPair
-	QueryKeyValue(org int64, typename string, key string) (model.KeyValuesEntry, error)
+	QueryKeyValues(org int64, typename string, key string) (model.KeyValuesEntry, error)
 	QueryAllKeyValues(org int64, typename string) ([]model.KeyValuesEntry, error)
 	QueryAlarmStates(org int64, sensor model.QueryRef) ([]model.TsPair, error)
 	FindAllProjects(org int64) ([]model.ProjectSettings, error)
@@ -74,7 +75,6 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 	log.DefaultLogger.Info("queryTimeseries:  " + strconv.FormatInt(org, 10) + "/" + query.Project + "/" + query.Subsystem + "/" + query.Datapoint + "   " + from.Format(time.RFC3339) + "->" + to.Format(time.RFC3339))
 	project, _ := cass.GetProject(org, query.Project)
 	location := createLocation(project.Timezone)
-
 	var result []model.TsPair
 	startYearMonth := from.Year()*12 + int(from.Month()) - 1
 	endYearMonth := to.Year()*12 + int(to.Month()) - 1
@@ -98,6 +98,16 @@ func (cass *CassandraClient) QueryTimeseries(org int64, query model.QueryRef, fr
 			return &result
 		}
 	}
+	slices.SortFunc(result, func(a, b model.TsPair) int {
+		if a.TS == b.TS {
+			return 0
+		}
+		if a.TS.Before(b.TS) {
+			return -1
+		}
+		return 1
+	})
+
 	return reduceSize(maxValues, &result, strings.TrimSpace(query.Aggregation), query.TimeModel, location)
 }
 
@@ -388,41 +398,41 @@ func reduceSize(maxValues int, data *[]model.TsPair, aggregation string, timeMod
 		log.DefaultLogger.Info(fmt.Sprintf("Reducing to %s", timeModel))
 	}
 	if aggregation == "" || aggregation == "sample" {
-		return reduceDefault(maxValues, data, "")
+		return reduceDefault(maxValues, data, "", location)
 	} else {
 		switch timeModel {
 		case "daily":
-			return reduceInterval(data, daily, firstOfDay, alignDay, aggregation, location)
+			return reduceInterval(data, daily, alignDay, aggregation, location)
 		case "weekly":
-			return reduceInterval(data, weekly, firstOfWeek, alignWeek, aggregation, location)
+			return reduceInterval(data, weekly, alignWeek, aggregation, location)
 		case "monthly":
-			return reduceInterval(data, monthly, firstOfMonth, alignMonth, aggregation, location)
+			return reduceInterval(data, monthly, alignMonth, aggregation, location)
 		default:
-			return reduceDefault(maxValues, data, aggregation)
+			return reduceDefault(maxValues, data, aggregation, location)
 		}
 	}
 }
 
-func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string) *[]model.TsPair {
+func reduceDefault(maxValues int, data *[]model.TsPair, aggregation string, location *time.Location) *[]model.TsPair {
 	resultLength := len(*data)
 	factor := resultLength/maxValues + 1
 	newSize := resultLength / factor
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing datapoints from %d to %d, by %d", resultLength, maxValues, factor))
-	downsized := []model.TsPair{}
+	var downsized []model.TsPair
 	start := resultLength
 	for i := newSize - 1; i >= 0; i = i - 1 {
 		end := start - 1       // points at last sample to be included in aggregation/calc
 		start = start - factor // points at first sample to be included in aggregation/calc
 		value, err := aggregated(aggregation, data, start, end)
 		if err == nil {
-			pair := model.TsPair{TS: alignSample(&(*data)[end].TS), Value: value}
+			pair := model.TsPair{TS: alignSample(&(*data)[end].TS, location), Value: value}
 			downsized = append(downsized, pair)
 		}
 	}
 	return &downsized
 }
 
-func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time, *time.Location) bool, startOfInterval func(*[]model.TsPair, *time.Location) int, align func(*time.Time) time.Time, aggregation string, location *time.Location) *[]model.TsPair {
+func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time, *time.Location) bool, align func(*time.Time, *time.Location) time.Time, aggregation string, location *time.Location) *[]model.TsPair {
 	var result []model.TsPair
 
 	dataLength := len(*data)
@@ -430,81 +440,58 @@ func reduceInterval(data *[]model.TsPair, inRange func(*model.TsPair, *time.Time
 		return &result
 	}
 	log.DefaultLogger.Info(fmt.Sprintf("Reducing %d datapoint to %s", dataLength, aggregation))
-	var currentDate time.Time
 	var end int
-	start := startOfInterval(data, location)
-	for index := start; index < len(*data); index++ {
+	localTimeFirst := (*data)[0].TS.In(location)
+	currentDate := align(&localTimeFirst, location)
+	start := 0
+	for index := 0; index < len(*data); index++ {
 		tsPair := (*data)[index]
-		if currentDate.IsZero() {
-			currentDate = tsPair.TS
-		} else {
-			if inRange(&tsPair, &currentDate, location) {
-				aggregated, err := aggregated(aggregation, data, start, end)
-				if err == nil {
-					result = append(result, model.TsPair{TS: align(&tsPair.TS), Value: aggregated})
-				}
-				start = index
-				currentDate = tsPair.TS
+		if inRange(&tsPair, &currentDate, location) {
+			aggregated, err := aggregated(aggregation, data, start, end)
+			if err == nil {
+				result = append(result, model.TsPair{TS: currentDate, Value: aggregated})
 			}
+			start = index
+			currentDate = align(&tsPair.TS, location)
 		}
 		end = index
+	}
+	// Add the last time period too, even though incomplete.
+	aggregated, err := aggregated(aggregation, data, start, end)
+	if err == nil {
+		result = append(result, model.TsPair{TS: currentDate, Value: aggregated})
 	}
 	return &result
 }
 
-func alignDay(t *time.Time) time.Time {
-	year, month, day := t.Date()
-	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+func alignDay(tm *time.Time, location *time.Location) time.Time {
+	localTime := tm.In(location)
+	year, month, day := localTime.Date()
+	return time.Date(year, month, day, 0, 0, 0, 0, location)
 }
 
-func alignWeek(t *time.Time) time.Time {
-	weekday := int(t.Weekday())
+func alignWeek(tm *time.Time, location *time.Location) time.Time {
+	localTime := tm.In(location)
+	weekday := int(localTime.Weekday())
 	daysToSubtract := (6 + weekday) % 7
-	previousMonday := t.AddDate(0, 0, -daysToSubtract)
+	previousMonday := localTime.AddDate(0, 0, -daysToSubtract)
 	previousMondayMidnight := time.Date(previousMonday.Year(), previousMonday.Month(), previousMonday.Day(), 0, 0, 0, 0, previousMonday.Location())
 	return previousMondayMidnight
 }
 
-func alignMonth(t *time.Time) time.Time {
-	year, month, _ := t.Date()
-	return time.Date(year, month, 1, 0, 0, 0, 0, t.Location())
+func alignMonth(tm *time.Time, location *time.Location) time.Time {
+	localTime := tm.In(location)
+	year, month, _ := localTime.Date()
+	aligned := time.Date(year, month, 1, 0, 0, 0, 0, location)
+	return aligned
 }
 
-func alignSample(t *time.Time) time.Time {
-	year, month, day := t.Date()
-	hour, min, _ := t.Clock()
-	alignTo5Min := min - (min % 5) // align on 5 minutes points.
-	return time.Date(year, month, day, hour, alignTo5Min, 0, 0, t.Location())
-}
-
-func firstOfDay(data *[]model.TsPair, location *time.Location) int {
-	length := len(*data)
-	for index := 0; index < length; index++ {
-		if (*data)[index].TS.In(location).Hour() == 0 {
-			return index
-		}
-	}
-	return 0
-}
-
-func firstOfWeek(data *[]model.TsPair, location *time.Location) int {
-	length := len(*data)
-	for index := 0; index < length; index++ {
-		if (*data)[index].TS.In(location).Weekday() == time.Monday {
-			return index
-		}
-	}
-	return 0
-}
-
-func firstOfMonth(data *[]model.TsPair, location *time.Location) int {
-	length := len(*data)
-	for index := 0; index < length; index++ {
-		if (*data)[index].TS.In(location).Day() == 1 {
-			return index
-		}
-	}
-	return 0
+func alignSample(tm *time.Time, location *time.Location) time.Time {
+	localTime := tm.In(location)
+	year, month, day := localTime.Date()
+	hour, minute, _ := localTime.Clock()
+	alignTo5Min := minute - (minute % 5) // align on 5 minutes points.
+	return time.Date(year, month, day, hour, alignTo5Min, 0, 0, location)
 }
 
 func daily(tsPair *model.TsPair, currentDate *time.Time, location *time.Location) bool {
@@ -518,7 +505,10 @@ func weekly(tsPair *model.TsPair, currentDate *time.Time, location *time.Locatio
 }
 
 func monthly(tsPair *model.TsPair, currentDate *time.Time, location *time.Location) bool {
-	return tsPair.TS.In(location).Month() != currentDate.In(location).Month()
+	t1 := tsPair.TS.In(location)
+	t2 := currentDate.In(location)
+	change := t1.Month() != t2.Month()
+	return change
 }
 
 func createLocation(timezone string) *time.Location {
@@ -536,15 +526,11 @@ func aggregated(aggregation string, data *[]model.TsPair, start int, end int) (f
 	case "":
 		value = lastSampleOf(data, start, end) // takes the last sample
 	case "delta":
-		if start > 0 {
-			value = deltaOf(data, start, end) // calcs the difference between last sample and previous last sample
-		} else {
-			return 0, model.ErrNotFound
-		}
+		value = deltaOf(data, start, end) // calcs the difference between last sample and previous last sample
 	case "min":
 		value = minimumOf(data, start, end) // minimum value within the range of values to be aggregated
 	case "max":
-		value = maximumOf(data, start, end) // maximum value within the range of values to be aggregated
+		value = maximumOf(data, start, end) // maximum valuee within the range of values to be aggregated
 	case "sum":
 		value = sumOf(data, start, end) // sum of all values within the range of values to be aggregated
 	case "average":
@@ -564,28 +550,31 @@ func sumOf(data *[]model.TsPair, start int, end int) float64 {
 }
 
 func deltaOf(data *[]model.TsPair, start int, end int) float64 {
+	if start == 0 {
+		return (*data)[end].Value - (*data)[start].Value
+	}
 	return (*data)[end].Value - (*data)[start-1].Value
 }
 
 func minimumOf(data *[]model.TsPair, start int, end int) float64 {
-	min := (*data)[start].Value
+	minimumValue := (*data)[start].Value
 	for i := start + 1; i <= end; i++ {
-		min = math.Min(min, (*data)[i].Value)
+		minimumValue = math.Min(minimumValue, (*data)[i].Value)
 	}
-	return min
+	return minimumValue
 }
 
 func maximumOf(data *[]model.TsPair, start int, end int) float64 {
-	max := (*data)[start].Value
+	maximumValue := (*data)[start].Value
 	for i := start + 1; i <= end; i++ {
-		max = math.Max(max, (*data)[i].Value)
+		maximumValue = math.Max(maximumValue, (*data)[i].Value)
 	}
-	return max
+	return maximumValue
 }
 
 func averageOf(data *[]model.TsPair, start int, end int) float64 {
 	sum := (*data)[start].Value
-	for i := start + 1; i < end; i++ {
+	for i := start + 1; i <= end; i++ {
 		sum = sum + (*data)[i].Value
 	}
 	return sum / float64(1+end-start)
