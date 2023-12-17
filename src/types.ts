@@ -206,7 +206,7 @@ export enum AuthenticationType {
   bearerToken = 'bearerToken',
 }
 
-export interface GlobalSettings {}
+export interface GlobalSettings { }
 
 export interface Limits {
   maxStorage: string;
@@ -299,12 +299,26 @@ export type FetchMessageResponse = {
   error?: Error;
 };
 
-export type KV = {key: string, value: string}
+export type KV = { key: string, value: string }
+
+export enum ScriptScope {
+  global = 'global',
+  organization = 'organization',
+  project = 'project',
+}
+
+export enum ScriptLanguage {
+  javascript = 'javascript',
+  pytnon = 'pytho',
+  ruby = 'ruby',
+}
 
 export type Script = {
-  code: string;
+  scope: ScriptScope;
+  code: ScriptLanguage;
   language: string;
   name: string;
   description?: string;
-  params: KV[];
+  params?: KV[];
 }
+

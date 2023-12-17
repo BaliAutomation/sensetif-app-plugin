@@ -67,7 +67,7 @@
       "type": "page",
       "name": "Scripts",
       "path": "/a/sensetif-app?tab=scripts",
-      "role": "Admin",
+      "role": "Editor",
       "addToNav": true
     },
     {

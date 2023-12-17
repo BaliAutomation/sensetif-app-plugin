@@ -11,6 +11,10 @@ export const goToTab = (tab: PageID, params?: UrlQueryMap) => {
   });
 };
 
+export const goToScripts = () => goToTab('scripts');
+
+export const goToAddScript = () => goToTab('new_script');
+
 export const goToProjects = () => goToTab('projects');
 
 export const goToAddProject = () => goToTab('new_project');
