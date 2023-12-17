@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useState } from 'react';
 import { AppRootProps } from '@grafana/data';
 import { logInfo } from '@grafana/runtime';
-import { Alert, Icon } from '@grafana/ui';
+import { Alert } from '@grafana/ui';
 import { Script } from '../types';
-import { goToAddScript, goToScripts } from 'utils/navigation';
+import { goToAddScript } from 'utils/navigation';
 import { listScripts } from 'utils/api';
 import { CardsList } from 'components/CardsList';
 import { PageHeader } from 'components/PageTitle';
