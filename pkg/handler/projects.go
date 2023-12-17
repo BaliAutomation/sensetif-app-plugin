@@ -49,7 +49,6 @@ func GetProject(orgId int64, req ResourceRequest, clients *client.Clients) (*bac
 func UpdateProject(orgId int64, req ResourceRequest, clients *client.Clients) (*backend.CallResourceResponse, error) {
 	log.DefaultLogger.Info("UpdateProject()")
 	key := "2:" + strconv.FormatInt(orgId, 10) + ":updateProject"
-	log.DefaultLogger.Info(fmt.Sprintf("%+v", *clients.Pulsar))
 	clients.Pulsar.Send(model.ConfigurationTopic, key, req.Body)
 	return &backend.CallResourceResponse{
 		Status: http.StatusAccepted,

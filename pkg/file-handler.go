@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/grafana/grafana-plugin-sdk-go/backend"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 )
 
 func HandleFile(path string) (*backend.CallResourceResponse, error) {
@@ -24,7 +25,7 @@ func HandleFile(path string) (*backend.CallResourceResponse, error) {
 func returnFileContent(filename string) (*backend.CallResourceResponse, error) {
 	policy, err := ioutil.ReadFile(filename)
 	if err != nil {
-		log.DefaultLogger.Error("File reading error: " + err.Error())
+		log.DefaultLogger.With("error", err).Error("Reading error")
 		return &backend.CallResourceResponse{
 			Status:  http.StatusNotFound,
 			Headers: make(map[string][]string),
@@ -32,7 +33,7 @@ func returnFileContent(filename string) (*backend.CallResourceResponse, error) {
 		}, nil
 	}
 
-	var headers = map[string][]string{
+	headers := map[string][]string{
 		"Content-Type": {"text/html"},
 	}
 	return &backend.CallResourceResponse{

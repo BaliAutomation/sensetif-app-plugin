@@ -12,14 +12,14 @@ import {
   TsPair,
   FetchDevicesResponse,
   FetchMessageResponse,
-  msgResult
+  msgResult,
+  Script
 } from 'types';
 import { API_RESOURCES } from './consts';
 
 const WAIT_AFTER_EXEC_MS = 200;
 
-
-const request = async <T>(path: string, method: string, body: string, waitTime = 0) => {
+const request = async <T>(path: string, method: string, body: string, waitTime = 0): Promise<any> => {
   logInfo('Request: ' + method + ' ' + path);
   const srv = getBackendSrv();
   let request: Promise<T>;
@@ -39,10 +39,8 @@ const request = async <T>(path: string, method: string, body: string, waitTime =
       break;
   }
 
-
-
   // return sleep(waitTime)
-  return new Promise<T>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     request
       .then((r) =>
         setTimeout(() => {
@@ -158,6 +156,13 @@ export const cancelled = (sessionId: string) =>
 export const getResource = (projectName: string, resourceName: string) =>
   request<ResourceSettings>(projectName + '/_resources/' + resourceName, 'GET', '', 20);
 
+// Scripts
+export const updateScript = (script: Script) =>
+  request<string>('_scripts', 'PUT', JSON.stringify(script), 100);
+
+export const listScripts = () =>
+  request<Script>('_scripts', 'GET', '');
+
 // Datapoint Manual Update of Value
 export const updateTimeseriesValues = ({
   projectName,
@@ -221,7 +226,7 @@ export const fetchUplinkMessage = async (
 
   const fields = [
     'up.uplink_message.decoded_payload',
-    'up.uplink_message.f_port', 
+    'up.uplink_message.f_port',
     'up.uplink_message.rx_metadata'
   ]
 

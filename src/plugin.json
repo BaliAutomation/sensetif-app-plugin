@@ -64,6 +64,13 @@
       "addToNav": true
     },
     {
+      "type": "page",
+      "name": "Scripts",
+      "path": "/a/sensetif-app?tab=scripts",
+      "role": "Editor",
+      "addToNav": true
+    },
+    {
       "type": "panel",
       "name": "interactive-panel"
     },
