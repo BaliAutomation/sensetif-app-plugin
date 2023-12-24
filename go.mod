@@ -1,6 +1,6 @@
 module github.com/Sensetif/sensetif-app-plugin
 
-go 1.19
+go 1.21
 
 require (
 	github.com/apache/pulsar-client-go v0.8.1
