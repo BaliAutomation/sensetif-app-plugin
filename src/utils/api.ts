@@ -158,7 +158,7 @@ export const getResource = (projectName: string, resourceName: string) =>
 
 // Scripts
 export const updateScript = (script: Script) =>
-  request<string>('_scripts', 'PUT', JSON.stringify(script), 100);
+  request<string>('_scripts', 'PUT', JSON.stringify(script), 500);
 
 export const listScripts = () =>
   request<Script>('_scripts', 'GET', '');

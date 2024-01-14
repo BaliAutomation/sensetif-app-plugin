@@ -299,8 +299,6 @@ export type FetchMessageResponse = {
   error?: Error;
 };
 
-export type KV = { key: string, value: string }
-
 export enum ScriptScope {
   global = 'global',
   organization = 'organization',
@@ -309,16 +307,23 @@ export enum ScriptScope {
 
 export enum ScriptLanguage {
   javascript = 'javascript',
-  pytnon = 'pytho',
+  pytnon = 'python',
   ruby = 'ruby',
+}
+
+export type ScriptParam = { 
+  name: string, 
+  description?: string,
 }
 
 export type Script = {
   scope: ScriptScope;
+  // name of the project when scope is 'project'
+  project?: string;
   code: ScriptLanguage;
   language: string;
   name: string;
   description?: string;
-  params?: KV[];
+  params?: ScriptParam[];
 }
 
